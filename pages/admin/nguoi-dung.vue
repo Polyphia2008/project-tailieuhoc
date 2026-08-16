@@ -100,12 +100,18 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
               </td>
               <td class="table-td">
                 <div class="flex items-center justify-end gap-1.5">
-                  <button class="act" :class="u.blocked ? '!text-green-600 !border-green-300' : 'hover:!text-amber-600 hover:!border-amber-300'"
-                    :title="u.blocked ? 'Mở khoá' : 'Khoá'" :disabled="busy || u.id === auth.user?.id" @click="act(u.id, 'block')">
-                    <AppIcon :name="u.blocked ? 'fa-lock-open' : 'fa-lock'" />
-                  </button>
-                  <button class="act" title="Đổi vai trò" :disabled="busy || u.id === auth.user?.id" @click="askRole(u)"><AppIcon name="fa-user-shield" /></button>
-                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" :disabled="busy || u.id === auth.user?.id" @click="askDelete(u)"><AppIcon name="fa-trash" /></button>
+                  <UiTooltip :text="u.blocked ? 'Mở khoá' : 'Khoá'">
+                    <button class="act" :class="u.blocked ? '!text-green-600 !border-green-300' : 'hover:!text-amber-600 hover:!border-amber-300'"
+                      :disabled="busy || u.id === auth.user?.id" @click="act(u.id, 'block')">
+                      <AppIcon :name="u.blocked ? 'fa-lock-open' : 'fa-lock'" />
+                    </button>
+                  </UiTooltip>
+                  <UiTooltip text="Đổi vai trò">
+                    <button class="act" :disabled="busy || u.id === auth.user?.id" @click="askRole(u)"><AppIcon name="fa-user-shield" /></button>
+                  </UiTooltip>
+                  <UiTooltip text="Xoá">
+                    <button class="act hover:!text-red-600 hover:!border-red-300" :disabled="busy || u.id === auth.user?.id" @click="askDelete(u)"><AppIcon name="fa-trash" /></button>
+                  </UiTooltip>
                 </div>
               </td>
             </tr>

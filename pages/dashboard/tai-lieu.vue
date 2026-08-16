@@ -125,9 +125,15 @@ async function confirmDelete() {
               <td class="table-td"><span class="badge" :class="statusMeta[d.status]?.cls">{{ statusMeta[d.status]?.label }}</span></td>
               <td class="table-td">
                 <div class="flex items-center justify-end gap-1.5">
-                  <NuxtLink :to="`/tai-lieu/${d.slug}`" class="act" title="Xem"><AppIcon name="fa-eye" /></NuxtLink>
-                  <button class="act" title="Sửa" @click="openEdit(d)"><AppIcon name="fa-pen" /></button>
-                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
+                  <UiTooltip text="Xem">
+                    <NuxtLink :to="`/tai-lieu/${d.slug}`" class="act"><AppIcon name="fa-eye" /></NuxtLink>
+                  </UiTooltip>
+                  <UiTooltip text="Sửa">
+                    <button class="act" @click="openEdit(d)"><AppIcon name="fa-pen" /></button>
+                  </UiTooltip>
+                  <UiTooltip text="Xoá">
+                    <button class="act hover:!text-red-600 hover:!border-red-300" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
+                  </UiTooltip>
                 </div>
               </td>
             </tr>

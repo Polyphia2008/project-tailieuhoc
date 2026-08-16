@@ -39,6 +39,20 @@ const goPage = (p: number) => {
   if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+const subjectOptions = computed(() => [
+  { value: '', label: 'Tất cả môn' },
+  ...list.value.map((s) => ({ value: s.key, label: s.label }))
+])
+
+const sortOptions = [
+  { value: 'newest', label: 'Mới nhất' },
+  { value: 'popular', label: 'Xem nhiều nhất' },
+  { value: 'bestseller', label: 'Bán chạy nhất' },
+  { value: 'rating', label: 'Đánh giá cao' },
+  { value: 'price_asc', label: 'Giá thấp → cao' },
+  { value: 'price_desc', label: 'Giá cao → thấp' }
+]
+
 useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
 </script>
 
@@ -66,10 +80,8 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
     <div class="card p-4 mt-4 flex flex-col lg:flex-row lg:items-center gap-4 flex-wrap">
       <div class="flex items-center gap-2">
         <label class="text-sm font-medium text-slate-600 shrink-0">Môn học</label>
-        <select v-model="filters.subject" class="input h-9 py-0 w-40" @change="page = 1">
-          <option value="">Tất cả môn</option>
-          <option v-for="s in list" :key="s.key" :value="s.key">{{ s.label }}</option>
-        </select>
+        <UiSelect v-model="filters.subject" :options="subjectOptions" trigger-class="w-40"
+          aria-label="Chọn môn học" @change="page = 1" />
       </div>
       <div class="flex items-center gap-2 flex-wrap">
         <label class="text-sm font-medium text-slate-600 shrink-0">Lớp</label>
@@ -84,14 +96,8 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
       </div>
       <div class="flex items-center gap-2 lg:ml-auto">
         <label class="text-sm font-medium text-slate-600 shrink-0">Sắp xếp</label>
-        <select v-model="filters.sort" class="input h-9 py-0 w-44" @change="page = 1">
-          <option value="newest">Mới nhất</option>
-          <option value="popular">Xem nhiều nhất</option>
-          <option value="bestseller">Bán chạy nhất</option>
-          <option value="rating">Đánh giá cao</option>
-          <option value="price_asc">Giá thấp → cao</option>
-          <option value="price_desc">Giá cao → thấp</option>
-        </select>
+        <UiSelect v-model="filters.sort" :options="sortOptions" trigger-class="w-44"
+          aria-label="Sắp xếp tài liệu" @change="page = 1" />
       </div>
     </div>
 

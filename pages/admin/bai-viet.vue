@@ -178,13 +178,19 @@ const confirmDelete = async () => {
           </div>
 
           <div class="flex gap-2 mt-3">
-            <NuxtLink :to="`/blog/${b.slug}`" target="_blank" class="act" title="Xem bài viết">
-              <AppIcon name="fa-arrow-up-right-from-square" />
-            </NuxtLink>
-            <button class="act" title="Sửa" @click="openEdit(b)"><AppIcon name="fa-pen" /></button>
-            <button class="act hover:!border-red-500 hover:!text-red-500" title="Xoá" @click="delTarget = b">
-              <AppIcon name="fa-trash" />
-            </button>
+            <UiTooltip text="Xem bài viết">
+              <NuxtLink :to="`/blog/${b.slug}`" target="_blank" class="act">
+                <AppIcon name="fa-arrow-up-right-from-square" />
+              </NuxtLink>
+            </UiTooltip>
+            <UiTooltip text="Sửa">
+              <button class="act" @click="openEdit(b)"><AppIcon name="fa-pen" /></button>
+            </UiTooltip>
+            <UiTooltip text="Xoá">
+              <button class="act hover:!border-red-500 hover:!text-red-500" @click="delTarget = b">
+                <AppIcon name="fa-trash" />
+              </button>
+            </UiTooltip>
           </div>
         </div>
       </article>

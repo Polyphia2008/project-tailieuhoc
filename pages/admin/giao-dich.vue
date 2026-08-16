@@ -155,7 +155,9 @@ const detail = ref<any>(null)
               </td>
               <td class="table-td text-slate-500 whitespace-nowrap text-xs">{{ dateTime(o.created_at) }}</td>
               <td class="table-td text-center">
-                <button class="act" title="Xem chi tiết" @click="detail = o"><AppIcon name="fa-eye" /></button>
+                <UiTooltip text="Xem chi tiết">
+                  <button class="act" @click="detail = o"><AppIcon name="fa-eye" /></button>
+                </UiTooltip>
               </td>
             </tr>
           </tbody>

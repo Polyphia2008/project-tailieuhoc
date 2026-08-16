@@ -149,10 +149,18 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
               <td class="table-td"><span class="badge" :class="statusMeta[d.status]?.cls">{{ statusMeta[d.status]?.label }}</span></td>
               <td class="table-td">
                 <div class="flex items-center justify-end gap-1.5">
-                  <button v-if="d.status !== 'approved'" class="act hover:!text-green-600 hover:!border-green-300" title="Duyệt" :disabled="busy" @click="act(d.id, 'approve')"><AppIcon name="fa-check" variant="bold" /></button>
-                  <button v-if="d.status !== 'rejected'" class="act hover:!text-amber-600 hover:!border-amber-300" title="Từ chối" :disabled="busy" @click="askReject(d)"><AppIcon name="fa-xmark" /></button>
-                  <button class="act" :class="d.featured ? '!text-accent-500 !border-accent-300' : ''" title="Nổi bật" :disabled="busy" @click="act(d.id, 'feature')"><AppIcon name="fa-fire" variant="bold" /></button>
-                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" :disabled="busy" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
+                  <UiTooltip text="Duyệt">
+                    <button v-if="d.status !== 'approved'" class="act hover:!text-green-600 hover:!border-green-300" :disabled="busy" @click="act(d.id, 'approve')"><AppIcon name="fa-check" variant="bold" /></button>
+                  </UiTooltip>
+                  <UiTooltip text="Từ chối">
+                    <button v-if="d.status !== 'rejected'" class="act hover:!text-amber-600 hover:!border-amber-300" :disabled="busy" @click="askReject(d)"><AppIcon name="fa-xmark" /></button>
+                  </UiTooltip>
+                  <UiTooltip text="Nổi bật">
+                    <button class="act" :class="d.featured ? '!text-accent-500 !border-accent-300' : ''" :disabled="busy" @click="act(d.id, 'feature')"><AppIcon name="fa-fire" variant="bold" /></button>
+                  </UiTooltip>
+                  <UiTooltip text="Xoá">
+                    <button class="act hover:!text-red-600 hover:!border-red-300" :disabled="busy" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
+                  </UiTooltip>
                 </div>
               </td>
             </tr>

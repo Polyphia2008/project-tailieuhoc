@@ -84,8 +84,12 @@ async function confirmDelete() {
             <p class="text-xs text-primary-900 font-semibold mt-2">{{ number(c.doc_count || 0) }} tài liệu</p>
           </div>
           <div class="flex flex-col gap-1.5">
-            <button class="act" title="Sửa" @click="openEdit(c)"><AppIcon name="fa-pen" /></button>
-            <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" @click="askDelete(c)"><AppIcon name="fa-trash" /></button>
+            <UiTooltip text="Sửa">
+              <button class="act" @click="openEdit(c)"><AppIcon name="fa-pen" /></button>
+            </UiTooltip>
+            <UiTooltip text="Xoá">
+              <button class="act hover:!text-red-600 hover:!border-red-300" @click="askDelete(c)"><AppIcon name="fa-trash" /></button>
+            </UiTooltip>
           </div>
         </article>
       </div>
