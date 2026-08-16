@@ -34,6 +34,11 @@ const items = computed(() => data.value?.data?.items || [])
 const total = computed(() => data.value?.data?.total || 0)
 const totalPages = computed(() => data.value?.data?.totalPages || 1)
 
+const goPage = (p: number) => {
+  page.value = p
+  if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
 </script>
 
@@ -102,7 +107,7 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
       <button class="btn btn-primary" @click="reset"><i class="fa-solid fa-rotate-left mr-2" />Xoá bộ lọc</button>
     </UiEmpty>
 
-    <UiPagination :page="page" :total-pages="totalPages" @change="(p) => { page = p; if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' }) }" />
+    <UiPagination :page="page" :total-pages="totalPages" @change="goPage" />
   </div>
 </template>
 

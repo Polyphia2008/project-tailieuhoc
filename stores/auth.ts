@@ -12,7 +12,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchMe() {
     try {
-      const res = await $fetch<any>('/api/auth/me')
+      // SSR: $fetch khong tu dong forward cookie -> dung useRequestFetch de giu phien dang nhap
+      const request = import.meta.server ? useRequestFetch() : $fetch
+      const res = await request<any>('/api/auth/me')
       user.value = res?.data ?? null
       if (res?.mode) mode.value = res.mode
     } catch { user.value = null }
