@@ -39,10 +39,8 @@ const goPage = (p: number) => {
   if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-const subjectOptions = computed(() => [
-  { value: '', label: 'Tất cả môn' },
-  ...list.value.map((s) => ({ value: s.key, label: s.label }))
-])
+/** Co dang loc gi khong -> hien nut xoa bo loc */
+const hasFilter = computed(() => !!(filters.q || filters.subject || filters.grade || filters.type) || filters.sort !== 'newest')
 
 const sortOptions = [
   { value: 'newest', label: 'Mới nhất' },
@@ -76,36 +74,51 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
       <button type="submit" class="btn btn-primary h-12 px-6 shrink-0"><AppIcon name="fa-magnifying-glass" class="sm:mr-2" /><span class="hidden sm:inline">Tìm kiếm</span></button>
     </form>
 
-    <!-- FILTERS -->
-    <div class="card p-4 mt-4 flex flex-col lg:flex-row lg:items-center gap-4 flex-wrap">
-      <div class="flex items-center gap-2">
-        <label class="text-sm font-medium text-slate-600 shrink-0">Môn học</label>
-        <UiSelect v-model="filters.subject" :options="subjectOptions" trigger-class="w-40"
-          aria-label="Chọn môn học" @change="page = 1" />
+    <!-- FILTERS (sticky) -->
+    <div id="library-filters" class="filter-bar">
+      <!-- Môn học: pills, cuộn ngang trên mobile -->
+      <div class="flex items-start gap-2">
+        <label class="filter-label mt-1.5">Môn học</label>
+        <div class="flex-1 min-w-0 flex gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible lg:pb-0 no-scrollbar">
+          <button class="chip" :class="!filters.subject && 'chip-on'" @click="setFilter('subject', '')">Tất cả</button>
+          <button v-for="s in list" :key="s.key" class="chip"
+            :class="filters.subject === s.key && 'chip-on'" @click="setFilter('subject', s.key)">
+            <AppIcon :name="s.icon" class="text-[11px]" />{{ s.label }}
+          </button>
+        </div>
       </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <label class="text-sm font-medium text-slate-600 shrink-0">Lớp</label>
-        <button class="chip" :class="!filters.grade && 'chip-on'" @click="setFilter('grade', '')">Tất cả</button>
-        <button v-for="g in [10, 11, 12]" :key="g" class="chip" :class="filters.grade === String(g) && 'chip-on'" @click="setFilter('grade', String(g))">{{ g }}</button>
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <label class="text-sm font-medium text-slate-600 shrink-0">Loại</label>
-        <button class="chip" :class="!filters.type && 'chip-on'" @click="setFilter('type', '')">Tất cả</button>
-        <button class="chip" :class="filters.type === 'free' && 'chip-on'" @click="setFilter('type', 'free')">Miễn phí</button>
-        <button class="chip" :class="filters.type === 'paid' && 'chip-on'" @click="setFilter('type', 'paid')">Trả phí</button>
-      </div>
-      <div class="flex items-center gap-2 lg:ml-auto">
-        <label class="text-sm font-medium text-slate-600 shrink-0">Sắp xếp</label>
-        <UiSelect v-model="filters.sort" :options="sortOptions" trigger-class="w-44"
-          aria-label="Sắp xếp tài liệu" @change="page = 1" />
+
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-3 pt-3 border-t border-line">
+        <div class="flex items-center gap-2 flex-wrap">
+          <label class="filter-label">Lớp</label>
+          <button class="chip chip-sm" :class="!filters.grade && 'chip-on'" @click="setFilter('grade', '')">Tất cả</button>
+          <button v-for="g in [10, 11, 12]" :key="g" class="chip chip-sm"
+            :class="filters.grade === String(g) && 'chip-on'" @click="setFilter('grade', String(g))">{{ g }}</button>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <label class="filter-label">Loại</label>
+          <button class="chip chip-sm" :class="!filters.type && 'chip-on'" @click="setFilter('type', '')">Tất cả</button>
+          <button class="chip chip-sm" :class="filters.type === 'free' && 'chip-on'" @click="setFilter('type', 'free')">Miễn phí</button>
+          <button class="chip chip-sm" :class="filters.type === 'paid' && 'chip-on'" @click="setFilter('type', 'paid')">Trả phí</button>
+        </div>
+        <div class="flex items-center gap-2 sm:ml-auto">
+          <label class="filter-label">Sắp xếp</label>
+          <UiSelect v-model="filters.sort" :options="sortOptions" trigger-class="w-40"
+            aria-label="Sắp xếp tài liệu" @change="page = 1" />
+        </div>
+        <UiTooltip v-if="hasFilter" text="Xoá toàn bộ bộ lọc">
+          <button class="act" aria-label="Xoá bộ lọc" @click="reset">
+            <AppIcon name="fa-rotate-left" />
+          </button>
+        </UiTooltip>
       </div>
     </div>
 
     <!-- RESULTS -->
-    <div v-if="pending" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+    <div v-if="pending" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
       <DocumentDocSkeleton :count="8" />
     </div>
-    <div v-else-if="items.length" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+    <div v-else-if="items.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
       <DocumentDocCard v-for="(d, i) in items" :key="d.id" :doc="d" :index="i" />
     </div>
     <UiEmpty v-else icon="fa-magnifying-glass" title="Không tìm thấy tài liệu"
@@ -118,6 +131,24 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
 </template>
 
 <style scoped>
-.chip { @apply px-3 h-9 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:border-primary-900 hover:text-primary-900 transition; }
-.chip-on { @apply bg-primary-900 border-primary-900 text-white hover:text-white; }
+/* Thanh loc dinh duoi header (h-16) */
+.filter-bar {
+  @apply sticky top-16 z-30 mt-4 flex flex-col gap-3 rounded-xl2 border border-line bg-white p-4 shadow-soft;
+}
+.filter-label { @apply shrink-0 text-sm font-medium text-ink-soft; }
+
+.chip {
+  @apply inline-flex shrink-0 items-center gap-1.5 h-9 px-3 rounded-lg border border-line bg-surface
+         text-sm font-medium text-ink-soft transition-colors
+         hover:border-primary-900 hover:bg-primary-50 hover:text-primary-900;
+}
+.chip-sm { @apply h-8 px-2.5 text-xs; }
+.chip-on {
+  @apply border-primary-900 bg-primary-900 text-white
+         hover:border-primary-900 hover:bg-primary-950 hover:text-white;
+}
+
+/* An scrollbar hang pill tren mobile */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
