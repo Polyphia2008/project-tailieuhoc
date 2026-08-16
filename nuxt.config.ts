@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     size: '1em',
     class: 'ms-icon',
     mode: 'svg',
-    serverBundle: { collections: ['solar'] }
+    serverBundle: { collections: ['solar', 'simple-icons'] }
   },
   css: ['~/assets/css/main.css'],
 

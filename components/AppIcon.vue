@@ -28,18 +28,18 @@ const MAP: Record<string, string> = {
   'arrow-up': 'arrow-up', 'arrow-down': 'arrow-down',
   'arrow-up-right-from-square': 'square-top-down', 'up-right-from-square': 'square-top-down',
   'arrow-right-from-bracket': 'logout-2', 'right-from-bracket': 'logout-2',
-  'right-to-bracket': 'login-2', 'ellipsis': 'menu-dots', 'ellipsis-vertical': 'menu-dots-bold',
+  'right-to-bracket': 'login-2', 'ellipsis': 'menu-dots', 'ellipsis-vertical': 'menu-dots',
   'grip': 'widget-4', 'list': 'list', 'table-cells': 'widget-4', 'layer-group': 'layers',
   'rotate': 'refresh', 'rotate-right': 'refresh', 'rotate-left': 'restart',
-  'spinner': 'spinner', 'sliders': 'tuning-2', 'filter': 'filter',
+  'spinner': 'refresh', 'sliders': 'tuning-2', 'filter': 'filter',
 
   // --- Tim kiem / hanh dong ---
-  'magnifying-glass': 'magnifer', 'search': 'magnifer',
+  'magnifying-glass': 'magnifier', 'search': 'magnifier',
   'plus': 'add-circle', 'minus': 'minus-circle',
   'pen': 'pen-2', 'pen-to-square': 'pen-new-square', 'edit': 'pen-2',
   'trash': 'trash-bin-trash', 'trash-can': 'trash-bin-trash',
   'check': 'check-read', 'floppy-disk': 'diskette', 'copy': 'copy',
-  'link': 'link-round', 'share-nodes': 'share', 'paper-plane': 'plain-2',
+  'link': 'link-round', 'share-nodes': 'share', 'paper-plane': 'plain',
   'download': 'download', 'upload': 'upload',
   'cloud-arrow-up': 'cloud-upload', 'cloud-arrow-down': 'cloud-download',
   'file-arrow-up': 'file-send', 'eye': 'eye', 'eye-slash': 'eye-closed',
@@ -64,14 +64,14 @@ const MAP: Record<string, string> = {
   'square-root-variable': 'calculator', 'calculator': 'calculator',
   'flask': 'test-tube', 'atom': 'atom', 'dna': 'dna',
   'language': 'text-field', 'earth-americas': 'earth', 'globe': 'global',
-  'landmark': 'bank', 'scale-balanced': 'scale', 'laptop-code': 'programming',
+  'landmark': 'banknote-2', 'scale-balanced': 'scale', 'laptop-code': 'programming',
   'microscope': 'test-tube-minimalistic', 'pen-ruler': 'ruler-pen',
 
   // --- Nguoi dung ---
   'user': 'user', 'users': 'users-group-rounded', 'user-plus': 'user-plus',
   'user-gear': 'user-id', 'user-shield': 'shield-user', 'user-slash': 'user-block',
   'user-check': 'user-check', 'id-card': 'card-2', 'address-card': 'card-2',
-  'address-book': 'notebook-bookmark', 'building-columns': 'bank',
+  'address-book': 'notebook-bookmark', 'building-columns': 'banknote-2',
   'clock-rotate-left': 'history',
   'circle-user': 'user-circle', 'shield-halved': 'shield-check', 'shield': 'shield',
   'lock': 'lock-password', 'lock-open': 'lock-keyhole-unlocked', 'key': 'key',
@@ -92,23 +92,41 @@ const MAP: Record<string, string> = {
   'arrow-trend-down': 'graph-down', 'gauge': 'speedometer-middle',
   'gauge-high': 'speedometer-max', 'trophy': 'cup-star', 'medal': 'medal-ribbon',
   'fire': 'fire', 'bolt': 'bolt', 'star': 'star', 'star-half-stroke': 'star-shine',
-  'heart': 'heart', 'heart-crack': 'heart-broken', 'bookmark': 'bookmark',
+  'heart': 'heart', 'heart-crack': 'heart-crack', 'bookmark': 'bookmark',
   'thumbs-up': 'like', 'thumbs-down': 'dislike', 'comment': 'chat-round',
   'comments': 'chat-round-dots', 'quote-left': 'chat-square-like',
 
   // --- Thiet bi / khac ---
-  'gear': 'settings', 'gears': 'settings-minimalistic', 'wrench': 'wrench',
+  'gear': 'settings', 'gears': 'settings-minimalistic', 'wrench': 'settings',
   'mobile-screen': 'smartphone', 'mobile-screen-button': 'smartphone-2',
   'desktop': 'monitor', 'inbox': 'inbox', 'box-open': 'box',
-  'circle-nodes': 'siderbar', 'headset': 'headphones-round',
+  'circle-nodes': 'sidebar', 'headset': 'headphones-round',
   'shop': 'shop', 'building': 'buildings-2', 'briefcase': 'case',
   'seedling': 'leaf', 'palette': 'palette', 'image': 'gallery',
 
-  // --- Thuong hieu (Solar khong co logo -> dung icon gan nghia) ---
-  'facebook-f': 'facebook', 'facebook': 'facebook',
-  'youtube': 'video-frame-play-horizontal', 'tiktok': 'music-note-2',
-  'google': 'global', 'stripe-s': 'card-transfer', 'twitter': 'plain-2'
+  'google': 'global', 'stripe-s': 'card-transfer'
 }
+
+/**
+ * Logo thuong hieu: Solar khong co logo nen dung bo simple-icons.
+ * Gia tri la ten Iconify day du.
+ */
+const BRAND: Record<string, string> = {
+  'facebook-f': 'simple-icons:facebook',
+  'facebook': 'simple-icons:facebook',
+  'youtube': 'simple-icons:youtube',
+  'tiktok': 'simple-icons:tiktok',
+  'twitter': 'simple-icons:x',
+  'x-twitter': 'simple-icons:x',
+  'instagram': 'simple-icons:instagram',
+  'telegram': 'simple-icons:telegram',
+  'zalo': 'simple-icons:zalo',
+  'stripe': 'simple-icons:stripe',
+  'google-brand': 'simple-icons:google'
+}
+
+/** Icon Solar khong co bien the '-bold' */
+const NO_BOLD = new Set(['plain'])
 
 /** Hau to style cua Solar */
 const SUFFIX: Record<string, string> = {
@@ -128,9 +146,16 @@ const resolved = computed(() => {
     .trim()
     .replace(/^fa-/, '')
 
+  // Logo thuong hieu -> simple-icons (khong co bien the linear/bold)
+  const brand = BRAND[key]
+  if (brand) return brand
+
   const base = MAP[key]
   if (!base) return 'solar:question-circle-linear'
-  return `solar:${base}-${SUFFIX[props.variant] || 'linear'}`
+
+  // Mot vai icon Solar khong co bien the 'bold' -> lui ve 'linear'
+  const suffix = NO_BOLD.has(base) && props.variant === 'bold' ? 'linear' : SUFFIX[props.variant] || 'linear'
+  return `solar:${base}-${suffix}`
 })
 </script>
 
