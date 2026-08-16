@@ -77,6 +77,25 @@ async function submitReport() {
   if (res) { reportOpen.value = false; reportForm.detail = '' }
 }
 
+/** Phan bo so sao 5->1 de ve progress bar */
+const ratingBreakdown = computed(() => {
+  const total = reviews.value.length
+  return [5, 4, 3, 2, 1].map((star) => {
+    const count = reviews.value.filter((r: any) => Math.round(r.rating) === star).length
+    return { star, count, percent: total ? Math.round((count / total) * 100) : 0 }
+  })
+})
+
+const shareUrl = computed(() => `https://mapdocs.vn/tai-lieu/${slug.value}`)
+const copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(shareUrl.value)
+    ui.success('Đã sao chép liên kết')
+  } catch {
+    ui.error('Không sao chép được, vui lòng copy thủ công')
+  }
+}
+
 useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => doc.value?.description?.slice(0, 160) })
 </script>
 
@@ -90,13 +109,15 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
       <NuxtLink :to="`/tai-lieu?subject=${doc.subject}`" class="hover:text-primary-900">{{ s.label }}</NuxtLink>
     </nav>
 
-    <div class="grid lg:grid-cols-3 gap-6">
+    <!-- 70 / 30 -->
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)]">
       <!-- LEFT -->
-      <article class="lg:col-span-2 space-y-6">
+      <article class="min-w-0 space-y-6">
         <div class="card overflow-hidden">
-          <div class="h-56 sm:h-64 bg-gradient-to-br grid place-items-center relative" :class="s.gradient">
-            <AppIcon :name="s.icon" class="text-white/90 text-6xl" />
-            <span v-if="doc.is_free" class="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">MIỄN PHÍ</span>
+          <div class="doc-hero h-56 sm:h-64 bg-gradient-to-br grid place-items-center relative" :class="s.gradient">
+            <span class="doc-hero__pattern" aria-hidden="true" />
+            <AppIcon :name="s.icon" class="relative text-white/90 text-6xl" />
+            <span v-if="doc.is_free" class="absolute top-4 left-4 bg-ok text-white text-xs font-bold px-3 py-1 rounded-full">MIỄN PHÍ</span>
             <span v-if="doc.featured" class="absolute top-4 right-4 bg-accent-500 text-white text-xs font-bold px-3 py-1 rounded-full"><AppIcon name="fa-fire" variant="bold" class="mr-1" />NỔI BẬT</span>
           </div>
           <div class="p-5 sm:p-6">
@@ -122,26 +143,44 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
 
         <!-- REVIEWS -->
         <section id="reviews-section" class="card p-5 sm:p-6">
-          <h2 class="font-bold text-lg text-slate-800 mb-1">Đánh giá ({{ reviews.length }})</h2>
-          <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <span class="text-3xl font-extrabold text-slate-800">{{ (doc.rating_avg || 0).toFixed(1) }}</span>
-            <UiRating :value="doc.rating_avg" :count="doc.rating_count" size="text-base" />
-          </div>
+          <h2 class="font-bold text-lg text-ink mb-4">Đánh giá ({{ reviews.length }})</h2>
 
-          <div v-if="reviews.length" class="divide-y divide-slate-100">
-            <div v-for="r in reviews" :key="r.id" class="py-4 flex gap-3">
-              <UiAvatar :name="r.user?.name" :src="r.user?.avatar" :size="40" />
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-semibold text-slate-800 text-sm">{{ r.user?.name || 'Người dùng' }}</span>
-                  <UiRating :value="r.rating" :show-count="false" />
-                  <span class="text-xs text-slate-400">{{ timeAgo(r.created_at) }}</span>
-                </div>
-                <p class="text-sm text-slate-600 mt-1 leading-relaxed">{{ r.comment }}</p>
+          <!-- Tong quan: diem + progress tung sao -->
+          <div class="rating-box">
+            <div class="rating-box__score">
+              <span class="text-4xl font-extrabold text-ink leading-none">{{ (doc.rating_avg || 0).toFixed(1) }}</span>
+              <UiRating :value="doc.rating_avg" :show-count="false" size="text-base" class="mt-2 justify-center" />
+              <p class="text-xs text-ink-soft mt-1">{{ number(doc.rating_count || 0) }} đánh giá</p>
+            </div>
+            <div class="flex-1 min-w-0 space-y-1.5">
+              <div v-for="b in ratingBreakdown" :key="b.star" class="flex items-center gap-2">
+                <span class="w-10 shrink-0 text-xs font-medium text-ink-soft tabular-nums">
+                  {{ b.star }}<AppIcon name="fa-star" variant="bold" class="ml-1 text-warn text-[10px]" />
+                </span>
+                <span class="rating-track">
+                  <span class="rating-fill" :style="{ width: b.percent + '%' }" />
+                </span>
+                <span class="w-7 shrink-0 text-right text-xs text-ink-soft tabular-nums">{{ b.count }}</span>
               </div>
             </div>
           </div>
-          <p v-else class="py-6 text-center text-slate-500 text-sm">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+
+          <div v-if="reviews.length" class="divide-y divide-line mt-2">
+            <div v-for="(r, i) in reviews" :key="r.id" class="py-4 flex gap-3"
+              v-motion :initial="{ opacity: 0, y: 12 }"
+              :visible-once="{ opacity: 1, y: 0, transition: { duration: 380, delay: Math.min(i * 50, 250) } }">
+              <UiAvatar :name="r.user?.name" :src="r.user?.avatar" :size="40" />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-semibold text-ink text-sm">{{ r.user?.name || 'Người dùng' }}</span>
+                  <UiRating :value="r.rating" :show-count="false" />
+                  <span class="text-xs text-slate-400">{{ timeAgo(r.created_at) }}</span>
+                </div>
+                <p class="text-sm text-ink-soft mt-1 leading-relaxed">{{ r.comment }}</p>
+              </div>
+            </div>
+          </div>
+          <p v-else class="py-6 text-center text-ink-soft text-sm">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
 
           <form class="mt-4 pt-4 border-t border-slate-100" @submit.prevent="submitReview">
             <label class="label">Đánh giá của bạn</label>
@@ -162,11 +201,11 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
         </section>
       </article>
 
-      <!-- RIGHT -->
-      <aside class="space-y-4">
+      <!-- RIGHT (sticky) -->
+      <aside class="min-w-0 space-y-4">
         <div class="card p-5 lg:sticky lg:top-20">
-          <p class="text-3xl font-extrabold" :class="doc.is_free ? 'text-green-600' : 'text-accent-500'">{{ currency(doc.price) }}</p>
-          <p v-if="!doc.is_free" class="text-xs text-slate-500 mt-1">Thanh toán 1 lần, tải về vĩnh viễn</p>
+          <p class="text-3xl font-extrabold" :class="doc.is_free ? 'text-ok' : 'text-accent-600'">{{ currency(doc.price) }}</p>
+          <p v-if="!doc.is_free" class="text-xs text-ink-soft mt-1">Thanh toán 1 lần, tải về vĩnh viễn</p>
 
           <div class="mt-4 space-y-2">
             <button v-if="owned || doc.is_free" class="btn btn-primary w-full h-11" :disabled="busy" @click="download">
@@ -188,7 +227,21 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
                   :class="['mr-2', favorited ? 'text-bad' : '']"
                 />{{ favorited ? 'Đã thích' : 'Yêu thích' }}
               </button>
-              <button class="btn btn-outline" title="Báo cáo tài liệu" @click="reportOpen = true"><AppIcon name="fa-flag" /></button>
+              <UiPopover width="w-72">
+                <template #trigger>
+                  <button class="btn btn-outline" aria-label="Chia sẻ tài liệu"><AppIcon name="fa-share-nodes" /></button>
+                </template>
+                <p class="text-sm font-semibold text-ink mb-2">Chia sẻ tài liệu</p>
+                <div class="flex items-center gap-1.5">
+                  <input :value="shareUrl" readonly class="input h-9 text-xs flex-1 min-w-0" />
+                  <UiTooltip text="Sao chép liên kết">
+                    <button class="act" aria-label="Sao chép" @click="copyLink"><AppIcon name="fa-copy" /></button>
+                  </UiTooltip>
+                </div>
+              </UiPopover>
+              <UiTooltip text="Báo cáo tài liệu">
+                <button class="btn btn-outline" aria-label="Báo cáo tài liệu" @click="reportOpen = true"><AppIcon name="fa-flag" /></button>
+              </UiTooltip>
             </div>
           </div>
 
@@ -215,11 +268,18 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
       </aside>
     </div>
 
-    <!-- RELATED -->
+    <!-- RELATED: cuon ngang -->
     <section v-if="related.length" id="related-section" class="mt-10">
-      <h2 class="section-title">Tài liệu liên quan</h2>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <DocumentDocCard v-for="(d, i) in related.slice(0, 4)" :key="d.id" :doc="d" :index="i" />
+      <div class="flex items-end justify-between gap-3 mb-4">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-ink">Tài liệu liên quan</h2>
+        <NuxtLink :to="`/tai-lieu?subject=${doc.subject}`" class="link text-sm shrink-0">
+          Xem tất cả<AppIcon name="fa-arrow-right" class="ml-1 text-xs" />
+        </NuxtLink>
+      </div>
+      <div class="related-rail no-scrollbar">
+        <div v-for="(d, i) in related" :key="d.id" class="related-rail__item">
+          <DocumentDocCard :doc="d" :index="i" />
+        </div>
       </div>
     </section>
 
@@ -248,3 +308,40 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
     </UiModal>
   </div>
 </template>
+
+<style scoped>
+/* Overlay hoa van cho anh bia */
+.doc-hero__pattern {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.2), transparent 55%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 12px);
+}
+
+/* Khoi tong quan danh gia */
+.rating-box {
+  @apply flex flex-col sm:flex-row items-center sm:items-stretch gap-5 rounded-xl2 border border-line bg-surface p-4 mb-2;
+}
+.rating-box__score {
+  @apply flex flex-col items-center justify-center shrink-0 sm:w-32 sm:border-r sm:border-line sm:pr-5;
+}
+.rating-track { @apply relative flex-1 h-2 rounded-full bg-slate-200 overflow-hidden; }
+.rating-fill {
+  @apply absolute inset-y-0 left-0 rounded-full bg-warn;
+  transition: width 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hang tai lieu lien quan cuon ngang */
+.related-rail {
+  @apply flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory;
+}
+.related-rail__item { @apply w-[calc(100%-2rem)] sm:w-56 shrink-0 snap-start; }
+
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rating-fill { transition: none; }
+}
+</style>
