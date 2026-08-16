@@ -106,7 +106,7 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
       <DocumentDocSkeleton :count="8" />
     </div>
     <div v-else-if="items.length" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-      <DocumentDocCard v-for="d in items" :key="d.id" :doc="d" />
+      <DocumentDocCard v-for="(d, i) in items" :key="d.id" :doc="d" :index="i" />
     </div>
     <UiEmpty v-else icon="fa-magnifying-glass" title="Không tìm thấy tài liệu"
       desc="Thử thay đổi từ khoá hoặc bỏ bớt bộ lọc để xem thêm kết quả phù hợp.">

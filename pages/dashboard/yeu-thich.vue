@@ -24,7 +24,7 @@ const { data, pending } = await useAsyncData('favorites', () => $fetch<any>('/ap
         <NuxtLink to="/tai-lieu" class="btn btn-primary"><AppIcon name="fa-book-open" class="mr-2" />Khám phá thư viện</NuxtLink>
       </UiEmpty>
       <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <DocumentDocCard v-for="d in data.data.items" :key="d.id" :doc="d" />
+        <DocumentDocCard v-for="(d, i) in data.data.items" :key="d.id" :doc="d" :index="i" />
       </div>
     </template>
   </section>

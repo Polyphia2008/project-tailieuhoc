@@ -89,7 +89,7 @@ useSeoMeta({ title: 'MapDocs - Kho tài liệu học tập chất lượng cao' 
         <NuxtLink to="/tai-lieu?sort=bestseller" class="link text-sm shrink-0">Xem tất cả <AppIcon name="fa-arrow-right" class="ml-1" /></NuxtLink>
       </div>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <DocumentDocCard v-for="d in homeData?.featured" :key="d.id" :doc="d" />
+        <DocumentDocCard v-for="(d, i) in homeData?.featured" :key="d.id" :doc="d" :index="i" />
       </div>
     </section>
 
@@ -104,7 +104,7 @@ useSeoMeta({ title: 'MapDocs - Kho tài liệu học tập chất lượng cao' 
           <NuxtLink to="/tai-lieu?type=free" class="link text-sm shrink-0">Xem tất cả <AppIcon name="fa-arrow-right" class="ml-1" /></NuxtLink>
         </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <DocumentDocCard v-for="d in homeData?.free" :key="d.id" :doc="d" />
+          <DocumentDocCard v-for="(d, i) in homeData?.free" :key="d.id" :doc="d" :index="i" />
         </div>
       </div>
     </section>

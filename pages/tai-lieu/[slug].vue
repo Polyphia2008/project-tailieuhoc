@@ -219,7 +219,7 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
     <section v-if="related.length" id="related-section" class="mt-10">
       <h2 class="section-title">Tài liệu liên quan</h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <DocumentDocCard v-for="d in related.slice(0, 4)" :key="d.id" :doc="d" />
+        <DocumentDocCard v-for="(d, i) in related.slice(0, 4)" :key="d.id" :doc="d" :index="i" />
       </div>
     </section>
 
