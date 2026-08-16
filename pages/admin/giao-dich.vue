@@ -131,7 +131,7 @@ const detail = ref<any>(null)
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="o in items" :key="o.code || o.id" class="hover:bg-slate-50/70">
+            <tr v-for="o in items" :key="o.code || o.id" class="table-row">
               <td class="table-td font-mono text-xs font-bold text-primary-900">{{ o.code }}</td>
               <td class="table-td max-w-[240px]">
                 <NuxtLink v-if="o.document_slug" :to="`/tai-lieu/${o.document_slug}`" class="link line-clamp-2">
@@ -220,5 +220,4 @@ const detail = ref<any>(null)
 <style scoped>
 .tab { @apply px-3.5 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-slate-600 hover:border-primary-900 hover:text-primary-900 transition flex items-center gap-1.5; }
 .tab-on { @apply bg-primary-900 border-primary-900 text-white hover:text-white; }
-.act { @apply w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:border-primary-900 hover:text-primary-900 transition; }
 </style>

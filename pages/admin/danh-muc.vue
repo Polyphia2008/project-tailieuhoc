@@ -144,7 +144,3 @@ async function confirmDelete() {
     </UiModal>
   </section>
 </template>
-
-<style scoped>
-.act { @apply w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:text-primary-900 hover:border-primary-900 transition grid place-items-center; }
-</style>

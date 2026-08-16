@@ -177,7 +177,7 @@ async function doWithdraw() {
               <th class="table-th text-right">Số dư sau</th>
             </tr></thead>
             <tbody>
-              <tr v-for="t in data.data.items" :key="t.id" class="border-b border-slate-50 hover:bg-slate-50/60">
+              <tr v-for="t in data.data.items" :key="t.id" class="table-row">
                 <td class="table-td">
                   <span class="inline-flex items-center gap-2 text-xs font-semibold px-2.5 py-1 rounded-full" :class="txMeta[t.type]?.cls">
                     <AppIcon :name="txMeta[t.type]?.icon" />{{ txMeta[t.type]?.label || t.type }}

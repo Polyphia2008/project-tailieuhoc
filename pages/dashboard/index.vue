@@ -85,7 +85,7 @@ async function readAll() {
                 <th class="table-th">Lượt bán</th><th class="table-th">Trạng thái</th>
               </tr></thead>
               <tbody>
-                <tr v-for="d in data.docs" :key="d.id" class="border-b border-slate-50 hover:bg-slate-50/60">
+                <tr v-for="d in data.docs" :key="d.id" class="table-row">
                   <td class="table-td">
                     <NuxtLink :to="`/tai-lieu/${d.slug}`" class="flex items-center gap-3 group">
                       <span class="w-9 h-9 rounded-lg bg-gradient-to-br grid place-items-center text-white shrink-0" :class="meta(d.subject).gradient">

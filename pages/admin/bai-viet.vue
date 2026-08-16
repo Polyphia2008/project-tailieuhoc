@@ -284,7 +284,3 @@ const confirmDelete = async () => {
     </UiModal>
   </div>
 </template>
-
-<style scoped>
-.act { @apply w-9 h-9 rounded-lg border border-slate-200 text-slate-500 hover:border-primary-900 hover:text-primary-900 transition grid place-items-center; }
-</style>

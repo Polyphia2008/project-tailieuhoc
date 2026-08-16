@@ -21,19 +21,28 @@ const links = [
       </button>
       <aside :class="ui.sidebarOpen ? 'block' : 'hidden lg:block'" class="mb-4 lg:mb-0">
         <div class="card p-5 sticky top-20">
-          <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3 pb-4 border-b border-line">
             <UiAvatar :name="auth.user?.name" :src="auth.user?.avatar" :size="48" />
             <div class="min-w-0">
-              <p class="font-semibold text-slate-800 truncate">{{ auth.user?.name }}</p>
+              <p class="font-semibold text-ink truncate">{{ auth.user?.name }}</p>
               <span class="badge bg-primary-50 text-primary-900">{{ auth.user?.role }}</span>
             </div>
           </div>
-          <div class="my-4 rounded-xl bg-gradient-to-br from-primary-900 to-primary-800 text-white p-4">
-            <p class="text-xs text-white/70">Số dư ví</p>
-            <p class="text-xl font-bold mt-0.5">{{ currency(auth.user?.balance || 0) }}</p>
-            <NuxtLink to="/dashboard/doanh-thu" class="text-xs text-accent-500 font-medium mt-2 inline-block hover:underline">
-              Nạp / rút tiền <AppIcon name="fa-arrow-right" class="ml-1" />
-            </NuxtLink>
+
+          <!-- Thẻ số dư: gradient #0b4a8f → #1a6bc4 -->
+          <div class="balance-card my-4">
+            <span class="balance-card__glow" aria-hidden="true" />
+            <div class="relative">
+              <p class="text-xs text-white/70 flex items-center gap-1.5">
+                <AppIcon name="fa-wallet" />Số dư ví
+              </p>
+              <p class="text-xl font-bold mt-1 tracking-tight">{{ currency(auth.user?.balance || 0) }}</p>
+              <NuxtLink to="/dashboard/doanh-thu"
+                class="text-xs text-accent-300 font-semibold mt-2.5 inline-flex items-center gap-1 hover:text-accent-200 transition-colors group/bal">
+                Nạp / rút tiền
+                <AppIcon name="fa-arrow-right" class="transition-transform group-hover/bal:translate-x-0.5" />
+              </NuxtLink>
+            </div>
           </div>
           <nav class="space-y-1" @click="ui.sidebarOpen = false">
             <NuxtLink v-for="l in links" :key="l.to" :to="l.to" class="dnav">
@@ -51,6 +60,37 @@ const links = [
   </div>
 </template>
 <style scoped>
-.dnav { @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-primary-900 transition; }
-.router-link-exact-active.dnav { @apply bg-primary-900 text-white hover:bg-primary-900 hover:text-white; }
+.dnav {
+  @apply relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ink-soft
+         hover:bg-slate-50 hover:text-primary-900 transition-colors;
+}
+/* Active: bg-primary-50 + text-primary-900 + vạch trái */
+.router-link-exact-active.dnav {
+  @apply bg-primary-50 text-primary-900 font-semibold hover:bg-primary-50;
+}
+.router-link-exact-active.dnav::before {
+  content: '';
+  @apply absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary-900;
+}
+
+/* Thẻ số dư */
+.balance-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  color: #fff;
+  background: linear-gradient(135deg, #0b4a8f 0%, #1a6bc4 100%);
+  box-shadow: 0 8px 25px rgba(11, 74, 143, 0.22);
+}
+.balance-card__glow {
+  position: absolute;
+  top: -40%;
+  right: -18%;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+  pointer-events: none;
+}
 </style>

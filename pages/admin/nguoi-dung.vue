@@ -80,7 +80,7 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
             <th class="table-th">Ngày tham gia</th><th class="table-th">Trạng thái</th><th class="table-th text-right">Thao tác</th>
           </tr></thead>
           <tbody>
-            <tr v-for="u in data.data.items" :key="u.id" class="border-b border-slate-50 hover:bg-slate-50/60">
+            <tr v-for="u in data.data.items" :key="u.id" class="table-row">
               <td class="table-td">
                 <div class="flex items-center gap-3">
                   <UiAvatar :name="u.name" :src="u.avatar" :size="36" />
@@ -154,7 +154,6 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
 <style scoped>
 .tab { @apply px-4 py-2 rounded-full text-sm font-medium border border-slate-200 bg-white text-slate-600 hover:border-primary-900 hover:text-primary-900 transition; }
 .tab-on { @apply bg-primary-900 border-primary-900 text-white hover:text-white; }
-.act { @apply w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:text-primary-900 hover:border-primary-900 transition grid place-items-center disabled:opacity-30 disabled:cursor-not-allowed; }
 .ropt { @apply flex gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-primary-900 transition; }
 .ropt-on { @apply border-primary-900 bg-primary-50/60; }
 </style>

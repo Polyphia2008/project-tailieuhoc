@@ -49,6 +49,15 @@ const links = [
   </div>
 </template>
 <style scoped>
-.anav { @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white transition; }
-.router-link-exact-active.anav { @apply bg-accent-500 text-white hover:bg-accent-500; }
+.anav {
+  @apply relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300
+         hover:bg-white/10 hover:text-white transition-colors;
+}
+.router-link-exact-active.anav {
+  @apply bg-white/[0.14] text-white font-semibold hover:bg-white/[0.14];
+}
+.router-link-exact-active.anav::before {
+  content: '';
+  @apply absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-accent-500;
+}
 </style>

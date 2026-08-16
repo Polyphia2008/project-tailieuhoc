@@ -100,7 +100,7 @@ onBeforeUnmount(() => chart?.destroy())
               <th class="table-th text-right">Giá</th><th class="table-th text-right">Lượt bán</th><th class="table-th text-right">Doanh thu</th>
             </tr></thead>
             <tbody>
-              <tr v-for="(d, i) in s.top" :key="d.id" class="border-b border-slate-50 hover:bg-slate-50/60">
+              <tr v-for="(d, i) in s.top" :key="d.id" class="table-row">
                 <td class="table-td font-bold text-slate-400">{{ i + 1 }}</td>
                 <td class="table-td">
                   <NuxtLink :to="`/tai-lieu/${d.slug}`" class="font-medium text-slate-800 hover:text-primary-900 line-clamp-1 max-w-sm block">{{ d.title }}</NuxtLink>
