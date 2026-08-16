@@ -85,7 +85,7 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
 <template>
   <section id="admin-documents">
     <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-file-lines text-primary-900 mr-2" />Quản lý tài liệu</h1>
+      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-file-lines" class="text-primary-900 mr-2" />Quản lý tài liệu</h1>
       <p class="text-slate-500 text-sm mt-1">Duyệt, từ chối, đặt nổi bật hoặc xoá tài liệu trên hệ thống.</p>
     </header>
 
@@ -95,7 +95,7 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
       </div>
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+          <AppIcon name="fa-magnifying-glass" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
           <input v-model="q" type="search" class="input pl-10" placeholder="Tìm theo tiêu đề, mô tả..." />
         </div>
         <select v-model="subject" class="input sm:w-52">
@@ -105,7 +105,7 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
       </div>
       <div v-if="selected.length" class="flex items-center gap-3 pt-2 border-t border-slate-100">
         <span class="text-sm text-slate-600">Đã chọn <strong>{{ selected.length }}</strong> tài liệu</span>
-        <button class="btn btn-primary btn-sm" :disabled="busy" @click="bulkApprove"><i class="fa-solid fa-check mr-2" />Duyệt hàng loạt</button>
+        <button class="btn btn-primary btn-sm" :disabled="busy" @click="bulkApprove"><AppIcon name="fa-check" variant="bold" class="mr-2" />Duyệt hàng loạt</button>
         <button class="btn btn-ghost btn-sm" @click="selected = []">Bỏ chọn</button>
       </div>
     </div>
@@ -128,11 +128,11 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
               <td class="table-td">
                 <div class="flex items-center gap-3">
                   <span class="w-9 h-9 rounded-lg bg-gradient-to-br grid place-items-center text-white shrink-0" :class="meta(d.subject).gradient">
-                    <i class="fa-solid text-xs" :class="meta(d.subject).icon" />
+                    <AppIcon :name="meta(d.subject).icon" class="text-xs" />
                   </span>
                   <div class="min-w-0 max-w-xs">
                     <NuxtLink :to="`/tai-lieu/${d.slug}`" class="block font-medium text-slate-800 line-clamp-1 hover:text-primary-900">
-                      <i v-if="d.featured" class="fa-solid fa-fire text-accent-500 mr-1" />{{ d.title }}
+                      <AppIcon name="fa-fire" variant="bold" class="text-accent-500 mr-1" v-if="d.featured" />{{ d.title }}
                     </NuxtLink>
                     <span class="text-xs text-slate-400">{{ meta(d.subject).label }} · Lớp {{ d.grade }} · {{ date(d.created_at) }}</span>
                   </div>
@@ -149,10 +149,10 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
               <td class="table-td"><span class="badge" :class="statusMeta[d.status]?.cls">{{ statusMeta[d.status]?.label }}</span></td>
               <td class="table-td">
                 <div class="flex items-center justify-end gap-1.5">
-                  <button v-if="d.status !== 'approved'" class="act hover:!text-green-600 hover:!border-green-300" title="Duyệt" :disabled="busy" @click="act(d.id, 'approve')"><i class="fa-solid fa-check" /></button>
-                  <button v-if="d.status !== 'rejected'" class="act hover:!text-amber-600 hover:!border-amber-300" title="Từ chối" :disabled="busy" @click="askReject(d)"><i class="fa-solid fa-xmark" /></button>
-                  <button class="act" :class="d.featured ? '!text-accent-500 !border-accent-300' : ''" title="Nổi bật" :disabled="busy" @click="act(d.id, 'feature')"><i class="fa-solid fa-fire" /></button>
-                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" :disabled="busy" @click="askDelete(d)"><i class="fa-solid fa-trash" /></button>
+                  <button v-if="d.status !== 'approved'" class="act hover:!text-green-600 hover:!border-green-300" title="Duyệt" :disabled="busy" @click="act(d.id, 'approve')"><AppIcon name="fa-check" variant="bold" /></button>
+                  <button v-if="d.status !== 'rejected'" class="act hover:!text-amber-600 hover:!border-amber-300" title="Từ chối" :disabled="busy" @click="askReject(d)"><AppIcon name="fa-xmark" /></button>
+                  <button class="act" :class="d.featured ? '!text-accent-500 !border-accent-300' : ''" title="Nổi bật" :disabled="busy" @click="act(d.id, 'feature')"><AppIcon name="fa-fire" variant="bold" /></button>
+                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" :disabled="busy" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
                 </div>
               </td>
             </tr>

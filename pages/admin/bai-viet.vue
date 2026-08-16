@@ -129,17 +129,17 @@ const confirmDelete = async () => {
       </div>
       <div class="flex gap-2">
         <button class="btn btn-outline btn-sm" :disabled="pending" @click="refresh()">
-          <i class="fa-solid fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
+          <AppIcon name="fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
         </button>
         <button class="btn btn-accent btn-sm" @click="openCreate">
-          <i class="fa-solid fa-plus" /> Viết bài mới
+          <AppIcon name="fa-plus" /> Viết bài mới
         </button>
       </div>
     </div>
 
     <div class="card p-4">
       <div class="relative max-w-md">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+        <AppIcon name="fa-magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
         <input v-model="q" type="text" class="input pl-9" placeholder="Tìm theo tiêu đề, mô tả, nội dung…" >
       </div>
     </div>
@@ -150,14 +150,14 @@ const confirmDelete = async () => {
 
     <UiEmpty v-else-if="!items.length" icon="fa-newspaper" title="Chưa có bài viết"
       desc="Hãy tạo bài viết đầu tiên cho blog MapDocs.">
-      <button class="btn btn-accent btn-sm mt-3" @click="openCreate"><i class="fa-solid fa-plus" /> Viết bài mới</button>
+      <button class="btn btn-accent btn-sm mt-3" @click="openCreate"><AppIcon name="fa-plus" /> Viết bài mới</button>
     </UiEmpty>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       <article v-for="b in items" :key="b.id" class="card overflow-hidden flex flex-col">
         <div class="h-36 bg-gradient-to-br from-primary-900 to-primary-950 relative overflow-hidden">
           <img v-if="b.thumbnail || b.cover" :src="b.thumbnail || b.cover" :alt="b.title" class="w-full h-full object-cover" >
-          <div v-else class="w-full h-full grid place-items-center text-white/30 text-4xl"><i class="fa-solid fa-newspaper" /></div>
+          <div v-else class="w-full h-full grid place-items-center text-white/30 text-4xl"><AppIcon name="fa-newspaper" /></div>
           <span class="absolute top-2 left-2 badge"
             :class="b.published !== false ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-white'">
             {{ b.published !== false ? 'Đã đăng' : 'Bản nháp' }}
@@ -173,17 +173,17 @@ const confirmDelete = async () => {
           </div>
 
           <div class="flex items-center gap-3 text-xs text-slate-400 mt-3 pt-3 border-t border-slate-100">
-            <span><i class="fa-regular fa-eye mr-1" />{{ number(b.view_count || 0) }}</span>
-            <span><i class="fa-regular fa-calendar mr-1" />{{ date(b.created_at) }}</span>
+            <span><AppIcon name="fa-eye" class="mr-1" />{{ number(b.view_count || 0) }}</span>
+            <span><AppIcon name="fa-calendar" class="mr-1" />{{ date(b.created_at) }}</span>
           </div>
 
           <div class="flex gap-2 mt-3">
             <NuxtLink :to="`/blog/${b.slug}`" target="_blank" class="act" title="Xem bài viết">
-              <i class="fa-solid fa-arrow-up-right-from-square" />
+              <AppIcon name="fa-arrow-up-right-from-square" />
             </NuxtLink>
-            <button class="act" title="Sửa" @click="openEdit(b)"><i class="fa-solid fa-pen" /></button>
+            <button class="act" title="Sửa" @click="openEdit(b)"><AppIcon name="fa-pen" /></button>
             <button class="act hover:!border-red-500 hover:!text-red-500" title="Xoá" @click="delTarget = b">
-              <i class="fa-solid fa-trash" />
+              <AppIcon name="fa-trash" />
             </button>
           </div>
         </div>
@@ -232,7 +232,7 @@ const confirmDelete = async () => {
           <div v-if="form.tags.length" class="flex flex-wrap gap-1.5 mt-2">
             <span v-for="(t, i) in form.tags" :key="t" class="badge bg-primary-50 text-primary-900 border border-primary-200">
               #{{ t }}
-              <button class="ml-1.5 text-primary-400 hover:text-red-500" @click="removeTag(i)"><i class="fa-solid fa-xmark" /></button>
+              <button class="ml-1.5 text-primary-400 hover:text-red-500" @click="removeTag(i)"><AppIcon name="fa-xmark" /></button>
             </span>
           </div>
         </div>
@@ -256,7 +256,7 @@ const confirmDelete = async () => {
       <template #footer>
         <button class="btn btn-outline btn-sm" :disabled="busy" @click="showEditor = false">Huỷ</button>
         <button class="btn btn-primary btn-sm" :disabled="busy" @click="save">
-          <i v-if="busy" class="fa-solid fa-spinner fa-spin" />
+          <AppIcon name="fa-spinner" v-if="busy" />
           {{ editing ? 'Lưu thay đổi' : 'Đăng bài viết' }}
         </button>
       </template>
@@ -272,7 +272,7 @@ const confirmDelete = async () => {
       <template #footer>
         <button class="btn btn-outline btn-sm" :disabled="busy" @click="delTarget = null">Huỷ</button>
         <button class="btn btn-danger btn-sm" :disabled="busy" @click="confirmDelete">
-          <i v-if="busy" class="fa-solid fa-spinner fa-spin" /> Xoá bài viết
+          <AppIcon name="fa-spinner" v-if="busy" /> Xoá bài viết
         </button>
       </template>
     </UiModal>

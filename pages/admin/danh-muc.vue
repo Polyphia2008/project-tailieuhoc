@@ -59,23 +59,23 @@ async function confirmDelete() {
   <section id="admin-categories">
     <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-layer-group text-primary-900 mr-2" />Quản lý danh mục</h1>
+        <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-layer-group" class="text-primary-900 mr-2" />Quản lý danh mục</h1>
         <p class="text-slate-500 text-sm mt-1">Danh mục môn học hiển thị trên trang chủ và bộ lọc thư viện.</p>
       </div>
-      <button class="btn btn-accent btn-sm" @click="openCreate"><i class="fa-solid fa-plus mr-2" />Thêm danh mục</button>
+      <button class="btn btn-accent btn-sm" @click="openCreate"><AppIcon name="fa-plus" class="mr-2" />Thêm danh mục</button>
     </header>
 
     <UiSpinner v-if="pending" :size="34" label="Đang tải danh mục..." />
 
     <template v-else>
       <UiEmpty v-if="!cats.length" icon="fa-layer-group" title="Chưa có danh mục nào">
-        <button class="btn btn-accent" @click="openCreate"><i class="fa-solid fa-plus mr-2" />Thêm danh mục</button>
+        <button class="btn btn-accent" @click="openCreate"><AppIcon name="fa-plus" class="mr-2" />Thêm danh mục</button>
       </UiEmpty>
 
       <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <article v-for="c in cats" :key="c.id" class="card p-5 flex items-start gap-4">
           <span class="w-12 h-12 rounded-xl grid place-items-center text-white text-xl shrink-0" :style="{ background: c.color || '#0b4a8f' }">
-            <i class="fa-solid" :class="c.icon || 'fa-book'" />
+            <AppIcon :name="c.icon || 'fa-book'" />
           </span>
           <div class="flex-1 min-w-0">
             <h3 class="font-bold text-slate-800">{{ c.name }}</h3>
@@ -84,8 +84,8 @@ async function confirmDelete() {
             <p class="text-xs text-primary-900 font-semibold mt-2">{{ number(c.doc_count || 0) }} tài liệu</p>
           </div>
           <div class="flex flex-col gap-1.5">
-            <button class="act" title="Sửa" @click="openEdit(c)"><i class="fa-solid fa-pen" /></button>
-            <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" @click="askDelete(c)"><i class="fa-solid fa-trash" /></button>
+            <button class="act" title="Sửa" @click="openEdit(c)"><AppIcon name="fa-pen" /></button>
+            <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" @click="askDelete(c)"><AppIcon name="fa-trash" /></button>
           </div>
         </article>
       </div>
@@ -108,7 +108,7 @@ async function confirmDelete() {
           <div class="flex flex-wrap gap-2">
             <button v-for="ic in ICONS" :key="ic" type="button" class="w-10 h-10 rounded-lg border grid place-items-center transition"
               :class="form.icon === ic ? 'border-primary-900 bg-primary-50 text-primary-900' : 'border-slate-200 text-slate-500 hover:border-primary-900'"
-              @click="form.icon = ic"><i class="fa-solid" :class="ic" /></button>
+              @click="form.icon = ic"><AppIcon :name="ic" /></button>
           </div>
         </div>
         <div>
@@ -126,7 +126,7 @@ async function confirmDelete() {
       <template #footer>
         <button class="btn btn-outline btn-sm" @click="open = false">Huỷ</button>
         <button class="btn btn-primary btn-sm" :disabled="busy" @click="save">
-          <i v-if="busy" class="fa-solid fa-spinner fa-spin mr-2" />{{ editing ? 'Lưu thay đổi' : 'Thêm danh mục' }}
+          <AppIcon name="fa-spinner" class="mr-2" v-if="busy" />{{ editing ? 'Lưu thay đổi' : 'Thêm danh mục' }}
         </button>
       </template>
     </UiModal>

@@ -39,7 +39,7 @@ useHead({ title: `${code.value} — ${info.value.title} | MapDocs` })
       </a>
 
       <div class="err-icon" :style="{ background: info.color + '18', color: info.color }">
-        <i class="fa-solid" :class="info.icon"></i>
+        <AppIcon :name="info.icon" />
       </div>
 
       <div class="err-code" :style="{ color: info.color }">{{ code }}</div>
@@ -50,10 +50,10 @@ useHead({ title: `${code.value} — ${info.value.title} | MapDocs` })
 
       <div class="err-actions">
         <button class="err-btn err-btn-primary" @click="handleError">
-          <i class="fa-solid fa-house mr-2"></i> Về trang chủ
+          <AppIcon name="fa-house" class="mr-2" /> Về trang chủ
         </button>
         <button class="err-btn err-btn-outline" @click="goBack">
-          <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại
+          <AppIcon name="fa-arrow-left" class="mr-2" /> Quay lại
         </button>
       </div>
 
@@ -61,7 +61,7 @@ useHead({ title: `${code.value} — ${info.value.title} | MapDocs` })
         <p class="err-quick-label">Hoặc truy cập nhanh</p>
         <div class="err-quick-grid">
           <a v-for="q in QUICK" :key="q.to" :href="q.to" class="err-quick-item">
-            <i class="fa-solid" :class="q.icon"></i>
+            <AppIcon :name="q.icon" />
             <span>{{ q.label }}</span>
           </a>
         </div>

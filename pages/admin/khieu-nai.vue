@@ -110,13 +110,13 @@ const reopen = async (r: any) => {
         </p>
       </div>
       <button class="btn btn-outline btn-sm" :disabled="pending" @click="refresh()">
-        <i class="fa-solid fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
+        <AppIcon name="fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
       </button>
     </div>
 
     <div class="card p-4 flex flex-wrap gap-2">
       <button v-for="t in TABS" :key="t.key" class="tab" :class="status === t.key ? 'tab-on' : ''" @click="status = t.key">
-        <i class="fa-solid" :class="t.icon" /> {{ t.label }}
+        <AppIcon :name="t.icon" /> {{ t.label }}
       </button>
     </div>
 
@@ -133,10 +133,10 @@ const reopen = async (r: any) => {
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <span class="badge border" :class="st(r.status).cls">
-                <i class="fa-solid mr-1" :class="st(r.status).icon" />{{ st(r.status).label }}
+                <AppIcon :name="st(r.status).icon" class="mr-1" />{{ st(r.status).label }}
               </span>
               <span class="badge bg-red-50 text-red-700 border border-red-200">
-                <i class="fa-solid fa-triangle-exclamation mr-1" />{{ r.reason }}
+                <AppIcon name="fa-triangle-exclamation" class="mr-1" />{{ r.reason }}
               </span>
               <span class="text-xs text-slate-400">{{ timeAgo(r.created_at) }}</span>
             </div>
@@ -155,12 +155,12 @@ const reopen = async (r: any) => {
                 <UiAvatar :name="r.user_name" :size="22" />
                 {{ r.user_name || 'Người dùng #' + r.user_id }}
               </span>
-              <span><i class="fa-regular fa-clock mr-1" />{{ dateTime(r.created_at) }}</span>
+              <span><AppIcon name="fa-clock" class="mr-1" />{{ dateTime(r.created_at) }}</span>
             </div>
 
             <div v-if="r.admin_note" class="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
               <div class="text-xs font-semibold text-slate-500 mb-1">
-                <i class="fa-solid fa-user-shield mr-1" />Ghi chú của quản trị viên
+                <AppIcon name="fa-user-shield" class="mr-1" />Ghi chú của quản trị viên
                 <span v-if="r.resolved_at" class="font-normal text-slate-400">· {{ dateTime(r.resolved_at) }}</span>
               </div>
               <p class="text-sm text-slate-700">{{ r.admin_note }}</p>
@@ -170,14 +170,14 @@ const reopen = async (r: any) => {
           <div class="flex sm:flex-col gap-2 shrink-0">
             <template v-if="r.status === 'open'">
               <button class="btn btn-primary btn-sm whitespace-nowrap" :disabled="busy" @click="openAction(r, 'resolved')">
-                <i class="fa-solid fa-check" /> Giải quyết
+                <AppIcon name="fa-check" variant="bold" /> Giải quyết
               </button>
               <button class="btn btn-outline btn-sm whitespace-nowrap" :disabled="busy" @click="openAction(r, 'rejected')">
-                <i class="fa-solid fa-xmark" /> Từ chối
+                <AppIcon name="fa-xmark" /> Từ chối
               </button>
             </template>
             <button v-else class="btn btn-ghost btn-sm whitespace-nowrap" :disabled="busy" @click="reopen(r)">
-              <i class="fa-solid fa-rotate-left" /> Mở lại
+              <AppIcon name="fa-rotate-left" /> Mở lại
             </button>
           </div>
         </div>
@@ -216,7 +216,7 @@ const reopen = async (r: any) => {
       <template #footer>
         <button class="btn btn-outline btn-sm" :disabled="busy" @click="showAction = false">Huỷ</button>
         <button class="btn btn-sm" :class="nextStatus === 'resolved' ? 'btn-primary' : 'btn-danger'" :disabled="busy" @click="submit">
-          <i v-if="busy" class="fa-solid fa-spinner fa-spin" />
+          <AppIcon name="fa-spinner" v-if="busy" />
           {{ nextStatus === 'resolved' ? 'Xác nhận giải quyết' : 'Xác nhận từ chối' }}
         </button>
       </template>

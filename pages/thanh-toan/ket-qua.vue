@@ -35,7 +35,7 @@ const now = new Date().toISOString()
         <!-- Banner -->
         <div class="p-8 bg-gradient-to-br" :class="ok ? 'from-emerald-500 to-emerald-700' : 'from-red-500 to-red-700'">
           <div class="w-20 h-20 rounded-full bg-white/20 grid place-items-center mx-auto text-white text-4xl">
-            <i class="fa-solid" :class="ok ? 'fa-circle-check' : 'fa-circle-xmark'" />
+            <AppIcon :name="ok ? 'fa-circle-check' : 'fa-circle-xmark'" />
           </div>
           <h1 class="text-2xl font-extrabold text-white mt-4">
             {{ ok ? 'Thanh toán thành công!' : 'Thanh toán thất bại' }}
@@ -69,18 +69,18 @@ const now = new Date().toISOString()
         <div class="px-6 pb-6 space-y-2.5">
           <template v-if="ok">
             <NuxtLink to="/dashboard/da-mua" class="btn btn-primary w-full justify-center">
-              <i class="fa-solid fa-download" /> Xem tài liệu đã mua
+              <AppIcon name="fa-download" /> Xem tài liệu đã mua
             </NuxtLink>
             <NuxtLink to="/tai-lieu" class="btn btn-outline w-full justify-center">
-              <i class="fa-solid fa-book-open" /> Tiếp tục khám phá
+              <AppIcon name="fa-book-open" /> Tiếp tục khám phá
             </NuxtLink>
           </template>
           <template v-else>
             <NuxtLink to="/tai-lieu" class="btn btn-primary w-full justify-center">
-              <i class="fa-solid fa-rotate-right" /> Thử mua lại
+              <AppIcon name="fa-rotate-right" /> Thử mua lại
             </NuxtLink>
             <NuxtLink to="/dashboard" class="btn btn-outline w-full justify-center">
-              <i class="fa-solid fa-gauge" /> Về trang cá nhân
+              <AppIcon name="fa-gauge" /> Về trang cá nhân
             </NuxtLink>
           </template>
         </div>

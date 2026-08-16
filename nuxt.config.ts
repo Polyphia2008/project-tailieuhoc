@@ -1,7 +1,14 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-10-01',
   devtools: { enabled: false },
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/icon', '@vueuse/motion/nuxt', 'vue-sonner/nuxt'],
+
+  icon: {
+    size: '1em',
+    class: 'ms-icon',
+    mode: 'svg',
+    serverBundle: { collections: ['solar'] }
+  },
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
@@ -38,10 +45,11 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap' },
-        { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css' }
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap' }
       ]
-    }
+    },
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'page', mode: 'out-in' }
   },
 
   nitro: { preset: process.env.NITRO_PRESET || 'node-server' },

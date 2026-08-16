@@ -78,7 +78,7 @@ const finish = async (result: 'success' | 'cancel') => {
     <div class="w-full max-w-lg">
       <!-- Sandbox notice -->
       <div class="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex items-start gap-2">
-        <i class="fa-solid fa-flask mt-0.5" />
+        <AppIcon name="fa-flask" class="mt-0.5" />
         <span>
           <strong>Chế độ giả lập (Sandbox)</strong> — đây là cổng thanh toán mô phỏng dùng cho môi trường thử nghiệm.
           Không có giao dịch tiền thật nào được thực hiện.
@@ -91,7 +91,7 @@ const finish = async (result: 'success' | 'cancel') => {
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <span class="w-12 h-12 rounded-xl bg-white/20 grid place-items-center text-2xl">
-                <i class="fa-solid" :class="gateway.icon" />
+                <AppIcon :name="gateway.icon" />
               </span>
               <div>
                 <div class="font-extrabold text-lg">{{ gateway.label }}</div>
@@ -134,26 +134,26 @@ const finish = async (result: 'success' | 'cancel') => {
         <div class="px-6 pb-6 space-y-2.5">
           <button class="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition disabled:opacity-60 flex items-center justify-center gap-2"
             :disabled="busy || countdown === 0" @click="finish('success')">
-            <i v-if="busy" class="fa-solid fa-spinner fa-spin" /><i v-else class="fa-solid fa-circle-check" />
+            <AppIcon name="fa-spinner" v-if="busy" /><AppIcon name="fa-circle-check" variant="bold" v-else />
             Xác nhận thanh toán
           </button>
           <button class="w-full h-12 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition disabled:opacity-60 flex items-center justify-center gap-2"
             :disabled="busy" @click="finish('cancel')">
-            <i class="fa-solid fa-circle-xmark" /> Huỷ giao dịch
+            <AppIcon name="fa-circle-xmark" /> Huỷ giao dịch
           </button>
           <p v-if="countdown === 0" class="text-center text-sm text-red-600 pt-1">
-            <i class="fa-solid fa-triangle-exclamation mr-1" />Phiên thanh toán đã hết hạn. Vui lòng tạo đơn mới.
+            <AppIcon name="fa-triangle-exclamation" class="mr-1" />Phiên thanh toán đã hết hạn. Vui lòng tạo đơn mới.
           </p>
         </div>
 
         <div class="bg-slate-50 px-6 py-4 text-center text-xs text-slate-500 border-t border-slate-100">
-          <i class="fa-solid fa-lock mr-1" /> Giao dịch được bảo mật bởi MapDocs · Hotline 1900 6789
+          <AppIcon name="fa-lock" class="mr-1" /> Giao dịch được bảo mật bởi MapDocs · Hotline 1900 6789
         </div>
       </div>
 
       <div class="text-center mt-4">
         <NuxtLink to="/dashboard" class="text-sm text-slate-500 hover:text-primary-900">
-          <i class="fa-solid fa-arrow-left mr-1" /> Quay lại trang cá nhân
+          <AppIcon name="fa-arrow-left" class="mr-1" /> Quay lại trang cá nhân
         </NuxtLink>
       </div>
     </div>

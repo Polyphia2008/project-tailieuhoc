@@ -67,14 +67,14 @@ async function submit() {
 <template>
   <section id="upload-page">
     <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-cloud-arrow-up text-accent-500 mr-2" />Đăng bán tài liệu</h1>
+      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-cloud-arrow-up" class="text-accent-500 mr-2" />Đăng bán tài liệu</h1>
       <p class="text-slate-500 text-sm mt-1">Chia sẻ tài liệu chất lượng của bạn và nhận <strong class="text-primary-900">85% doanh thu</strong> mỗi lượt bán.</p>
     </header>
 
     <form class="grid gap-6 lg:grid-cols-3" @submit.prevent="submit">
       <div class="lg:col-span-2 space-y-6">
         <div class="card p-5 space-y-4">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-circle-info text-primary-900 mr-2" />Thông tin cơ bản</h2>
+          <h2 class="font-bold text-slate-800"><AppIcon name="fa-circle-info" class="text-primary-900 mr-2" />Thông tin cơ bản</h2>
 
           <div>
             <label class="label" for="doc-title">Tiêu đề tài liệu <span class="text-red-500">*</span></label>
@@ -118,25 +118,25 @@ async function submit() {
             <label class="label">Thẻ từ khoá <span class="text-slate-400 font-normal">(tối đa 8)</span></label>
             <div class="flex gap-2">
               <input v-model="tagInput" type="text" class="input" placeholder="Nhập thẻ rồi nhấn Enter" @keydown.enter.prevent="addTag" />
-              <button type="button" class="btn btn-outline btn-sm shrink-0" @click="addTag"><i class="fa-solid fa-plus" /></button>
+              <button type="button" class="btn btn-outline btn-sm shrink-0" @click="addTag"><AppIcon name="fa-plus" /></button>
             </div>
             <div v-if="tags.length" class="flex flex-wrap gap-2 mt-3">
               <span v-for="(t, i) in tags" :key="t" class="inline-flex items-center gap-1.5 bg-primary-50 text-primary-900 text-xs font-medium px-2.5 py-1 rounded-full">
                 #{{ t }}
-                <button type="button" class="hover:text-red-600" @click="removeTag(i)"><i class="fa-solid fa-xmark" /></button>
+                <button type="button" class="hover:text-red-600" @click="removeTag(i)"><AppIcon name="fa-xmark" /></button>
               </span>
             </div>
           </div>
         </div>
 
         <div class="card p-5 space-y-4">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-file-arrow-up text-primary-900 mr-2" />Tệp tài liệu</h2>
+          <h2 class="font-bold text-slate-800"><AppIcon name="fa-file-arrow-up" class="text-primary-900 mr-2" />Tệp tài liệu</h2>
 
           <div>
             <label class="label">Định dạng tệp</label>
             <div class="flex flex-wrap gap-2">
               <button v-for="f in FILE_TYPES" :key="f.v" type="button" class="ftype" :class="form.file_type === f.v ? 'ftype-on' : ''" @click="form.file_type = f.v">
-                <i class="fa-solid" :class="f.icon" />{{ f.label }}
+                <AppIcon :name="f.icon" />{{ f.label }}
               </button>
             </div>
           </div>
@@ -146,7 +146,7 @@ async function submit() {
             <input id="doc-file" v-model="form.file_name" type="text" class="input" placeholder="vd: chuyen-de-ham-so-bac-hai.pdf" />
             <span class="text-xs text-red-600">{{ errors.file_name }}</span>
             <p class="text-xs text-slate-500 mt-1">
-              <i class="fa-solid fa-circle-info mr-1" />Phiên bản demo chưa hỗ trợ upload tệp thật — bạn chỉ cần khai báo tên tệp.
+              <AppIcon name="fa-circle-info" class="mr-1" />Phiên bản demo chưa hỗ trợ upload tệp thật — bạn chỉ cần khai báo tên tệp.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ async function submit() {
 
       <aside class="space-y-6">
         <div class="card p-5 space-y-4 lg:sticky lg:top-20">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-tag text-accent-500 mr-2" />Giá bán</h2>
+          <h2 class="font-bold text-slate-800"><AppIcon name="fa-tag" class="text-accent-500 mr-2" />Giá bán</h2>
 
           <div class="space-y-2">
             <label class="ropt" :class="form.is_free ? 'ropt-on' : ''">
@@ -199,19 +199,19 @@ async function submit() {
           </div>
 
           <button type="submit" class="btn btn-accent w-full" :disabled="submitting">
-            <i class="fa-solid mr-2" :class="submitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'" />
+            <AppIcon :name="submitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'" class="mr-2" />
             Gửi duyệt tài liệu
           </button>
           <p class="text-xs text-slate-500 text-center">Tài liệu sẽ được quản trị viên kiểm duyệt trong vòng 24 giờ.</p>
         </div>
 
         <div class="card p-5">
-          <h3 class="font-bold text-slate-800 mb-3"><i class="fa-solid fa-lightbulb text-amber-500 mr-2" />Mẹo đăng bán hiệu quả</h3>
+          <h3 class="font-bold text-slate-800 mb-3"><AppIcon name="fa-lightbulb" class="text-amber-500 mr-2" />Mẹo đăng bán hiệu quả</h3>
           <ul class="text-sm text-slate-600 space-y-2">
-            <li><i class="fa-solid fa-check text-green-600 mr-2" />Tiêu đề rõ ràng, có tên chuyên đề &amp; lớp</li>
-            <li><i class="fa-solid fa-check text-green-600 mr-2" />Mô tả chi tiết cấu trúc và số lượng bài tập</li>
-            <li><i class="fa-solid fa-check text-green-600 mr-2" />Thêm thẻ từ khoá để dễ tìm kiếm</li>
-            <li><i class="fa-solid fa-check text-green-600 mr-2" />Giá hợp lý 10.000đ - 100.000đ dễ bán hơn</li>
+            <li><AppIcon name="fa-check" variant="bold" class="text-green-600 mr-2" />Tiêu đề rõ ràng, có tên chuyên đề &amp; lớp</li>
+            <li><AppIcon name="fa-check" variant="bold" class="text-green-600 mr-2" />Mô tả chi tiết cấu trúc và số lượng bài tập</li>
+            <li><AppIcon name="fa-check" variant="bold" class="text-green-600 mr-2" />Thêm thẻ từ khoá để dễ tìm kiếm</li>
+            <li><AppIcon name="fa-check" variant="bold" class="text-green-600 mr-2" />Giá hợp lý 10.000đ - 100.000đ dễ bán hơn</li>
           </ul>
         </div>
       </aside>

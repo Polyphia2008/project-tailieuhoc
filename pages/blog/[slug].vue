@@ -65,9 +65,9 @@ const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=
         <div class="max-w-3xl mx-auto px-4 py-10 md:py-14">
           <nav class="text-sm text-white/70 flex items-center gap-2 flex-wrap mb-4">
             <NuxtLink to="/" class="hover:text-white">Trang chủ</NuxtLink>
-            <i class="fa-solid fa-chevron-right text-[10px]" />
+            <AppIcon name="fa-chevron-right" class="text-[10px]" />
             <NuxtLink to="/blog" class="hover:text-white">Blog</NuxtLink>
-            <i class="fa-solid fa-chevron-right text-[10px]" />
+            <AppIcon name="fa-chevron-right" class="text-[10px]" />
             <span class="text-white/50 line-clamp-1">{{ blog.title }}</span>
           </nav>
 
@@ -83,9 +83,9 @@ const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=
               <UiAvatar :name="blog.author_name || 'MapDocs'" :src="blog.author?.avatar" :size="32" />
               <span class="text-white font-medium">{{ blog.author_name || blog.author?.name || 'MapDocs' }}</span>
             </span>
-            <span><i class="fa-regular fa-calendar mr-1.5" />{{ date(blog.created_at) }}</span>
-            <span><i class="fa-regular fa-clock mr-1.5" />{{ readMinutes }} phút đọc</span>
-            <span><i class="fa-regular fa-eye mr-1.5" />{{ number(blog.view_count || 0) }} lượt xem</span>
+            <span><AppIcon name="fa-calendar" class="mr-1.5" />{{ date(blog.created_at) }}</span>
+            <span><AppIcon name="fa-clock" class="mr-1.5" />{{ readMinutes }} phút đọc</span>
+            <span><AppIcon name="fa-eye" class="mr-1.5" />{{ number(blog.view_count || 0) }} lượt xem</span>
           </div>
         </div>
       </header>
@@ -103,10 +103,10 @@ const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=
           <div class="mt-8 pt-6 border-t border-slate-100 flex flex-wrap items-center gap-3">
             <span class="text-sm font-semibold text-slate-700">Chia sẻ bài viết:</span>
             <button class="sbtn" title="Chia sẻ Facebook" @click="shareFb">
-              <i class="fa-brands fa-facebook-f" /> Facebook
+              <AppIcon name="fa-facebook-f" /> Facebook
             </button>
             <button class="sbtn" title="Sao chép liên kết" @click="copyLink">
-              <i class="fa-solid fa-link" /> Sao chép liên kết
+              <AppIcon name="fa-link" /> Sao chép liên kết
             </button>
           </div>
         </article>
@@ -117,10 +117,10 @@ const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=
           <p class="text-white/85 mt-2 text-sm">Hơn 30 tài liệu được biên soạn bởi giáo viên giàu kinh nghiệm, có cả tài liệu miễn phí.</p>
           <div class="flex flex-wrap justify-center gap-2 mt-5">
             <NuxtLink to="/tai-lieu" class="btn bg-white text-accent-500 hover:bg-slate-100">
-              <i class="fa-solid fa-book-open" /> Khám phá tài liệu
+              <AppIcon name="fa-book-open" /> Khám phá tài liệu
             </NuxtLink>
             <NuxtLink to="/auth/dang-ky" class="btn border border-white/60 text-white hover:bg-white/10">
-              <i class="fa-solid fa-user-plus" /> Đăng ký miễn phí
+              <AppIcon name="fa-user-plus" /> Đăng ký miễn phí
             </NuxtLink>
           </div>
         </section>
@@ -134,14 +134,14 @@ const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=
               <div class="h-32 bg-gradient-to-br from-primary-900 to-primary-950 overflow-hidden shrink-0">
                 <img v-if="r.thumbnail || r.cover" :src="r.thumbnail || r.cover" :alt="r.title"
                   class="w-full h-full object-cover group-hover:scale-105 transition duration-500" >
-                <div v-else class="w-full h-full grid place-items-center text-white/25 text-4xl"><i class="fa-solid fa-newspaper" /></div>
+                <div v-else class="w-full h-full grid place-items-center text-white/25 text-4xl"><AppIcon name="fa-newspaper" /></div>
               </div>
               <div class="p-4 flex-1 flex flex-col">
                 <h3 class="font-bold text-sm text-slate-800 line-clamp-2 leading-snug group-hover:text-primary-900 transition">
                   {{ r.title }}
                 </h3>
                 <div class="text-xs text-slate-400 mt-auto pt-3">
-                  <i class="fa-regular fa-clock mr-1" />{{ timeAgo(r.created_at) }}
+                  <AppIcon name="fa-clock" class="mr-1" />{{ timeAgo(r.created_at) }}
                 </div>
               </div>
             </NuxtLink>
@@ -150,7 +150,7 @@ const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=
 
         <div class="mt-8 text-center">
           <NuxtLink to="/blog" class="btn btn-outline btn-sm">
-            <i class="fa-solid fa-arrow-left" /> Quay lại danh sách bài viết
+            <AppIcon name="fa-arrow-left" /> Quay lại danh sách bài viết
           </NuxtLink>
         </div>
       </div>

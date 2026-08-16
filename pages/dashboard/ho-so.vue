@@ -60,14 +60,14 @@ const roleLabel: Record<string, string> = { admin: 'Quản trị viên', seller:
 <template>
   <section id="profile-page">
     <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-user-gear text-primary-900 mr-2" />Hồ sơ cá nhân</h1>
+      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-user-gear" class="text-primary-900 mr-2" />Hồ sơ cá nhân</h1>
       <p class="text-slate-500 text-sm mt-1">Cập nhật thông tin cá nhân, tài khoản ngân hàng và mật khẩu đăng nhập.</p>
     </header>
 
     <div class="grid gap-6 lg:grid-cols-3">
       <div class="lg:col-span-2 space-y-6">
         <form class="card p-5 space-y-4" @submit.prevent="saveProfile">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-id-card text-primary-900 mr-2" />Thông tin cá nhân</h2>
+          <h2 class="font-bold text-slate-800"><AppIcon name="fa-id-card" class="text-primary-900 mr-2" />Thông tin cá nhân</h2>
 
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
@@ -97,7 +97,7 @@ const roleLabel: Record<string, string> = { admin: 'Quản trị viên', seller:
             <p class="text-xs text-slate-400 text-right mt-1">{{ profile.bio.length }}/500</p>
           </div>
 
-          <h3 class="font-bold text-slate-800 pt-2 border-t border-slate-100"><i class="fa-solid fa-building-columns text-accent-500 mr-2" />Tài khoản nhận tiền</h3>
+          <h3 class="font-bold text-slate-800 pt-2 border-t border-slate-100"><AppIcon name="fa-building-columns" class="text-accent-500 mr-2" />Tài khoản nhận tiền</h3>
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
               <label class="label" for="p-bank">Ngân hàng</label>
@@ -111,13 +111,13 @@ const roleLabel: Record<string, string> = { admin: 'Quản trị viên', seller:
 
           <div class="pt-2">
             <button type="submit" class="btn btn-primary" :disabled="savingProfile">
-              <i class="fa-solid mr-2" :class="savingProfile ? 'fa-spinner fa-spin' : 'fa-floppy-disk'" />Lưu thay đổi
+              <AppIcon :name="savingProfile ? 'fa-spinner fa-spin' : 'fa-floppy-disk'" class="mr-2" />Lưu thay đổi
             </button>
           </div>
         </form>
 
         <form class="card p-5 space-y-4" @submit.prevent="changePassword">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-lock text-primary-900 mr-2" />Đổi mật khẩu</h2>
+          <h2 class="font-bold text-slate-800"><AppIcon name="fa-lock" class="text-primary-900 mr-2" />Đổi mật khẩu</h2>
           <div>
             <label class="label" for="p-old">Mật khẩu hiện tại</label>
             <input id="p-old" v-model="pw.old_password" type="password" class="input" autocomplete="current-password" />
@@ -132,10 +132,10 @@ const roleLabel: Record<string, string> = { admin: 'Quản trị viên', seller:
               <input id="p-confirm" v-model="pw.confirm" type="password" class="input" autocomplete="new-password" />
             </div>
           </div>
-          <p class="text-xs text-slate-500"><i class="fa-solid fa-circle-info mr-1" />Mật khẩu phải có ít nhất 6 ký tự.</p>
+          <p class="text-xs text-slate-500"><AppIcon name="fa-circle-info" class="mr-1" />Mật khẩu phải có ít nhất 6 ký tự.</p>
           <div>
             <button type="submit" class="btn btn-outline" :disabled="savingPw">
-              <i class="fa-solid mr-2" :class="savingPw ? 'fa-spinner fa-spin' : 'fa-key'" />Đổi mật khẩu
+              <AppIcon :name="savingPw ? 'fa-spinner fa-spin' : 'fa-key'" class="mr-2" />Đổi mật khẩu
             </button>
           </div>
         </form>
@@ -162,7 +162,7 @@ const roleLabel: Record<string, string> = { admin: 'Quản trị viên', seller:
           </dl>
 
           <button class="btn btn-danger btn-sm w-full mt-5" @click="auth.logout()">
-            <i class="fa-solid fa-right-from-bracket mr-2" />Đăng xuất
+            <AppIcon name="fa-right-from-bracket" class="mr-2" />Đăng xuất
           </button>
         </div>
       </aside>

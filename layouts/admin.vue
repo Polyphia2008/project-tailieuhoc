@@ -23,20 +23,20 @@ const links = [
       </NuxtLink>
       <nav class="p-3 space-y-1" @click="ui.sidebarOpen = false">
         <NuxtLink v-for="l in links" :key="l.to" :to="l.to" class="anav">
-          <i class="fa-solid w-5 text-center" :class="l.icon" />{{ l.label }}
+          <AppIcon :name="l.icon" class="w-5 text-center" />{{ l.label }}
         </NuxtLink>
       </nav>
       <div class="p-3 mt-4 border-t border-white/10">
-        <NuxtLink to="/dashboard" class="anav"><i class="fa-solid fa-user w-5 text-center" />Về trang cá nhân</NuxtLink>
+        <NuxtLink to="/dashboard" class="anav"><AppIcon name="fa-user" class="w-5 text-center" />Về trang cá nhân</NuxtLink>
         <button class="anav w-full text-left text-red-400" @click="auth.logout()">
-          <i class="fa-solid fa-right-from-bracket w-5 text-center" />Đăng xuất
+          <AppIcon name="fa-right-from-bracket" class="w-5 text-center" />Đăng xuất
         </button>
       </div>
     </aside>
     <div class="min-w-0 flex flex-col">
       <header class="h-16 bg-white border-b border-slate-200 flex items-center gap-3 px-4 sticky top-0 z-40">
         <button class="lg:hidden w-9 h-9 rounded-lg hover:bg-slate-100" @click="ui.sidebarOpen = !ui.sidebarOpen">
-          <i class="fa-solid fa-bars" />
+          <AppIcon name="fa-bars" />
         </button>
         <h1 class="font-bold text-slate-800">Bảng quản trị</h1>
         <div class="ml-auto flex items-center gap-2">

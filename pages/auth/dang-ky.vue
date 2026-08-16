@@ -58,7 +58,7 @@ useSeoMeta({ title: 'Đăng ký - MapDocs' })
         <span>Tôi đồng ý với <a href="#" class="link">Điều khoản sử dụng</a> và <a href="#" class="link">Chính sách bảo mật</a> của MapDocs</span>
       </label>
       <button type="submit" class="btn btn-primary w-full h-11" :disabled="busy">
-        <i v-if="busy" class="fa-solid fa-spinner fa-spin mr-2" /><i v-else class="fa-solid fa-user-plus mr-2" />Đăng ký
+        <AppIcon name="fa-spinner" class="mr-2" v-if="busy" /><AppIcon name="fa-user-plus" class="mr-2" v-else />Đăng ký
       </button>
     </form>
 

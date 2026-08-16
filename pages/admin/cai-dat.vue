@@ -82,10 +82,10 @@ const reset = () => { hydrate(); ui.toast('Đã khôi phục giá trị đang l�
       </div>
       <div class="flex gap-2">
         <button class="btn btn-outline btn-sm" :disabled="busy || pending" @click="reset">
-          <i class="fa-solid fa-rotate-left" /> Khôi phục
+          <AppIcon name="fa-rotate-left" /> Khôi phục
         </button>
         <button class="btn btn-primary btn-sm" :disabled="busy || pending" @click="save">
-          <i v-if="busy" class="fa-solid fa-spinner fa-spin" /><i v-else class="fa-solid fa-floppy-disk" /> Lưu cài đặt
+          <AppIcon name="fa-spinner" v-if="busy" /><AppIcon name="fa-floppy-disk" v-else /> Lưu cài đặt
         </button>
       </div>
     </div>
@@ -98,7 +98,7 @@ const reset = () => { hydrate(); ui.toast('Đã khôi phục giá trị đang l�
       <!-- Business rules -->
       <section class="card p-5">
         <h3 class="font-bold text-slate-800 flex items-center gap-2">
-          <span class="w-8 h-8 rounded-lg bg-primary-50 text-primary-900 grid place-items-center"><i class="fa-solid fa-percent" /></span>
+          <span class="w-8 h-8 rounded-lg bg-primary-50 text-primary-900 grid place-items-center"><AppIcon name="fa-percent" /></span>
           Chính sách kinh doanh
         </h3>
 
@@ -165,7 +165,7 @@ const reset = () => { hydrate(); ui.toast('Đã khôi phục giá trị đang l�
             </div>
 
             <div class="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800">
-              <i class="fa-solid fa-triangle-exclamation mr-1" />
+              <AppIcon name="fa-triangle-exclamation" class="mr-1" />
               Thay đổi hoa hồng chỉ áp dụng cho các giao dịch phát sinh sau khi lưu.
             </div>
           </div>
@@ -175,25 +175,25 @@ const reset = () => { hydrate(); ui.toast('Đã khôi phục giá trị đang l�
       <!-- Contact -->
       <section class="card p-5">
         <h3 class="font-bold text-slate-800 flex items-center gap-2">
-          <span class="w-8 h-8 rounded-lg bg-accent-50 text-accent-500 grid place-items-center"><i class="fa-solid fa-address-book" /></span>
+          <span class="w-8 h-8 rounded-lg bg-accent-50 text-accent-500 grid place-items-center"><AppIcon name="fa-address-book" /></span>
           Thông tin liên hệ
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label class="label"><i class="fa-solid fa-phone mr-1.5 text-slate-400" />Hotline</label>
+            <label class="label"><AppIcon name="fa-phone" class="mr-1.5 text-slate-400" />Hotline</label>
             <input v-model="form.hotline" type="text" class="input" maxlength="200" placeholder="1900 6789" >
           </div>
           <div>
-            <label class="label"><i class="fa-solid fa-envelope mr-1.5 text-slate-400" />Email hỗ trợ</label>
+            <label class="label"><AppIcon name="fa-envelope" class="mr-1.5 text-slate-400" />Email hỗ trợ</label>
             <input v-model="form.email" type="email" class="input" maxlength="200" placeholder="hotro@mapdocs.vn" >
           </div>
           <div class="md:col-span-2">
-            <label class="label"><i class="fa-solid fa-location-dot mr-1.5 text-slate-400" />Địa chỉ</label>
+            <label class="label"><AppIcon name="fa-location-dot" class="mr-1.5 text-slate-400" />Địa chỉ</label>
             <input v-model="form.address" type="text" class="input" maxlength="200" placeholder="Số nhà, đường, quận, thành phố" >
           </div>
           <div class="md:col-span-2">
-            <label class="label"><i class="fa-brands fa-facebook mr-1.5 text-slate-400" />Fanpage Facebook</label>
+            <label class="label"><AppIcon name="fa-facebook" class="mr-1.5 text-slate-400" />Fanpage Facebook</label>
             <input v-model="form.facebook" type="url" class="input" maxlength="200" placeholder="https://facebook.com/mapdocs" >
           </div>
         </div>
@@ -202,7 +202,7 @@ const reset = () => { hydrate(); ui.toast('Đã khôi phục giá trị đang l�
       <div class="flex justify-end gap-2 pb-2">
         <button class="btn btn-outline btn-sm" :disabled="busy" @click="reset">Khôi phục</button>
         <button class="btn btn-primary" :disabled="busy" @click="save">
-          <i v-if="busy" class="fa-solid fa-spinner fa-spin" /><i v-else class="fa-solid fa-floppy-disk" /> Lưu cài đặt
+          <AppIcon name="fa-spinner" v-if="busy" /><AppIcon name="fa-floppy-disk" v-else /> Lưu cài đặt
         </button>
       </div>
     </template>

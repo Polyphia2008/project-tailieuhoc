@@ -12,7 +12,7 @@ onUnmounted(() => { if (import.meta.client) document.body.style.overflow = '' })
         <div class="bg-white rounded-2xl shadow-hover w-full flex flex-col max-h-[90vh]" :class="width">
           <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <h3 class="font-bold text-slate-800"><slot name="title">{{ title }}</slot></h3>
-            <button class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500" @click="close"><i class="fa-solid fa-xmark" /></button>
+            <button class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500" @click="close"><AppIcon name="fa-xmark" /></button>
           </div>
           <div class="px-5 py-4 overflow-y-auto"><slot /></div>
           <div v-if="$slots.footer" class="px-5 py-4 border-t border-slate-100 flex justify-end gap-2"><slot name="footer" /></div>

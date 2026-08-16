@@ -26,7 +26,7 @@ watch(() => route.fullPath, () => { userOpen.value = false; menuOpen.value = fal
         </nav>
         <form class="flex-1 max-w-md mx-auto hidden md:block" @submit.prevent="search">
           <div class="relative">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+            <AppIcon name="fa-magnifying-glass" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
             <input v-model="q" type="text" placeholder="Tìm kiếm tài liệu..."
               class="w-full h-10 pl-10 pr-3 rounded-full bg-slate-100 border border-transparent focus:bg-white focus:border-primary-900 focus:ring-0 text-sm outline-none transition" />
           </div>
@@ -40,25 +40,25 @@ watch(() => route.fullPath, () => { userOpen.value = false; menuOpen.value = fal
             <button class="flex items-center gap-2 rounded-full hover:bg-slate-100 pl-1 pr-2 py-1 transition" @click="userOpen = !userOpen">
               <UiAvatar :name="auth.user?.name" :src="auth.user?.avatar" :size="32" />
               <span class="text-sm font-medium text-slate-700 hidden md:block max-w-[120px] truncate">{{ auth.user?.name }}</span>
-              <i class="fa-solid fa-chevron-down text-xs text-slate-400" />
+              <AppIcon name="fa-chevron-down" class="text-xs text-slate-400" />
             </button>
             <div v-if="userOpen" class="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-hover border border-slate-100 py-2" @click="userOpen = false">
               <div class="px-4 pb-2 mb-1 border-b border-slate-100">
                 <p class="font-semibold text-sm text-slate-800 truncate">{{ auth.user?.name }}</p>
                 <p class="text-xs text-slate-500 truncate">{{ auth.user?.email }}</p>
               </div>
-              <NuxtLink to="/dashboard" class="drop"><i class="fa-solid fa-gauge w-5" />Bảng điều khiển</NuxtLink>
-              <NuxtLink to="/dashboard/da-mua" class="drop"><i class="fa-solid fa-bag-shopping w-5" />Tài liệu đã mua</NuxtLink>
-              <NuxtLink to="/dashboard/dang-ban" class="drop"><i class="fa-solid fa-cloud-arrow-up w-5" />Đăng bán tài liệu</NuxtLink>
-              <NuxtLink to="/dashboard/doanh-thu" class="drop"><i class="fa-solid fa-wallet w-5" />Ví của tôi</NuxtLink>
-              <NuxtLink v-if="auth.isAdmin" to="/admin" class="drop text-accent-600"><i class="fa-solid fa-shield-halved w-5" />Quản trị</NuxtLink>
+              <NuxtLink to="/dashboard" class="drop"><AppIcon name="fa-gauge" class="w-5" />Bảng điều khiển</NuxtLink>
+              <NuxtLink to="/dashboard/da-mua" class="drop"><AppIcon name="fa-bag-shopping" class="w-5" />Tài liệu đã mua</NuxtLink>
+              <NuxtLink to="/dashboard/dang-ban" class="drop"><AppIcon name="fa-cloud-arrow-up" class="w-5" />Đăng bán tài liệu</NuxtLink>
+              <NuxtLink to="/dashboard/doanh-thu" class="drop"><AppIcon name="fa-wallet" class="w-5" />Ví của tôi</NuxtLink>
+              <NuxtLink v-if="auth.isAdmin" to="/admin" class="drop text-accent-600"><AppIcon name="fa-shield-halved" class="w-5" />Quản trị</NuxtLink>
               <button class="drop w-full text-left text-red-600 border-t border-slate-100 mt-1 pt-2" @click="auth.logout()">
-                <i class="fa-solid fa-right-from-bracket w-5" />Đăng xuất
+                <AppIcon name="fa-right-from-bracket" class="w-5" />Đăng xuất
               </button>
             </div>
           </div>
           <button class="lg:hidden w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-700" @click="menuOpen = !menuOpen">
-            <i class="fa-solid" :class="menuOpen ? 'fa-xmark' : 'fa-bars'" />
+            <AppIcon :name="menuOpen ? 'fa-xmark' : 'fa-bars'" />
           </button>
         </div>
       </div>

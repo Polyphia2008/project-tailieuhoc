@@ -32,20 +32,20 @@ useSeoMeta({ title: 'Quên mật khẩu - MapDocs' })
         <input id="forgot-email" v-model="email" type="email" class="input" placeholder="email@example.com" />
       </div>
       <button type="submit" class="btn btn-primary w-full h-11" :disabled="busy">
-        <i v-if="busy" class="fa-solid fa-spinner fa-spin mr-2" /><i v-else class="fa-solid fa-paper-plane mr-2" />Gửi yêu cầu
+        <AppIcon name="fa-spinner" class="mr-2" v-if="busy" /><AppIcon name="fa-paper-plane" class="mr-2" v-else />Gửi yêu cầu
       </button>
     </form>
 
     <div v-if="sent" class="mt-5 p-4 rounded-xl bg-green-50 border border-green-200 text-sm">
-      <p class="text-green-800 font-medium"><i class="fa-solid fa-circle-check mr-1" />Yêu cầu đã được gửi!</p>
+      <p class="text-green-800 font-medium"><AppIcon name="fa-circle-check" variant="bold" class="mr-1" />Yêu cầu đã được gửi!</p>
       <div v-if="devLink" class="mt-2">
         <p class="text-slate-600 text-xs mb-2">Chế độ demo — dùng liên kết dưới đây để đặt lại mật khẩu:</p>
-        <NuxtLink :to="devLink" class="btn btn-outline btn-sm w-full break-all"><i class="fa-solid fa-key mr-2" />Đặt lại mật khẩu ngay</NuxtLink>
+        <NuxtLink :to="devLink" class="btn btn-outline btn-sm w-full break-all"><AppIcon name="fa-key" class="mr-2" />Đặt lại mật khẩu ngay</NuxtLink>
       </div>
     </div>
 
     <p class="text-center text-sm text-slate-600 mt-6">
-      <NuxtLink to="/auth/dang-nhap" class="link"><i class="fa-solid fa-arrow-left mr-1" />Quay lại đăng nhập</NuxtLink>
+      <NuxtLink to="/auth/dang-nhap" class="link"><AppIcon name="fa-arrow-left" class="mr-1" />Quay lại đăng nhập</NuxtLink>
     </p>
   </div>
 </template>

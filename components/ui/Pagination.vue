@@ -15,12 +15,12 @@ const go = (n: number) => n >= 1 && n <= props.totalPages && n !== props.page &&
 </script>
 <template>
   <nav v-if="totalPages > 1" class="flex items-center justify-center gap-1 flex-wrap mt-8">
-    <button class="pg" :disabled="page <= 1" @click="go(page - 1)"><i class="fa-solid fa-chevron-left" /></button>
+    <button class="pg" :disabled="page <= 1" @click="go(page - 1)"><AppIcon name="fa-chevron-left" /></button>
     <template v-for="(p, i) in pages" :key="i">
       <span v-if="p === '...'" class="px-2 text-slate-400">…</span>
       <button v-else class="pg" :class="p === page ? 'bg-primary-900 text-white border-primary-900' : ''" @click="go(p as number)">{{ p }}</button>
     </template>
-    <button class="pg" :disabled="page >= totalPages" @click="go(page + 1)"><i class="fa-solid fa-chevron-right" /></button>
+    <button class="pg" :disabled="page >= totalPages" @click="go(page + 1)"><AppIcon name="fa-chevron-right" /></button>
   </nav>
 </template>
 <style scoped>

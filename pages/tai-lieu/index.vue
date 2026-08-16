@@ -46,7 +46,7 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
   <div class="max-w-7xl mx-auto px-4 py-6">
     <nav class="text-sm text-slate-500 mb-3">
       <NuxtLink to="/" class="hover:text-primary-900">Trang chủ</NuxtLink>
-      <i class="fa-solid fa-chevron-right text-[10px] mx-2" />
+      <AppIcon name="fa-chevron-right" class="text-[10px] mx-2" />
       <span class="text-slate-700 font-medium">Thư viện tài liệu</span>
     </nav>
     <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800">📚 Thư viện tài liệu</h1>
@@ -55,11 +55,11 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
     <!-- SEARCH -->
     <form id="library-search" class="mt-5 flex gap-2" @submit.prevent="doSearch">
       <div class="relative flex-1">
-        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        <AppIcon name="fa-magnifying-glass" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input v-model="searchInput" type="text" placeholder="Nhập tên tài liệu, chuyên đề, đề thi..."
           class="input h-12 pl-11" />
       </div>
-      <button type="submit" class="btn btn-primary h-12 px-6 shrink-0"><i class="fa-solid fa-magnifying-glass sm:mr-2" /><span class="hidden sm:inline">Tìm kiếm</span></button>
+      <button type="submit" class="btn btn-primary h-12 px-6 shrink-0"><AppIcon name="fa-magnifying-glass" class="sm:mr-2" /><span class="hidden sm:inline">Tìm kiếm</span></button>
     </form>
 
     <!-- FILTERS -->
@@ -104,7 +104,7 @@ useSeoMeta({ title: 'Thư viện tài liệu - MapDocs' })
     </div>
     <UiEmpty v-else icon="fa-magnifying-glass" title="Không tìm thấy tài liệu"
       desc="Thử thay đổi từ khoá hoặc bỏ bớt bộ lọc để xem thêm kết quả phù hợp.">
-      <button class="btn btn-primary" @click="reset"><i class="fa-solid fa-rotate-left mr-2" />Xoá bộ lọc</button>
+      <button class="btn btn-primary" @click="reset"><AppIcon name="fa-rotate-left" class="mr-2" />Xoá bộ lọc</button>
     </UiEmpty>
 
     <UiPagination :page="page" :total-pages="totalPages" @change="goPage" />

@@ -84,9 +84,9 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
   <div class="max-w-7xl mx-auto px-4 py-6">
     <nav class="text-sm text-slate-500 mb-4 flex flex-wrap items-center gap-2">
       <NuxtLink to="/" class="hover:text-primary-900">Trang chủ</NuxtLink>
-      <i class="fa-solid fa-chevron-right text-[10px]" />
+      <AppIcon name="fa-chevron-right" class="text-[10px]" />
       <NuxtLink to="/tai-lieu" class="hover:text-primary-900">Thư viện</NuxtLink>
-      <i class="fa-solid fa-chevron-right text-[10px]" />
+      <AppIcon name="fa-chevron-right" class="text-[10px]" />
       <NuxtLink :to="`/tai-lieu?subject=${doc.subject}`" class="hover:text-primary-900">{{ s.label }}</NuxtLink>
     </nav>
 
@@ -95,9 +95,9 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
       <article class="lg:col-span-2 space-y-6">
         <div class="card overflow-hidden">
           <div class="h-56 sm:h-64 bg-gradient-to-br grid place-items-center relative" :class="s.gradient">
-            <i class="fa-solid text-white/90 text-6xl" :class="s.icon" />
+            <AppIcon :name="s.icon" class="text-white/90 text-6xl" />
             <span v-if="doc.is_free" class="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">MIỄN PHÍ</span>
-            <span v-if="doc.featured" class="absolute top-4 right-4 bg-accent-500 text-white text-xs font-bold px-3 py-1 rounded-full"><i class="fa-solid fa-fire mr-1" />NỔI BẬT</span>
+            <span v-if="doc.featured" class="absolute top-4 right-4 bg-accent-500 text-white text-xs font-bold px-3 py-1 rounded-full"><AppIcon name="fa-fire" variant="bold" class="mr-1" />NỔI BẬT</span>
           </div>
           <div class="p-5 sm:p-6">
             <div class="flex flex-wrap items-center gap-2 mb-3">
@@ -108,9 +108,9 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
             <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800 leading-snug">{{ doc.title }}</h1>
             <div class="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500">
               <UiRating :value="doc.rating_avg" :count="doc.rating_count" size="text-sm" />
-              <span><i class="fa-regular fa-eye mr-1" />{{ number(doc.view_count) }} lượt xem</span>
-              <span><i class="fa-solid fa-download mr-1" />{{ number(doc.download_count) }} lượt tải</span>
-              <span><i class="fa-solid fa-cart-shopping mr-1" />{{ number(doc.sold_count) }} lượt mua</span>
+              <span><AppIcon name="fa-eye" class="mr-1" />{{ number(doc.view_count) }} lượt xem</span>
+              <span><AppIcon name="fa-download" class="mr-1" />{{ number(doc.download_count) }} lượt tải</span>
+              <span><AppIcon name="fa-cart-shopping" class="mr-1" />{{ number(doc.sold_count) }} lượt mua</span>
             </div>
             <div class="prose prose-slate max-w-none mt-5 text-slate-700 whitespace-pre-line leading-relaxed">{{ doc.description }}</div>
             <div v-if="doc.tags?.length" class="flex flex-wrap gap-2 mt-5 pt-5 border-t border-slate-100">
@@ -147,12 +147,16 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
             <label class="label">Đánh giá của bạn</label>
             <div class="flex items-center gap-1 text-2xl text-amber-400 mb-3">
               <button v-for="i in 5" :key="i" type="button" @click="reviewForm.rating = i">
-                <i class="fa-star" :class="i <= reviewForm.rating ? 'fa-solid' : 'fa-regular text-slate-300'" />
+                <AppIcon
+                  name="fa-star"
+                  :variant="i <= reviewForm.rating ? 'bold' : 'linear'"
+                  :class="i <= reviewForm.rating ? 'text-warn' : 'text-slate-300'"
+                />
               </button>
             </div>
             <textarea v-model="reviewForm.comment" rows="3" class="input" placeholder="Chia sẻ cảm nhận của bạn về tài liệu này..." />
             <button type="submit" class="btn btn-primary mt-3" :disabled="busy">
-              <i class="fa-solid fa-paper-plane mr-2" />Gửi đánh giá
+              <AppIcon name="fa-paper-plane" class="mr-2" />Gửi đánh giá
             </button>
           </form>
         </section>
@@ -166,21 +170,25 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
 
           <div class="mt-4 space-y-2">
             <button v-if="owned || doc.is_free" class="btn btn-primary w-full h-11" :disabled="busy" @click="download">
-              <i class="fa-solid fa-download mr-2" />Tải xuống ngay
+              <AppIcon name="fa-download" class="mr-2" />Tải xuống ngay
             </button>
             <template v-else>
               <button class="btn btn-accent w-full h-11" :disabled="busy" @click="buy">
-                <i class="fa-solid fa-wallet mr-2" />Mua bằng ví
+                <AppIcon name="fa-wallet" class="mr-2" />Mua bằng ví
               </button>
               <button class="btn btn-outline w-full h-11" :disabled="busy" @click="buyGateway">
-                <i class="fa-solid fa-credit-card mr-2" />Thanh toán VNPay
+                <AppIcon name="fa-credit-card" class="mr-2" />Thanh toán VNPay
               </button>
             </template>
             <div class="flex gap-2">
               <button class="btn btn-outline flex-1" @click="toggleFav">
-                <i class="fa-heart mr-2" :class="favorited ? 'fa-solid text-red-500' : 'fa-regular'" />{{ favorited ? 'Đã thích' : 'Yêu thích' }}
+                <AppIcon
+                  name="fa-heart"
+                  :variant="favorited ? 'bold' : 'linear'"
+                  :class="['mr-2', favorited ? 'text-bad' : '']"
+                />{{ favorited ? 'Đã thích' : 'Yêu thích' }}
               </button>
-              <button class="btn btn-outline" title="Báo cáo tài liệu" @click="reportOpen = true"><i class="fa-solid fa-flag" /></button>
+              <button class="btn btn-outline" title="Báo cáo tài liệu" @click="reportOpen = true"><AppIcon name="fa-flag" /></button>
             </div>
           </div>
 
@@ -235,7 +243,7 @@ useSeoMeta({ title: () => `${doc.value?.title} - MapDocs`, description: () => do
       </div>
       <template #footer>
         <button class="btn btn-ghost" @click="reportOpen = false">Huỷ</button>
-        <button class="btn btn-danger" :disabled="busy" @click="submitReport"><i class="fa-solid fa-flag mr-2" />Gửi báo cáo</button>
+        <button class="btn btn-danger" :disabled="busy" @click="submitReport"><AppIcon name="fa-flag" class="mr-2" />Gửi báo cáo</button>
       </template>
     </UiModal>
   </div>

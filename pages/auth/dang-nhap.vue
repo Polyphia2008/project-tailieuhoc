@@ -39,7 +39,7 @@ useSeoMeta({ title: 'Đăng nhập - MapDocs' })
         <div class="relative">
           <input id="login-password" v-model="form.password" :type="showPw ? 'text' : 'password'" autocomplete="current-password" class="input pr-11" placeholder="••••••••" />
           <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" @click="showPw = !showPw">
-            <i class="fa-regular" :class="showPw ? 'fa-eye-slash' : 'fa-eye'" />
+            <AppIcon :name="showPw ? 'fa-eye-slash' : 'fa-eye'" />
           </button>
         </div>
       </div>
@@ -47,7 +47,7 @@ useSeoMeta({ title: 'Đăng nhập - MapDocs' })
         <NuxtLink to="/auth/quen-mat-khau" class="link text-sm">Quên mật khẩu?</NuxtLink>
       </div>
       <button type="submit" class="btn btn-primary w-full h-11" :disabled="busy">
-        <i v-if="busy" class="fa-solid fa-spinner fa-spin mr-2" /><i v-else class="fa-solid fa-right-to-bracket mr-2" />Đăng nhập
+        <AppIcon name="fa-spinner" class="mr-2" v-if="busy" /><AppIcon name="fa-right-to-bracket" class="mr-2" v-else />Đăng nhập
       </button>
     </form>
 
@@ -64,7 +64,7 @@ useSeoMeta({ title: 'Đăng nhập - MapDocs' })
     </p>
 
     <div class="mt-6 p-4 rounded-xl bg-slate-100 text-xs text-slate-600">
-      <p class="font-semibold mb-2"><i class="fa-solid fa-circle-info mr-1" />Tài khoản demo (mật khẩu: 123456)</p>
+      <p class="font-semibold mb-2"><AppIcon name="fa-circle-info" class="mr-1" />Tài khoản demo (mật khẩu: 123456)</p>
       <div class="flex flex-wrap gap-2">
         <button class="badge bg-white hover:bg-primary-50 transition" @click="fill('admin@mapdocs.vn')">admin@mapdocs.vn</button>
         <button class="badge bg-white hover:bg-primary-50 transition" @click="fill('seller@mapdocs.vn')">seller@mapdocs.vn</button>

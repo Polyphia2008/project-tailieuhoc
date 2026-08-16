@@ -9,9 +9,9 @@ const s = computed(() => meta(props.doc.subject))
   <NuxtLink :to="`/tai-lieu/${doc.slug}`"
     class="group bg-white rounded-xl overflow-hidden shadow-card hover:shadow-hover hover:-translate-y-1 transition-all duration-300 flex flex-col border border-slate-100">
     <div class="relative h-32 bg-gradient-to-br flex items-center justify-center" :class="s.gradient">
-      <i class="fa-solid text-white/90 text-4xl group-hover:scale-110 transition-transform" :class="s.icon" />
+      <AppIcon :name="s.icon" class="text-white/90 text-4xl group-hover:scale-110 transition-transform" />
       <span v-if="doc.is_free" class="absolute top-2 left-2 bg-green-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">MIỄN PHÍ</span>
-      <span v-if="doc.featured" class="absolute top-2 right-2 bg-accent-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-fire mr-1" />HOT</span>
+      <span v-if="doc.featured" class="absolute top-2 right-2 bg-accent-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full"><AppIcon name="fa-fire" variant="bold" class="mr-1" />HOT</span>
       <span v-if="doc.grade" class="absolute bottom-2 left-2 bg-black/30 backdrop-blur text-white text-[11px] font-medium px-2 py-0.5 rounded">Lớp {{ doc.grade }}</span>
       <span class="absolute bottom-2 right-2 bg-white/90 text-slate-600 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded">{{ doc.file_type || 'pdf' }}</span>
     </div>
@@ -27,8 +27,8 @@ const s = computed(() => meta(props.doc.subject))
       <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
         <span class="font-bold" :class="doc.is_free ? 'text-green-600' : 'text-accent-500'">{{ currency(doc.price) }}</span>
         <div class="flex items-center gap-2.5 text-[11px] text-slate-400">
-          <span><i class="fa-regular fa-eye mr-0.5" />{{ compact(doc.view_count) }}</span>
-          <span><i class="fa-solid fa-download mr-0.5" />{{ compact(doc.download_count) }}</span>
+          <span><AppIcon name="fa-eye" class="mr-0.5" />{{ compact(doc.view_count) }}</span>
+          <span><AppIcon name="fa-download" class="mr-0.5" />{{ compact(doc.download_count) }}</span>
         </div>
       </div>
     </div>

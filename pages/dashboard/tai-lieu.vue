@@ -75,10 +75,10 @@ async function confirmDelete() {
   <section id="my-documents-page">
     <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-folder-open text-primary-900 mr-2" />Tài liệu của tôi</h1>
+        <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-folder-open" class="text-primary-900 mr-2" />Tài liệu của tôi</h1>
         <p class="text-slate-500 text-sm mt-1">Quản lý các tài liệu bạn đã đăng bán trên MapDocs.</p>
       </div>
-      <NuxtLink to="/dashboard/dang-ban" class="btn btn-accent btn-sm"><i class="fa-solid fa-plus mr-2" />Đăng tài liệu mới</NuxtLink>
+      <NuxtLink to="/dashboard/dang-ban" class="btn btn-accent btn-sm"><AppIcon name="fa-plus" class="mr-2" />Đăng tài liệu mới</NuxtLink>
     </header>
 
     <div class="flex flex-wrap gap-2 mb-5">
@@ -92,7 +92,7 @@ async function confirmDelete() {
     <template v-else-if="data?.data">
       <UiEmpty v-if="!data.data.items.length" icon="fa-folder-open" title="Chưa có tài liệu ở mục này"
         desc="Đăng bán tài liệu đầu tiên của bạn và nhận 85% doanh thu mỗi lượt bán.">
-        <NuxtLink to="/dashboard/dang-ban" class="btn btn-accent"><i class="fa-solid fa-cloud-arrow-up mr-2" />Đăng bán ngay</NuxtLink>
+        <NuxtLink to="/dashboard/dang-ban" class="btn btn-accent"><AppIcon name="fa-cloud-arrow-up" class="mr-2" />Đăng bán ngay</NuxtLink>
       </UiEmpty>
 
       <div v-else class="card overflow-x-auto">
@@ -107,13 +107,13 @@ async function confirmDelete() {
               <td class="table-td">
                 <div class="flex items-center gap-3">
                   <span class="w-9 h-9 rounded-lg bg-gradient-to-br grid place-items-center text-white shrink-0" :class="meta(d.subject).gradient">
-                    <i class="fa-solid text-xs" :class="meta(d.subject).icon" />
+                    <AppIcon :name="meta(d.subject).icon" class="text-xs" />
                   </span>
                   <div class="min-w-0 max-w-xs">
                     <NuxtLink :to="`/tai-lieu/${d.slug}`" class="block font-medium text-slate-800 line-clamp-1 hover:text-primary-900">{{ d.title }}</NuxtLink>
                     <span class="text-xs text-slate-400">{{ meta(d.subject).label }} · Lớp {{ d.grade }} · {{ date(d.created_at) }}</span>
                     <p v-if="d.status === 'rejected' && d.reject_reason" class="text-xs text-red-600 mt-0.5 line-clamp-1">
-                      <i class="fa-solid fa-circle-exclamation mr-1" />{{ d.reject_reason }}
+                      <AppIcon name="fa-circle-exclamation" class="mr-1" />{{ d.reject_reason }}
                     </p>
                   </div>
                 </div>
@@ -125,9 +125,9 @@ async function confirmDelete() {
               <td class="table-td"><span class="badge" :class="statusMeta[d.status]?.cls">{{ statusMeta[d.status]?.label }}</span></td>
               <td class="table-td">
                 <div class="flex items-center justify-end gap-1.5">
-                  <NuxtLink :to="`/tai-lieu/${d.slug}`" class="act" title="Xem"><i class="fa-regular fa-eye" /></NuxtLink>
-                  <button class="act" title="Sửa" @click="openEdit(d)"><i class="fa-solid fa-pen" /></button>
-                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" @click="askDelete(d)"><i class="fa-solid fa-trash" /></button>
+                  <NuxtLink :to="`/tai-lieu/${d.slug}`" class="act" title="Xem"><AppIcon name="fa-eye" /></NuxtLink>
+                  <button class="act" title="Sửa" @click="openEdit(d)"><AppIcon name="fa-pen" /></button>
+                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
                 </div>
               </td>
             </tr>
@@ -157,13 +157,13 @@ async function confirmDelete() {
           <input v-model.number="form.price" type="number" min="10000" step="1000" class="input" />
         </div>
         <p class="text-xs text-amber-700 bg-amber-50 rounded-lg p-3">
-          <i class="fa-solid fa-circle-info mr-1" />Sau khi chỉnh sửa, tài liệu có thể cần được quản trị viên duyệt lại.
+          <AppIcon name="fa-circle-info" class="mr-1" />Sau khi chỉnh sửa, tài liệu có thể cần được quản trị viên duyệt lại.
         </p>
       </div>
       <template #footer>
         <button class="btn btn-outline btn-sm" @click="editOpen = false">Huỷ</button>
         <button class="btn btn-primary btn-sm" :disabled="saving" @click="saveEdit">
-          <i v-if="saving" class="fa-solid fa-spinner fa-spin mr-2" />Lưu thay đổi
+          <AppIcon name="fa-spinner" class="mr-2" v-if="saving" />Lưu thay đổi
         </button>
       </template>
     </UiModal>
@@ -176,7 +176,7 @@ async function confirmDelete() {
       <template #footer>
         <button class="btn btn-outline btn-sm" @click="delOpen = false">Huỷ</button>
         <button class="btn btn-danger btn-sm" :disabled="deleting" @click="confirmDelete">
-          <i v-if="deleting" class="fa-solid fa-spinner fa-spin mr-2" />Xoá tài liệu
+          <AppIcon name="fa-spinner" class="mr-2" v-if="deleting" />Xoá tài liệu
         </button>
       </template>
     </UiModal>

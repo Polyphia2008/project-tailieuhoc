@@ -120,7 +120,7 @@ async function doWithdraw() {
 <template>
   <section id="wallet-page">
     <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-wallet text-primary-900 mr-2" />Ví &amp; doanh thu</h1>
+      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-wallet" class="text-primary-900 mr-2" />Ví &amp; doanh thu</h1>
       <p class="text-slate-500 text-sm mt-1">Theo dõi số dư, doanh thu bán tài liệu và lịch sử giao dịch của bạn.</p>
     </header>
 
@@ -130,20 +130,20 @@ async function doWithdraw() {
         <p class="text-sm text-white/70 relative">Số dư khả dụng</p>
         <p class="text-3xl font-extrabold mt-1 relative">{{ currency(data?.data?.summary?.balance || 0) }}</p>
         <div class="flex gap-2 mt-6 relative">
-          <button class="btn btn-accent btn-sm flex-1" @click="topupOpen = true"><i class="fa-solid fa-plus mr-2" />Nạp tiền</button>
-          <button class="btn btn-sm flex-1 bg-white/15 text-white hover:bg-white/25" @click="wdOpen = true"><i class="fa-solid fa-money-bill-transfer mr-2" />Rút tiền</button>
+          <button class="btn btn-accent btn-sm flex-1" @click="topupOpen = true"><AppIcon name="fa-plus" class="mr-2" />Nạp tiền</button>
+          <button class="btn btn-sm flex-1 bg-white/15 text-white hover:bg-white/25" @click="wdOpen = true"><AppIcon name="fa-money-bill-transfer" class="mr-2" />Rút tiền</button>
         </div>
       </div>
 
       <div class="card p-5 flex items-center gap-4">
-        <span class="w-12 h-12 rounded-xl bg-green-50 text-green-600 grid place-items-center text-xl"><i class="fa-solid fa-arrow-trend-up" /></span>
+        <span class="w-12 h-12 rounded-xl bg-green-50 text-green-600 grid place-items-center text-xl"><AppIcon name="fa-arrow-trend-up" /></span>
         <div>
           <p class="text-xs text-slate-500 font-medium">Tổng tiền vào</p>
           <p class="text-xl font-extrabold text-green-600">{{ currency(data?.data?.summary?.income || 0) }}</p>
         </div>
       </div>
       <div class="card p-5 flex items-center gap-4">
-        <span class="w-12 h-12 rounded-xl bg-red-50 text-red-600 grid place-items-center text-xl"><i class="fa-solid fa-arrow-trend-down" /></span>
+        <span class="w-12 h-12 rounded-xl bg-red-50 text-red-600 grid place-items-center text-xl"><AppIcon name="fa-arrow-trend-down" /></span>
         <div>
           <p class="text-xs text-slate-500 font-medium">Tổng tiền ra</p>
           <p class="text-xl font-extrabold text-red-600">{{ currency(data?.data?.summary?.outcome || 0) }}</p>
@@ -152,13 +152,13 @@ async function doWithdraw() {
     </div>
 
     <div class="card p-5 mb-6">
-      <h2 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-chart-column text-accent-500 mr-2" />Doanh thu 6 tháng gần nhất</h2>
+      <h2 class="font-bold text-slate-800 mb-4"><AppIcon name="fa-chart-column" class="text-accent-500 mr-2" />Doanh thu 6 tháng gần nhất</h2>
       <div class="h-64"><canvas ref="chartEl" /></div>
     </div>
 
     <div class="card p-5">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h2 class="font-bold text-slate-800"><i class="fa-solid fa-receipt text-primary-900 mr-2" />Lịch sử giao dịch</h2>
+        <h2 class="font-bold text-slate-800"><AppIcon name="fa-receipt" class="text-primary-900 mr-2" />Lịch sử giao dịch</h2>
         <div class="flex flex-wrap gap-2">
           <button v-for="t in tabs" :key="t.key" class="tab" :class="type === t.key ? 'tab-on' : ''" @click="type = t.key as any">{{ t.label }}</button>
         </div>
@@ -180,7 +180,7 @@ async function doWithdraw() {
               <tr v-for="t in data.data.items" :key="t.id" class="border-b border-slate-50 hover:bg-slate-50/60">
                 <td class="table-td">
                   <span class="inline-flex items-center gap-2 text-xs font-semibold px-2.5 py-1 rounded-full" :class="txMeta[t.type]?.cls">
-                    <i class="fa-solid" :class="txMeta[t.type]?.icon" />{{ txMeta[t.type]?.label || t.type }}
+                    <AppIcon :name="txMeta[t.type]?.icon" />{{ txMeta[t.type]?.label || t.type }}
                   </span>
                 </td>
                 <td class="table-td text-slate-600 max-w-xs"><span class="line-clamp-1">{{ t.note }}</span></td>
@@ -210,13 +210,13 @@ async function doWithdraw() {
             @click="topupAmount = a">{{ currency(a) }}</button>
         </div>
         <p class="text-xs text-primary-900 bg-primary-50 rounded-lg p-3">
-          <i class="fa-solid fa-circle-info mr-1" />Đây là môi trường demo — tiền sẽ được cộng ngay vào ví mà không cần thanh toán thật.
+          <AppIcon name="fa-circle-info" class="mr-1" />Đây là môi trường demo — tiền sẽ được cộng ngay vào ví mà không cần thanh toán thật.
         </p>
       </div>
       <template #footer>
         <button class="btn btn-outline btn-sm" @click="topupOpen = false">Huỷ</button>
         <button class="btn btn-primary btn-sm" :disabled="topupLoading" @click="doTopup">
-          <i v-if="topupLoading" class="fa-solid fa-spinner fa-spin mr-2" />Nạp {{ currency(topupAmount) }}
+          <AppIcon name="fa-spinner" class="mr-2" v-if="topupLoading" />Nạp {{ currency(topupAmount) }}
         </button>
       </template>
     </UiModal>
@@ -237,13 +237,13 @@ async function doWithdraw() {
           <input id="wd-number" v-model="wd.bank_number" type="text" class="input" placeholder="VD: 0123456789" />
         </div>
         <p class="text-xs text-amber-700 bg-amber-50 rounded-lg p-3">
-          <i class="fa-solid fa-clock mr-1" />Yêu cầu rút tiền được xử lý trong 1-3 ngày làm việc.
+          <AppIcon name="fa-clock" class="mr-1" />Yêu cầu rút tiền được xử lý trong 1-3 ngày làm việc.
         </p>
       </div>
       <template #footer>
         <button class="btn btn-outline btn-sm" @click="wdOpen = false">Huỷ</button>
         <button class="btn btn-accent btn-sm" :disabled="wdLoading" @click="doWithdraw">
-          <i v-if="wdLoading" class="fa-solid fa-spinner fa-spin mr-2" />Gửi yêu cầu
+          <AppIcon name="fa-spinner" class="mr-2" v-if="wdLoading" />Gửi yêu cầu
         </button>
       </template>
     </UiModal>

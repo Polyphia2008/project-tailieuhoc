@@ -17,7 +17,7 @@ const links = [
     <LayoutSiteHeader />
     <div class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 lg:grid lg:grid-cols-[264px_1fr] lg:gap-6">
       <button class="lg:hidden btn btn-outline btn-sm mb-4 w-full" @click="ui.sidebarOpen = !ui.sidebarOpen">
-        <i class="fa-solid fa-bars mr-2" />Menu tài khoản
+        <AppIcon name="fa-bars" class="mr-2" />Menu tài khoản
       </button>
       <aside :class="ui.sidebarOpen ? 'block' : 'hidden lg:block'" class="mb-4 lg:mb-0">
         <div class="card p-5 sticky top-20">
@@ -32,15 +32,15 @@ const links = [
             <p class="text-xs text-white/70">Số dư ví</p>
             <p class="text-xl font-bold mt-0.5">{{ currency(auth.user?.balance || 0) }}</p>
             <NuxtLink to="/dashboard/doanh-thu" class="text-xs text-accent-500 font-medium mt-2 inline-block hover:underline">
-              Nạp / rút tiền <i class="fa-solid fa-arrow-right ml-1" />
+              Nạp / rút tiền <AppIcon name="fa-arrow-right" class="ml-1" />
             </NuxtLink>
           </div>
           <nav class="space-y-1" @click="ui.sidebarOpen = false">
             <NuxtLink v-for="l in links" :key="l.to" :to="l.to" class="dnav">
-              <i class="fa-solid w-5 text-center" :class="l.icon" />{{ l.label }}
+              <AppIcon :name="l.icon" class="w-5 text-center" />{{ l.label }}
             </NuxtLink>
             <NuxtLink v-if="auth.isAdmin" to="/admin" class="dnav text-accent-600">
-              <i class="fa-solid fa-shield-halved w-5 text-center" />Trang quản trị
+              <AppIcon name="fa-shield-halved" class="w-5 text-center" />Trang quản trị
             </NuxtLink>
           </nav>
         </div>

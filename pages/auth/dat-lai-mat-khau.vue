@@ -30,7 +30,7 @@ useSeoMeta({ title: 'Đặt lại mật khẩu - MapDocs' })
     <p class="text-slate-500 mt-1 mb-6">Nhập mật khẩu mới cho tài khoản của bạn.</p>
 
     <div v-if="!token" class="p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
-      <i class="fa-solid fa-triangle-exclamation mr-1" />Liên kết không hợp lệ. Vui lòng
+      <AppIcon name="fa-triangle-exclamation" class="mr-1" />Liên kết không hợp lệ. Vui lòng
       <NuxtLink to="/auth/quen-mat-khau" class="link">yêu cầu lại</NuxtLink>.
     </div>
 
@@ -44,12 +44,12 @@ useSeoMeta({ title: 'Đặt lại mật khẩu - MapDocs' })
         <input id="new-confirm" v-model="form.confirm" type="password" class="input" placeholder="Nhập lại mật khẩu mới" />
       </div>
       <button type="submit" class="btn btn-primary w-full h-11" :disabled="busy">
-        <i v-if="busy" class="fa-solid fa-spinner fa-spin mr-2" /><i v-else class="fa-solid fa-key mr-2" />Đặt lại mật khẩu
+        <AppIcon name="fa-spinner" class="mr-2" v-if="busy" /><AppIcon name="fa-key" class="mr-2" v-else />Đặt lại mật khẩu
       </button>
     </form>
 
     <p class="text-center text-sm text-slate-600 mt-6">
-      <NuxtLink to="/auth/dang-nhap" class="link"><i class="fa-solid fa-arrow-left mr-1" />Quay lại đăng nhập</NuxtLink>
+      <NuxtLink to="/auth/dang-nhap" class="link"><AppIcon name="fa-arrow-left" class="mr-1" />Quay lại đăng nhập</NuxtLink>
     </p>
   </div>
 </template>

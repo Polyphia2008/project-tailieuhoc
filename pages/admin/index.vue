@@ -62,7 +62,7 @@ onBeforeUnmount(() => chart?.destroy())
 <template>
   <section id="admin-overview">
     <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-shield-halved text-primary-900 mr-2" />Tổng quan hệ thống</h1>
+      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-shield-halved" class="text-primary-900 mr-2" />Tổng quan hệ thống</h1>
       <p class="text-slate-500 text-sm mt-1">Số liệu tổng hợp toàn nền tảng MapDocs.</p>
     </header>
 
@@ -72,7 +72,7 @@ onBeforeUnmount(() => chart?.destroy())
       <div id="admin-stat-cards" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-6">
         <div v-for="c in cards" :key="c.label" class="card p-5 flex items-center gap-4">
           <span class="w-12 h-12 rounded-xl bg-gradient-to-br text-white grid place-items-center text-xl shrink-0" :class="c.cls">
-            <i class="fa-solid" :class="c.icon" />
+            <AppIcon :name="c.icon" />
           </span>
           <div class="min-w-0">
             <p class="text-xs text-slate-500 font-medium">{{ c.label }}</p>
@@ -83,13 +83,13 @@ onBeforeUnmount(() => chart?.destroy())
       </div>
 
       <div class="card p-5 mb-6">
-        <h2 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-chart-line text-accent-500 mr-2" />Doanh thu &amp; đơn hàng 6 tháng gần nhất</h2>
+        <h2 class="font-bold text-slate-800 mb-4"><AppIcon name="fa-chart-line" class="text-accent-500 mr-2" />Doanh thu &amp; đơn hàng 6 tháng gần nhất</h2>
         <div class="h-72"><canvas ref="chartEl" /></div>
       </div>
 
       <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-slate-800"><i class="fa-solid fa-trophy text-amber-500 mr-2" />Top 8 tài liệu bán chạy</h2>
+          <h2 class="font-bold text-slate-800"><AppIcon name="fa-trophy" variant="bold" class="text-amber-500 mr-2" />Top 8 tài liệu bán chạy</h2>
           <NuxtLink to="/admin/tai-lieu" class="link text-sm">Quản lý tài liệu</NuxtLink>
         </div>
         <UiEmpty v-if="!s.top?.length" icon="fa-chart-simple" title="Chưa có dữ liệu bán hàng" />

@@ -46,7 +46,7 @@ const clearSearch = () => { q.value = ''; search.value = ''; page.value = 1 }
     <!-- Hero -->
     <section class="bg-gradient-to-br from-primary-900 to-primary-950 text-white">
       <div class="max-w-7xl mx-auto px-4 py-12 md:py-16 text-center">
-        <span class="badge bg-accent-500 text-white mb-3"><i class="fa-solid fa-newspaper mr-1" /> Blog MapDocs</span>
+        <span class="badge bg-accent-500 text-white mb-3"><AppIcon name="fa-newspaper" class="mr-1" /> Blog MapDocs</span>
         <h1 class="text-3xl md:text-4xl font-extrabold">Kinh nghiệm học tập & ôn thi</h1>
         <p class="text-white/80 mt-3 max-w-2xl mx-auto">
           Lộ trình ôn thi, phương pháp học hiệu quả và cập nhật cấu trúc đề thi mới nhất —
@@ -54,12 +54,12 @@ const clearSearch = () => { q.value = ''; search.value = ''; page.value = 1 }
         </p>
 
         <div class="max-w-xl mx-auto mt-6 relative">
-          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+          <AppIcon name="fa-magnifying-glass" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input v-model="q" type="text"
             class="w-full h-12 pl-11 pr-11 rounded-xl text-slate-800 outline-none focus:ring-2 focus:ring-accent-500"
             placeholder="Tìm bài viết theo từ khoá…" >
           <button v-if="q" class="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-100"
-            @click="clearSearch"><i class="fa-solid fa-xmark" /></button>
+            @click="clearSearch"><AppIcon name="fa-xmark" /></button>
         </div>
       </div>
     </section>
@@ -97,8 +97,8 @@ const clearSearch = () => { q.value = ''; search.value = ''; page.value = 1 }
           <div class="h-56 lg:h-full min-h-[220px] bg-gradient-to-br from-primary-900 to-primary-950 relative overflow-hidden">
             <img v-if="featured.thumbnail || featured.cover" :src="featured.thumbnail || featured.cover" :alt="featured.title"
               class="w-full h-full object-cover group-hover:scale-105 transition duration-500" >
-            <div v-else class="w-full h-full grid place-items-center text-white/25 text-6xl"><i class="fa-solid fa-newspaper" /></div>
-            <span class="absolute top-3 left-3 badge bg-accent-500 text-white"><i class="fa-solid fa-star mr-1" /> Nổi bật</span>
+            <div v-else class="w-full h-full grid place-items-center text-white/25 text-6xl"><AppIcon name="fa-newspaper" /></div>
+            <span class="absolute top-3 left-3 badge bg-accent-500 text-white"><AppIcon name="fa-star" variant="bold" class="mr-1" /> Nổi bật</span>
           </div>
           <div class="p-6 lg:p-8 flex flex-col justify-center">
             <div v-if="featured.tags?.length" class="flex flex-wrap gap-1.5 mb-3">
@@ -113,10 +113,10 @@ const clearSearch = () => { q.value = ''; search.value = ''; page.value = 1 }
                 <UiAvatar :name="featured.author_name || 'MapDocs'" :size="24" />
                 {{ featured.author_name || 'MapDocs' }}
               </span>
-              <span><i class="fa-regular fa-calendar mr-1" />{{ date(featured.created_at) }}</span>
-              <span><i class="fa-regular fa-eye mr-1" />{{ number(featured.view_count || 0) }}</span>
+              <span><AppIcon name="fa-calendar" class="mr-1" />{{ date(featured.created_at) }}</span>
+              <span><AppIcon name="fa-eye" class="mr-1" />{{ number(featured.view_count || 0) }}</span>
             </div>
-            <span class="link mt-4 font-semibold">Đọc bài viết <i class="fa-solid fa-arrow-right ml-1" /></span>
+            <span class="link mt-4 font-semibold">Đọc bài viết <AppIcon name="fa-arrow-right" class="ml-1" /></span>
           </div>
         </NuxtLink>
 
@@ -127,7 +127,7 @@ const clearSearch = () => { q.value = ''; search.value = ''; page.value = 1 }
             <div class="h-44 bg-gradient-to-br from-primary-900 to-primary-950 relative overflow-hidden shrink-0">
               <img v-if="b.thumbnail || b.cover" :src="b.thumbnail || b.cover" :alt="b.title"
                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500" >
-              <div v-else class="w-full h-full grid place-items-center text-white/25 text-5xl"><i class="fa-solid fa-newspaper" /></div>
+              <div v-else class="w-full h-full grid place-items-center text-white/25 text-5xl"><AppIcon name="fa-newspaper" /></div>
             </div>
             <div class="p-5 flex-1 flex flex-col">
               <div v-if="b.tags?.length" class="flex flex-wrap gap-1.5 mb-2">
@@ -138,8 +138,8 @@ const clearSearch = () => { q.value = ''; search.value = ''; page.value = 1 }
               </h3>
               <p class="text-sm text-slate-500 mt-2 line-clamp-3 flex-1">{{ b.excerpt }}</p>
               <div class="flex items-center justify-between text-xs text-slate-400 mt-4 pt-3 border-t border-slate-100">
-                <span><i class="fa-regular fa-clock mr-1" />{{ timeAgo(b.created_at) }}</span>
-                <span><i class="fa-regular fa-eye mr-1" />{{ number(b.view_count || 0) }}</span>
+                <span><AppIcon name="fa-clock" class="mr-1" />{{ timeAgo(b.created_at) }}</span>
+                <span><AppIcon name="fa-eye" class="mr-1" />{{ number(b.view_count || 0) }}</span>
               </div>
             </div>
           </NuxtLink>

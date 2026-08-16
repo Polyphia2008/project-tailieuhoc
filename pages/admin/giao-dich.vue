@@ -48,7 +48,7 @@ const PAY_MAP: Record<string, { label: string; icon: string }> = {
   wallet: { label: 'Ví MapDocs', icon: 'fa-wallet' },
   vnpay: { label: 'VNPay', icon: 'fa-credit-card' },
   momo: { label: 'Momo', icon: 'fa-mobile-screen' },
-  stripe: { label: 'Stripe', icon: 'fa-brands fa-stripe-s' },
+  stripe: { label: 'Stripe', icon: 'fa-stripe-s' },
   free: { label: 'Miễn phí', icon: 'fa-gift' }
 }
 const pay = (p: string) => PAY_MAP[p] || { label: p || '—', icon: 'fa-money-bill' }
@@ -64,7 +64,7 @@ const detail = ref<any>(null)
         <p class="text-sm text-slate-500 mt-0.5">Theo dõi toàn bộ đơn hàng và doanh thu nền tảng</p>
       </div>
       <button class="btn btn-outline btn-sm" :disabled="pending" @click="refresh()">
-        <i class="fa-solid fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
+        <AppIcon name="fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
       </button>
     </div>
 
@@ -72,21 +72,21 @@ const detail = ref<any>(null)
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="rounded-2xl p-5 text-white bg-gradient-to-br from-primary-900 to-primary-950 shadow-card">
         <div class="flex items-center gap-2 text-white/80 text-sm font-medium">
-          <i class="fa-solid fa-sack-dollar" /> Tổng GMV
+          <AppIcon name="fa-sack-dollar" /> Tổng GMV
         </div>
         <div class="text-2xl font-extrabold mt-2">{{ currency(summary.gmv) }}</div>
         <div class="text-xs text-white/70 mt-1">Tổng giá trị đơn đã thanh toán</div>
       </div>
       <div class="rounded-2xl p-5 text-white bg-gradient-to-br from-accent-500 to-orange-600 shadow-card">
         <div class="flex items-center gap-2 text-white/80 text-sm font-medium">
-          <i class="fa-solid fa-percent" /> Hoa hồng nền tảng
+          <AppIcon name="fa-percent" /> Hoa hồng nền tảng
         </div>
         <div class="text-2xl font-extrabold mt-2">{{ currency(summary.commission) }}</div>
         <div class="text-xs text-white/70 mt-1">15% mỗi giao dịch thành công</div>
       </div>
       <div class="rounded-2xl p-5 bg-white border border-slate-200 shadow-card">
         <div class="flex items-center gap-2 text-slate-500 text-sm font-medium">
-          <i class="fa-solid fa-receipt" /> Đơn thành công
+          <AppIcon name="fa-receipt" /> Đơn thành công
         </div>
         <div class="text-2xl font-extrabold mt-2 text-slate-800">{{ number(summary.count) }}</div>
         <div class="text-xs text-slate-500 mt-1">Tổng {{ number(total) }} bản ghi theo bộ lọc</div>
@@ -97,11 +97,11 @@ const detail = ref<any>(null)
     <div class="card p-4 space-y-3">
       <div class="flex flex-wrap gap-2">
         <button v-for="t in TABS" :key="t.key" class="tab" :class="status === t.key ? 'tab-on' : ''" @click="setTab(t.key)">
-          <i class="fa-solid" :class="t.icon" /> {{ t.label }}
+          <AppIcon :name="t.icon" /> {{ t.label }}
         </button>
       </div>
       <div class="relative max-w-md">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+        <AppIcon name="fa-magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
         <input v-model="q" type="text" class="input pl-9" placeholder="Tìm mã đơn, tên tài liệu, người mua…" >
       </div>
     </div>
@@ -148,14 +148,14 @@ const detail = ref<any>(null)
               <td class="table-td text-right font-bold text-slate-800">{{ currency(o.amount) }}</td>
               <td class="table-td text-right text-accent-500 font-semibold">{{ currency(o.commission || 0) }}</td>
               <td class="table-td whitespace-nowrap text-slate-600">
-                <i class="fa-solid mr-1 text-slate-400" :class="pay(o.payment_method).icon" />{{ pay(o.payment_method).label }}
+                <AppIcon :name="pay(o.payment_method).icon" class="mr-1 text-slate-400" />{{ pay(o.payment_method).label }}
               </td>
               <td class="table-td">
                 <span class="badge border" :class="st(o.status).cls">{{ st(o.status).label }}</span>
               </td>
               <td class="table-td text-slate-500 whitespace-nowrap text-xs">{{ dateTime(o.created_at) }}</td>
               <td class="table-td text-center">
-                <button class="act" title="Xem chi tiết" @click="detail = o"><i class="fa-solid fa-eye" /></button>
+                <button class="act" title="Xem chi tiết" @click="detail = o"><AppIcon name="fa-eye" /></button>
               </td>
             </tr>
           </tbody>

@@ -14,10 +14,10 @@ const year = new Date().getFullYear()
           Nền tảng chia sẻ &amp; mua bán tài liệu học tập hàng đầu Việt Nam. Kho tài liệu chất lượng từ giáo viên và học sinh giỏi trên cả nước.
         </p>
         <div class="flex gap-2 mt-4">
-          <a href="https://facebook.com" target="_blank" rel="noopener" class="soc" aria-label="Facebook"><i class="fa-brands fa-facebook-f" /></a>
-          <a href="https://youtube.com" target="_blank" rel="noopener" class="soc" aria-label="YouTube"><i class="fa-brands fa-youtube" /></a>
-          <a href="https://tiktok.com" target="_blank" rel="noopener" class="soc" aria-label="TikTok"><i class="fa-brands fa-tiktok" /></a>
-          <a href="mailto:hotro@mapdocs.vn" class="soc" aria-label="Email"><i class="fa-solid fa-envelope" /></a>
+          <a href="https://facebook.com" target="_blank" rel="noopener" class="soc" aria-label="Facebook"><AppIcon name="fa-facebook-f" /></a>
+          <a href="https://youtube.com" target="_blank" rel="noopener" class="soc" aria-label="YouTube"><AppIcon name="fa-youtube" /></a>
+          <a href="https://tiktok.com" target="_blank" rel="noopener" class="soc" aria-label="TikTok"><AppIcon name="fa-tiktok" /></a>
+          <a href="mailto:hotro@mapdocs.vn" class="soc" aria-label="Email"><AppIcon name="fa-envelope" /></a>
         </div>
       </div>
       <div>
@@ -39,10 +39,10 @@ const year = new Date().getFullYear()
       <div>
         <h4 class="text-white font-bold mb-4">Liên hệ</h4>
         <ul class="space-y-3 text-sm">
-          <li class="flex gap-3"><i class="fa-solid fa-phone mt-1 text-accent-500" /><span>Hotline: 1900 6789</span></li>
-          <li class="flex gap-3"><i class="fa-solid fa-envelope mt-1 text-accent-500" /><span>hotro@mapdocs.vn</span></li>
-          <li class="flex gap-3"><i class="fa-solid fa-location-dot mt-1 text-accent-500" /><span>Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</span></li>
-          <li class="flex gap-3"><i class="fa-solid fa-clock mt-1 text-accent-500" /><span>8:00 - 22:00 hằng ngày</span></li>
+          <li class="flex gap-3"><AppIcon name="fa-phone" class="mt-1 text-accent-500" /><span>Hotline: 1900 6789</span></li>
+          <li class="flex gap-3"><AppIcon name="fa-envelope" class="mt-1 text-accent-500" /><span>hotro@mapdocs.vn</span></li>
+          <li class="flex gap-3"><AppIcon name="fa-location-dot" class="mt-1 text-accent-500" /><span>Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</span></li>
+          <li class="flex gap-3"><AppIcon name="fa-clock" class="mt-1 text-accent-500" /><span>8:00 - 22:00 hằng ngày</span></li>
         </ul>
       </div>
     </div>

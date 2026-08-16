@@ -54,7 +54,7 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
 <template>
   <section id="admin-users">
     <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><i class="fa-solid fa-users text-primary-900 mr-2" />Quản lý người dùng</h1>
+      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-users" class="text-primary-900 mr-2" />Quản lý người dùng</h1>
       <p class="text-slate-500 text-sm mt-1">Khoá tài khoản, đổi vai trò hoặc xoá người dùng khỏi hệ thống.</p>
     </header>
 
@@ -63,7 +63,7 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
         <button v-for="tb in tabs" :key="tb.key" class="tab" :class="role === tb.key ? 'tab-on' : ''" @click="role = tb.key">{{ tb.label }}</button>
       </div>
       <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+        <AppIcon name="fa-magnifying-glass" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
         <input v-model="q" type="search" class="input pl-10" placeholder="Tìm theo tên hoặc email..." />
       </div>
     </div>
@@ -102,10 +102,10 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
                 <div class="flex items-center justify-end gap-1.5">
                   <button class="act" :class="u.blocked ? '!text-green-600 !border-green-300' : 'hover:!text-amber-600 hover:!border-amber-300'"
                     :title="u.blocked ? 'Mở khoá' : 'Khoá'" :disabled="busy || u.id === auth.user?.id" @click="act(u.id, 'block')">
-                    <i class="fa-solid" :class="u.blocked ? 'fa-lock-open' : 'fa-lock'" />
+                    <AppIcon :name="u.blocked ? 'fa-lock-open' : 'fa-lock'" />
                   </button>
-                  <button class="act" title="Đổi vai trò" :disabled="busy || u.id === auth.user?.id" @click="askRole(u)"><i class="fa-solid fa-user-shield" /></button>
-                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" :disabled="busy || u.id === auth.user?.id" @click="askDelete(u)"><i class="fa-solid fa-trash" /></button>
+                  <button class="act" title="Đổi vai trò" :disabled="busy || u.id === auth.user?.id" @click="askRole(u)"><AppIcon name="fa-user-shield" /></button>
+                  <button class="act hover:!text-red-600 hover:!border-red-300" title="Xoá" :disabled="busy || u.id === auth.user?.id" @click="askDelete(u)"><AppIcon name="fa-trash" /></button>
                 </div>
               </td>
             </tr>

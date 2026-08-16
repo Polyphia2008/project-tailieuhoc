@@ -13,9 +13,9 @@
           Hàng nghìn đề thi, chuyên đề, bài giảng từ giáo viên giỏi trên cả nước. Mua bán an toàn, tải về ngay lập tức.
         </p>
         <ul class="mt-8 space-y-3 text-white/90">
-          <li class="flex gap-3"><i class="fa-solid fa-circle-check text-accent-500 mt-1" />Hơn 30.000 tài liệu 10 môn học</li>
-          <li class="flex gap-3"><i class="fa-solid fa-circle-check text-accent-500 mt-1" />Thanh toán ví, VNPay, Momo an toàn</li>
-          <li class="flex gap-3"><i class="fa-solid fa-circle-check text-accent-500 mt-1" />Đăng bán tài liệu, nhận 85% doanh thu</li>
+          <li class="flex gap-3"><AppIcon name="fa-circle-check" variant="bold" class="text-accent-500 mt-1" />Hơn 30.000 tài liệu 10 môn học</li>
+          <li class="flex gap-3"><AppIcon name="fa-circle-check" variant="bold" class="text-accent-500 mt-1" />Thanh toán ví, VNPay, Momo an toàn</li>
+          <li class="flex gap-3"><AppIcon name="fa-circle-check" variant="bold" class="text-accent-500 mt-1" />Đăng bán tài liệu, nhận 85% doanh thu</li>
         </ul>
       </div>
       <p class="relative text-sm text-white/60">© {{ new Date().getFullYear() }} MapDocs. Dự án demo phi thương mại.</p>
