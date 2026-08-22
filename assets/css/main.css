@@ -45,6 +45,28 @@
   .pill-bad { @apply pill bg-red-50 text-red-700; }
   .pill-info { @apply pill bg-primary-50 text-primary-900; }
   .pill-mute { @apply pill bg-slate-100 text-slate-600; }
+
+  /* ===== Stat card (dashboard + admin) ===== */
+  .stat-card {
+    @apply relative overflow-hidden flex items-center gap-4 rounded-xl2 border border-line p-5
+           shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-hover;
+  }
+  .stat-card__icon {
+    @apply relative w-12 h-12 shrink-0 grid place-items-center rounded-xl text-xl text-white
+           bg-gradient-to-br transition-transform duration-200;
+  }
+  .stat-card:hover .stat-card__icon { @apply scale-105; }
+  .stat-card__label { @apply text-xs font-medium text-ink-soft; }
+  .stat-card__value { @apply text-xl font-extrabold text-ink truncate; }
+  .stat-card__sub { @apply text-xs text-slate-400 truncate; }
+
+  /* Nen gradient nhat theo tone - khong dung trang tinh #fff */
+  .stat-tone-primary { background: linear-gradient(135deg, #f4f8ff 0%, #e8f0fe 100%); }
+  .stat-tone-accent  { background: linear-gradient(135deg, #fff8f1 0%, #fff3e6 100%); }
+  .stat-tone-ok      { background: linear-gradient(135deg, #f3fbf6 0%, #e7f7ee 100%); }
+  .stat-tone-warn    { background: linear-gradient(135deg, #fffbf0 0%, #fdf3dc 100%); }
+  .stat-tone-bad     { background: linear-gradient(135deg, #fff5f5 0%, #fde8e8 100%); }
+  .stat-tone-violet  { background: linear-gradient(135deg, #f8f5ff 0%, #efe9fe 100%); }
 }
 
 /* ===== Page transition (Nuxt) ===== */

@@ -135,18 +135,18 @@ async function doWithdraw() {
         </div>
       </div>
 
-      <div class="card p-5 flex items-center gap-4">
-        <span class="w-12 h-12 rounded-xl bg-green-50 text-green-600 grid place-items-center text-xl"><AppIcon name="fa-arrow-trend-up" /></span>
-        <div>
-          <p class="text-xs text-slate-500 font-medium">Tổng tiền vào</p>
-          <p class="text-xl font-extrabold text-green-600">{{ currency(data?.data?.summary?.income || 0) }}</p>
+      <div class="stat-card stat-tone-ok">
+        <span class="stat-card__icon from-emerald-600 to-emerald-800"><AppIcon name="fa-arrow-trend-up" /></span>
+        <div class="min-w-0">
+          <p class="stat-card__label">Tổng tiền vào</p>
+          <p class="stat-card__value text-ok">{{ currency(data?.data?.summary?.income || 0) }}</p>
         </div>
       </div>
-      <div class="card p-5 flex items-center gap-4">
-        <span class="w-12 h-12 rounded-xl bg-red-50 text-red-600 grid place-items-center text-xl"><AppIcon name="fa-arrow-trend-down" /></span>
-        <div>
-          <p class="text-xs text-slate-500 font-medium">Tổng tiền ra</p>
-          <p class="text-xl font-extrabold text-red-600">{{ currency(data?.data?.summary?.outcome || 0) }}</p>
+      <div class="stat-card stat-tone-bad">
+        <span class="stat-card__icon from-rose-600 to-rose-800"><AppIcon name="fa-arrow-trend-down" /></span>
+        <div class="min-w-0">
+          <p class="stat-card__label">Tổng tiền ra</p>
+          <p class="stat-card__value text-bad">{{ currency(data?.data?.summary?.outcome || 0) }}</p>
         </div>
       </div>
     </div>

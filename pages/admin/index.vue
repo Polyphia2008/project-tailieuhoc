@@ -14,12 +14,12 @@ const cards = computed(() => {
   const d = s.value
   if (!d) return []
   return [
-    { label: 'Người dùng', value: number(d.users), sub: `${d.sellers} người bán · ${d.blocked} bị khoá`, icon: 'fa-users', cls: 'from-blue-600 to-blue-800' },
-    { label: 'Tài liệu', value: number(d.documents), sub: `${d.approved} đã duyệt`, icon: 'fa-file-lines', cls: 'from-violet-500 to-purple-700' },
-    { label: 'Chờ duyệt', value: number(d.pending), sub: `${d.rejected} bị từ chối`, icon: 'fa-hourglass-half', cls: 'from-amber-500 to-orange-600' },
-    { label: 'Đơn hàng', value: number(d.orders), sub: 'Đã thanh toán', icon: 'fa-bag-shopping', cls: 'from-green-500 to-emerald-700' },
-    { label: 'Tổng GMV', value: currency(d.gmv), sub: `Hoa hồng ${currency(d.commission)}`, icon: 'fa-sack-dollar', cls: 'from-accent-400 to-accent-600' },
-    { label: 'Khiếu nại mở', value: number(d.reports_open), sub: 'Cần xử lý', icon: 'fa-flag', cls: 'from-red-500 to-rose-700' }
+    { label: 'Người dùng', value: number(d.users), sub: `${d.sellers} người bán · ${d.blocked} bị khoá`, icon: 'fa-users', cls: 'from-primary-800 to-primary-950', tone: 'stat-tone-primary' },
+    { label: 'Tài liệu', value: number(d.documents), sub: `${d.approved} đã duyệt`, icon: 'fa-file-lines', cls: 'from-violet-600 to-violet-800', tone: 'stat-tone-violet' },
+    { label: 'Chờ duyệt', value: number(d.pending), sub: `${d.rejected} bị từ chối`, icon: 'fa-hourglass-half', cls: 'from-amber-600 to-amber-800', tone: 'stat-tone-warn' },
+    { label: 'Đơn hàng', value: number(d.orders), sub: 'Đã thanh toán', icon: 'fa-bag-shopping', cls: 'from-emerald-600 to-emerald-800', tone: 'stat-tone-ok' },
+    { label: 'Tổng GMV', value: currency(d.gmv), sub: `Hoa hồng ${currency(d.commission)}`, icon: 'fa-sack-dollar', cls: 'from-accent-500 to-accent-700', tone: 'stat-tone-accent' },
+    { label: 'Khiếu nại mở', value: number(d.reports_open), sub: 'Cần xử lý', icon: 'fa-flag', cls: 'from-rose-600 to-rose-800', tone: 'stat-tone-bad' }
   ]
 })
 
@@ -70,14 +70,14 @@ onBeforeUnmount(() => chart?.destroy())
 
     <template v-else-if="s">
       <div id="admin-stat-cards" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-6">
-        <div v-for="c in cards" :key="c.label" class="card p-5 flex items-center gap-4">
-          <span class="w-12 h-12 rounded-xl bg-gradient-to-br text-white grid place-items-center text-xl shrink-0" :class="c.cls">
-            <AppIcon :name="c.icon" />
-          </span>
+        <div v-for="(c, i) in cards" :key="c.label" class="stat-card" :class="c.tone"
+          v-motion :initial="{ opacity: 0, y: 14 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { duration: 380, delay: Math.min(i * 55, 300) } }">
+          <span class="stat-card__icon" :class="c.cls"><AppIcon :name="c.icon" /></span>
           <div class="min-w-0">
-            <p class="text-xs text-slate-500 font-medium">{{ c.label }}</p>
-            <p class="text-xl font-extrabold text-slate-800 truncate">{{ c.value }}</p>
-            <p class="text-xs text-slate-400 truncate">{{ c.sub }}</p>
+            <p class="stat-card__label">{{ c.label }}</p>
+            <p class="stat-card__value">{{ c.value }}</p>
+            <p class="stat-card__sub">{{ c.sub }}</p>
           </div>
         </div>
       </div>

@@ -21,6 +21,16 @@ const { data, pending, refresh } = await useAsyncData('dash-home', async () => {
   }
 })
 
+const statCards = computed(() => {
+  const d = data.value
+  if (!d) return []
+  return [
+    { label: 'Số dư ví', value: currency(d.summary.balance), icon: 'fa-wallet', cls: 'from-primary-800 to-primary-950', tone: 'stat-tone-primary' },
+    { label: 'Tài liệu đã mua', value: number(d.orderTotal), icon: 'fa-bag-shopping', cls: 'from-accent-500 to-accent-700', tone: 'stat-tone-accent' },
+    { label: 'Tài liệu đăng bán', value: number(d.counts.all), icon: 'fa-folder-open', cls: 'from-emerald-600 to-emerald-800', tone: 'stat-tone-ok' }
+  ]
+})
+
 const statusMeta: Record<string, { label: string; cls: string }> = {
   approved: { label: 'Đã duyệt', cls: 'bg-green-50 text-green-700' },
   pending: { label: 'Chờ duyệt', cls: 'bg-amber-50 text-amber-700' },
@@ -45,25 +55,13 @@ async function readAll() {
 
     <template v-else-if="data">
       <div id="stat-cards" class="grid gap-4 sm:grid-cols-3 mb-6">
-        <div class="card p-5 flex items-center gap-4">
-          <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-800 to-primary-950 text-white grid place-items-center text-xl"><AppIcon name="fa-wallet" /></span>
-          <div>
-            <p class="text-xs text-slate-500 font-medium">Số dư ví</p>
-            <p class="text-xl font-extrabold text-primary-900">{{ currency(data.summary.balance) }}</p>
-          </div>
-        </div>
-        <div class="card p-5 flex items-center gap-4">
-          <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-400 to-accent-600 text-white grid place-items-center text-xl"><AppIcon name="fa-bag-shopping" /></span>
-          <div>
-            <p class="text-xs text-slate-500 font-medium">Tài liệu đã mua</p>
-            <p class="text-xl font-extrabold text-slate-800">{{ number(data.orderTotal) }}</p>
-          </div>
-        </div>
-        <div class="card p-5 flex items-center gap-4">
-          <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-700 text-white grid place-items-center text-xl"><AppIcon name="fa-folder-open" /></span>
-          <div>
-            <p class="text-xs text-slate-500 font-medium">Tài liệu đăng bán</p>
-            <p class="text-xl font-extrabold text-slate-800">{{ number(data.counts.all) }}</p>
+        <div v-for="(c, i) in statCards" :key="c.label" class="stat-card" :class="c.tone"
+          v-motion :initial="{ opacity: 0, y: 14 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { duration: 380, delay: Math.min(i * 60, 240) } }">
+          <span class="stat-card__icon" :class="c.cls"><AppIcon :name="c.icon" /></span>
+          <div class="min-w-0">
+            <p class="stat-card__label">{{ c.label }}</p>
+            <p class="stat-card__value">{{ c.value }}</p>
           </div>
         </div>
       </div>
