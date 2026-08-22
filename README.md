@@ -233,3 +233,21 @@ Tất cả API trả về định dạng `{ success, data, message? }`.
 ## 📄 Giấy phép
 
 Dự án phục vụ mục đích học tập. Dữ liệu mẫu và hình ảnh chỉ mang tính minh hoạ.
+
+## Kiểm tra cuối (comprehensive test)
+
+Toàn bộ **30/30** request trả về HTTP 200 (dev server, đã đăng nhập bằng cookie
+cho các trang cần quyền):
+
+| Nhóm | Số trang | Kết quả |
+|---|---|---|
+| Public (`/`, `/tai-lieu` + 3 query variants, chi tiết tài liệu, `/blog`, chi tiết blog) | 8 | ✅ 200 |
+| Auth (`dang-nhap`, `dang-ky`, `quen-mat-khau`, `dat-lai-mat-khau` ±token) | 5 | ✅ 200 |
+| Dashboard (`index`, `da-mua`, `dang-ban`, `tai-lieu`, `doanh-thu`, `yeu-thich`, `ho-so`) | 7 | ✅ 200 |
+| Admin (`index`, `tai-lieu`, `nguoi-dung`, `giao-dich`, `khieu-nai`, `danh-muc`, `bai-viet`, `cai-dat`) | 8 | ✅ 200 |
+| Thanh toán (`gia-lap`, `ket-qua`) | 2 | ✅ 200 |
+
+Log lỗi (`~/.pm2/logs/mapdocs-error-0.log`): `CssSyntaxError` = 0, `Vue warn` = 0,
+`Failed to resolve` = 0.
+
+Tài khoản demo: `admin@mapdocs.vn` / `seller@mapdocs.vn` / `user@mapdocs.vn` — mật khẩu `123456`.
