@@ -225,8 +225,6 @@ const reopen = async (r: any) => {
 </template>
 
 <style scoped>
-.tab { @apply px-3.5 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-slate-600 hover:border-primary-900 hover:text-primary-900 transition flex items-center gap-1.5; }
-.tab-on { @apply bg-primary-900 border-primary-900 text-white hover:text-white; }
 .ropt { @apply px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:border-primary-900 transition; }
 .ropt-on { @apply border-primary-900 bg-primary-50 text-primary-900 font-medium; }
 </style>

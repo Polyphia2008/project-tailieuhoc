@@ -152,8 +152,6 @@ async function confirmDelete() { await act(target.value.id, 'delete'); delOpen.v
 </template>
 
 <style scoped>
-.tab { @apply px-4 py-2 rounded-full text-sm font-medium border border-slate-200 bg-white text-slate-600 hover:border-primary-900 hover:text-primary-900 transition; }
-.tab-on { @apply bg-primary-900 border-primary-900 text-white hover:text-white; }
 .ropt { @apply flex gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:border-primary-900 transition; }
 .ropt-on { @apply border-primary-900 bg-primary-50/60; }
 </style>

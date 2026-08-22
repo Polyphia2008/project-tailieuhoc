@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* An scrollbar (hang pill / tab cuon ngang tren mobile) */
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+}
+
 @layer base {
   html { scroll-behavior: smooth; }
   body { @apply bg-slate-50 text-slate-800 antialiased; }
@@ -45,6 +51,21 @@
   .pill-bad { @apply pill bg-red-50 text-red-700; }
   .pill-info { @apply pill bg-primary-50 text-primary-900; }
   .pill-mute { @apply pill bg-slate-100 text-slate-600; }
+
+  /* ===== Filter tab (admin) ===== */
+  .tab {
+    @apply inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-surface
+           px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors
+           hover:border-primary-900 hover:bg-primary-50 hover:text-primary-900;
+  }
+  .tab-on {
+    @apply border-primary-900 bg-primary-900 text-white
+           hover:border-primary-900 hover:bg-primary-950 hover:text-white;
+  }
+  .toolbar { @apply card mb-5 space-y-3 p-4; }
+  .tab-row { @apply flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0; }
+  .tab-row { scrollbar-width: none; -ms-overflow-style: none; }
+  .tab-row::-webkit-scrollbar { display: none; }
 
   /* ===== Stat card (dashboard + admin) ===== */
   .stat-card {

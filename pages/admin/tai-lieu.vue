@@ -195,8 +195,3 @@ async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpe
     </UiModal>
   </section>
 </template>
-
-<style scoped>
-.tab { @apply px-4 py-2 rounded-full text-sm font-medium border border-slate-200 bg-white text-slate-600 hover:border-primary-900 hover:text-primary-900 transition; }
-.tab-on { @apply bg-primary-900 border-primary-900 text-white hover:text-white; }
-</style>
