@@ -25,9 +25,24 @@ export default {
         line: '#e2e8f0',
         ok: '#16a34a',
         warn: '#f59e0b',
-        bad: '#dc2626'
+        bad: '#dc2626',
+        // Dark theme tokens (phong cach thegioidev.com - zinc scale)
+        dk: {
+          bg: '#09090b',      // zinc-950  - nen trang
+          panel: '#18181b',   // zinc-900  - card / sidebar
+          soft: '#1f1f23',    // nen phu (hover nhe)
+          line: '#27272a',    // zinc-800  - vien
+          line2: '#3f3f46',   // zinc-700  - vien manh / scrollbar hover
+          text: '#fafafa',    // zinc-50   - chu chinh
+          sub: '#a1a1aa',     // zinc-400  - chu phu
+          mute: '#71717a'     // zinc-500  - chu mo
+        }
       },
-      fontFamily: { sans: ['Be Vietnam Pro', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      fontFamily: {
+        sans: ['Be Vietnam Pro', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        ui: ['Inter', 'Be Vietnam Pro', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        hand: ['"Dancing Script"', 'cursive']
+      },
       borderRadius: { xl2: '12px' },
       boxShadow: {
         card: '0 1px 3px rgba(0,0,0,.06)',
@@ -40,7 +55,9 @@ export default {
         'fade-in': { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
         shimmer: { '0%': { backgroundPosition: '-500px 0' }, '100%': { backgroundPosition: '500px 0' } },
         'scale-in': { '0%': { opacity: '0', transform: 'scale(.96)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-        'slide-down': { '0%': { opacity: '0', transform: 'translateY(-6px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+        'slide-down': { '0%': { opacity: '0', transform: 'translateY(-6px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+        'hello-fill': { from: { opacity: '0', transform: 'translateY(2px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+        'check-pop': { '0%': { opacity: '0', transform: 'scale(0) rotate(-35deg)' }, '60%': { opacity: '1', transform: 'scale(1.12) rotate(4deg)' }, '100%': { opacity: '1', transform: 'scale(1) rotate(0)' } }
       },
       animation: {
         'fade-up': 'fade-up .45s ease-out both',
