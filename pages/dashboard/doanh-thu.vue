@@ -6,7 +6,8 @@ useSeoMeta({ title: 'Ví & doanh thu - MapDocs' })
 
 const auth = useAuthStore()
 const ui = useUiStore()
-const { currency, dateTime } = useFormat()
+const { currency, dateTime, compact } = useFormat()
+const { colors, hexAlpha, baseOptions } = useChartTheme()
 
 const type = ref<'all' | 'sale' | 'purchase' | 'topup' | 'withdraw'>('all')
 const page = ref(1)
@@ -48,23 +49,24 @@ function renderChart() {
       datasets: [{
         label: 'Doanh thu bán tài liệu (đ)',
         data: rows.map((r: any) => r.value),
-        backgroundColor: '#0b4a8f',
-        hoverBackgroundColor: '#ff8412',
+        backgroundColor: hexAlpha(colors.green, 0.62),
+        hoverBackgroundColor: colors.green,
+        borderColor: colors.green,
+        borderWidth: 1,
         borderRadius: 8,
         maxBarThickness: 46
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      ...baseOptions({ tickFormat: (v: any) => compact(v), legend: false }),
       plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: (c: any) => currency(c.parsed.y) } }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: (v: any) => (v >= 1000000 ? v / 1000000 + 'tr' : v >= 1000 ? v / 1000 + 'k' : v) } },
-        x: { grid: { display: false } }
+        ...baseOptions({ legend: false }).plugins,
+        tooltip: {
+          ...baseOptions().plugins.tooltip,
+          callbacks: { label: (c: any) => ` ${currency(c.parsed.y)}` }
+        }
       }
-    }
+    } as any
   })
 }
 

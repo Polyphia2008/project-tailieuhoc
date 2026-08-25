@@ -35,6 +35,8 @@ const strengthMeta = computed(() => (
   ][pwStrength.value]
 ))
 
+const FIRST_KEY = 'mapdocs:isFirstRegister'
+
 async function submit() {
   const err = validate()
   if (err) return ui.error(err)
@@ -42,7 +44,19 @@ async function submit() {
   try {
     const res = await auth.register(form.name.trim(), form.email.trim(), form.password)
     ui.success(res?.message || 'Đăng ký thành công')
-    await navigateTo(String(route.query.redirect || '/dashboard'))
+    const target = String(route.query.redirect || '/dashboard')
+
+    // Lan dang ky dau tien tren thiet bi -> hien trang chuc mung "hello"
+    let isFirst = false
+    try { isFirst = !localStorage.getItem(FIRST_KEY) } catch { isFirst = false }
+    if (isFirst) {
+      try { localStorage.setItem(FIRST_KEY, new Date().toISOString()) } catch { /* ignore */ }
+      return await navigateTo({
+        path: '/auth/chuc-mung',
+        query: { redirect: target, name: form.name.trim() }
+      })
+    }
+    await navigateTo(target)
   } catch (e: any) {
     ui.error(e?.data?.statusMessage || 'Đăng ký thất bại')
   } finally { busy.value = false }
