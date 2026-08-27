@@ -1,362 +1,596 @@
-import type {
-  User, Category, DocumentItem, Order, Review, Transaction, Blog, Notification, ReportItem
-} from '~/types'
+const H = 'f5f8c50044d40102b5cafae41f11b6a4278522a6e5ae1c6c198f0a1ee6ed0669'
 
-export const DEMO_PASSWORD = '123456'
-
-const now = Date.now()
-const d = (daysAgo: number) => new Date(now - daysAgo * 86400000).toISOString()
-
-export const USERS: User[] = [
-  { id: 'u1', name: 'Quản trị viên MapDocs', email: 'admin@mapdocs.vn', password: DEMO_PASSWORD, role: 'admin', balance: 0, email_verified: true, provider: 'local', bio: 'Quản trị hệ thống MapDocs', created_at: d(400) },
-  { id: 'u2', name: 'Thầy Vũ Ngọc Anh', email: 'seller@mapdocs.vn', password: DEMO_PASSWORD, role: 'seller', balance: 4850000, email_verified: true, provider: 'local', bio: 'Giáo viên Vật lý - 12 năm kinh nghiệm luyện thi THPT Quốc gia. Tác giả nhiều bộ chuyên đề Vật lý 10-11-12.', phone: '0987654321', created_at: d(360) },
-  { id: 'u3', name: 'Nguyễn Minh Anh', email: 'user@mapdocs.vn', password: DEMO_PASSWORD, role: 'user', balance: 500000, email_verified: true, provider: 'local', bio: 'Học sinh lớp 12', created_at: d(120) },
-  { id: 'u4', name: 'Cô Nguyễn Thu Hằng', email: 'hang.toan@mapdocs.vn', password: DEMO_PASSWORD, role: 'seller', balance: 3120000, email_verified: true, provider: 'local', bio: 'Thạc sĩ Toán học - Chuyên luyện thi Toán THPT & Đánh giá năng lực.', created_at: d(300) },
-  { id: 'u5', name: 'Thầy Phạm Ngọc Lam Trường', email: 'truong.hoa@mapdocs.vn', password: DEMO_PASSWORD, role: 'seller', balance: 2260000, email_verified: true, provider: 'local', bio: 'Giáo viên Hoá học - Tác giả sách "Công phá Hoá học hữu cơ".', created_at: d(280) },
-  { id: 'u6', name: 'Cô Trần Thị Bích Ngọc', email: 'ngoc.van@mapdocs.vn', password: DEMO_PASSWORD, role: 'seller', balance: 1580000, email_verified: true, provider: 'local', bio: 'Giáo viên Ngữ văn - 10 năm ôn thi THPT Quốc gia.', created_at: d(200) },
-  { id: 'u7', name: 'Mr. David Nguyen', email: 'david.eng@mapdocs.vn', password: DEMO_PASSWORD, role: 'seller', balance: 980000, email_verified: true, provider: 'local', bio: 'IELTS 8.5 - Giáo viên Tiếng Anh luyện thi THPT & IELTS.', created_at: d(150) },
-  { id: 'u8', name: 'Tài khoản vi phạm', email: 'blocked@mapdocs.vn', password: DEMO_PASSWORD, role: 'user', balance: 0, blocked: true, email_verified: false, provider: 'local', created_at: d(60) }
-]
-
-export const CATEGORIES: Category[] = [
-  { id: 'c1', name: 'Toán học', slug: 'toan', icon: 'fa-square-root-variable', color: '#0b4a8f', description: 'Đại số, hình học, giải tích' },
-  { id: 'c2', name: 'Vật lý', slug: 'ly', icon: 'fa-atom', color: '#ff8412', description: 'Cơ, nhiệt, điện, quang, hạt nhân' },
-  { id: 'c3', name: 'Hoá học', slug: 'hoa', icon: 'fa-flask', color: '#16a34a', description: 'Vô cơ, hữu cơ, đại cương' },
-  { id: 'c4', name: 'Sinh học', slug: 'sinh', icon: 'fa-dna', color: '#0891b2', description: 'Di truyền, tiến hoá, sinh thái' },
-  { id: 'c5', name: 'Ngữ văn', slug: 'van', icon: 'fa-book-open', color: '#dc2626', description: 'Nghị luận văn học, xã hội' },
-  { id: 'c6', name: 'Tiếng Anh', slug: 'anh', icon: 'fa-language', color: '#7c3aed', description: 'Ngữ pháp, từ vựng, đề thi' },
-  { id: 'c7', name: 'Lịch sử', slug: 'su', icon: 'fa-landmark', color: '#b45309', description: 'Lịch sử Việt Nam & thế giới' },
-  { id: 'c8', name: 'Địa lý', slug: 'dia', icon: 'fa-earth-asia', color: '#059669', description: 'Địa lý tự nhiên, kinh tế xã hội' },
-  { id: 'c9', name: 'Tin học', slug: 'tin', icon: 'fa-laptop-code', color: '#4f46e5', description: 'Lập trình, tin học ứng dụng' },
-  { id: 'c10', name: 'GDCD', slug: 'gdcd', icon: 'fa-scale-balanced', color: '#db2777', description: 'Giáo dục công dân, pháp luật' }
-]
-
-function slugify(s: string): string {
-  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D')
-    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90)
+function ago(days: number, hours = 0): string {
+  return new Date(Date.now() - days * 864e5 - hours * 36e5).toISOString()
 }
 
+export const USERS: any[] = [
+  {
+    id: 'u_admin',
+    name: 'Trần Xuân Lộc',
+    email: 'admin@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'admin',
+    avatar: '',
+    bio: 'Quản trị viên hệ thống MapDocs',
+    phone: '0987654321',
+    balance: 12500000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(420)
+  },
+  {
+    id: 'u_seller',
+    name: 'Nguyễn Minh Hoàng',
+    email: 'seller@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'seller',
+    avatar: '',
+    bio: 'Giáo viên Toán 12 năm kinh nghiệm, chuyên đề thi HSG và ôn thi THPT.',
+    phone: '0912345678',
+    balance: 4820000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(310)
+  },
+  {
+    id: 'u_user',
+    name: 'Lê Thu Hà',
+    email: 'user@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'user',
+    avatar: '',
+    bio: 'Học sinh lớp 12 chuyên Lý.',
+    phone: '0933221100',
+    balance: 350000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(88)
+  },
+  {
+    id: 'u_s2',
+    name: 'Phạm Quốc Anh',
+    email: 'quocanh@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'seller',
+    avatar: '',
+    bio: 'Giáo viên Vật lý, tác giả bộ chuyên đề Dao động cơ.',
+    balance: 2140000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(240)
+  },
+  {
+    id: 'u_s3',
+    name: 'Vũ Thị Kim Ngân',
+    email: 'kimngan@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'seller',
+    avatar: '',
+    bio: 'Giáo viên Ngữ văn, chuyên nghị luận xã hội.',
+    balance: 1680000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(195)
+  },
+  {
+    id: 'u_s4',
+    name: 'Đỗ Hải Long',
+    email: 'hailong@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'seller',
+    avatar: '',
+    bio: 'Giáo viên Hoá học, chuyên Hoá hữu cơ.',
+    balance: 920000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(150)
+  },
+  {
+    id: 'u_u2',
+    name: 'Bùi Gia Bảo',
+    email: 'giabao@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'user',
+    avatar: '',
+    balance: 120000,
+    blocked: false,
+    email_verified: true,
+    provider: 'local',
+    created_at: ago(52)
+  },
+  {
+    id: 'u_u3',
+    name: 'Hoàng Mỹ Duyên',
+    email: 'myduyen@mapdocs.vn',
+    password_hash: H,
+    salt: 'mapdocs',
+    role: 'user',
+    avatar: '',
+    balance: 0,
+    blocked: true,
+    email_verified: false,
+    provider: 'local',
+    created_at: ago(21)
+  }
+]
+
+export const CATEGORIES: any[] = [
+  { id: 'c_toan', name: 'Toán học', slug: 'toan', icon: 'solar:calculator-bold-duotone', color: '#3b82f6', parent_id: null, description: 'Đại số, giải tích, hình học không gian', document_count: 0 },
+  { id: 'c_ly', name: 'Vật lý', slug: 'ly', icon: 'solar:atom-bold-duotone', color: '#8b5cf6', parent_id: null, description: 'Dao động, điện, quang, hạt nhân', document_count: 0 },
+  { id: 'c_hoa', name: 'Hoá học', slug: 'hoa', icon: 'solar:test-tube-bold-duotone', color: '#10b981', parent_id: null, description: 'Hoá vô cơ, hữu cơ, đại cương', document_count: 0 },
+  { id: 'c_sinh', name: 'Sinh học', slug: 'sinh', icon: 'solar:leaf-bold-duotone', color: '#22c55e', parent_id: null, description: 'Di truyền, tiến hoá, sinh thái', document_count: 0 },
+  { id: 'c_van', name: 'Ngữ văn', slug: 'van', icon: 'solar:book-2-bold-duotone', color: '#f43f5e', parent_id: null, description: 'Nghị luận, phân tích tác phẩm', document_count: 0 },
+  { id: 'c_anh', name: 'Tiếng Anh', slug: 'anh', icon: 'solar:global-bold-duotone', color: '#f97316', parent_id: null, description: 'Ngữ pháp, từ vựng, đọc hiểu', document_count: 0 },
+  { id: 'c_su', name: 'Lịch sử', slug: 'su', icon: 'solar:notebook-bold-duotone', color: '#a16207', parent_id: null, description: 'Lịch sử Việt Nam và thế giới', document_count: 0 },
+  { id: 'c_dia', name: 'Địa lý', slug: 'dia', icon: 'solar:map-point-wave-bold-duotone', color: '#0ea5e9', parent_id: null, description: 'Địa lý tự nhiên, kinh tế, dân cư', document_count: 0 }
+]
+
 interface DocSeed {
-  t: string; s: string; g: number; p: number; sid: string; pg: number;
-  feat?: boolean; tags?: string[]; st?: any; days: number; views: number; dls: number; sold: number
+  t: string
+  s: string
+  sub: string
+  g: number
+  p: number
+  seller: string
+  pages: number
+  ft?: string
+  st?: string
+  feat?: boolean
+  tags?: string[]
+  v?: number
+  sold?: number
+  ra?: number
+  rc?: number
+  day: number
 }
 
 const DOC_SEEDS: DocSeed[] = [
-  { t: 'Tổng ôn Vật lý 12 - Dao động cơ học (200 bài có lời giải)', s: 'ly', g: 12, p: 89000, sid: 'u2', pg: 156, feat: true, days: 5, views: 4820, dls: 612, sold: 318, tags: ['dao động cơ', 'ôn thi THPT', 'có lời giải'] },
-  { t: 'Chuyên đề Sóng cơ và sóng âm - Lý thuyết & 150 bài tập', s: 'ly', g: 12, p: 79000, sid: 'u2', pg: 128, feat: true, days: 12, views: 3610, dls: 445, sold: 226, tags: ['sóng cơ', 'sóng âm', 'chuyên đề'] },
-  { t: 'Đề thi thử THPT Quốc gia môn Vật lý 2025 - Đợt 1 (Có đáp án)', s: 'ly', g: 12, p: 0, sid: 'u2', pg: 12, days: 3, views: 8930, dls: 3120, sold: 0, tags: ['đề thi thử', 'miễn phí', '2025'] },
-  { t: 'Công thức giải nhanh Vật lý 12 - Tổng hợp 8 trang', s: 'ly', g: 12, p: 0, sid: 'u2', pg: 8, days: 18, views: 12400, dls: 5240, sold: 0, tags: ['công thức', 'giải nhanh', 'miễn phí'] },
-  { t: 'Điện xoay chiều - Phương pháp giản đồ vector nâng cao', s: 'ly', g: 12, p: 99000, sid: 'u2', pg: 184, days: 25, views: 2140, dls: 260, sold: 141, tags: ['điện xoay chiều', 'nâng cao'] },
-  { t: 'Vật lý 11 - Trọn bộ chuyên đề Điện trường & Dòng điện', s: 'ly', g: 11, p: 69000, sid: 'u2', pg: 142, days: 40, views: 1890, dls: 210, sold: 98, tags: ['vật lý 11', 'điện trường'] },
-  { t: 'Vật lý 10 - Động học & Động lực học chất điểm', s: 'ly', g: 10, p: 59000, sid: 'u2', pg: 118, days: 55, views: 1420, dls: 180, sold: 76, tags: ['vật lý 10', 'động học'] },
-  { t: 'Chuyên đề Hàm số và ứng dụng đạo hàm - 300 bài VD-VDC', s: 'toan', g: 12, p: 119000, sid: 'u4', pg: 245, feat: true, days: 7, views: 6210, dls: 780, sold: 412, tags: ['hàm số', 'đạo hàm', 'VD-VDC'] },
-  { t: 'Hình học không gian Oxyz - Toàn tập phương pháp toạ độ', s: 'toan', g: 12, p: 109000, sid: 'u4', pg: 210, feat: true, days: 15, views: 4530, dls: 520, sold: 289, tags: ['oxyz', 'hình học không gian'] },
-  { t: 'Đề minh hoạ Toán THPT 2025 - Giải chi tiết từng câu', s: 'toan', g: 12, p: 0, sid: 'u4', pg: 24, days: 2, views: 15200, dls: 6840, sold: 0, tags: ['đề minh hoạ', 'miễn phí', '2025'] },
-  { t: 'Nguyên hàm - Tích phân: 250 bài tập phân dạng', s: 'toan', g: 12, p: 95000, sid: 'u4', pg: 196, days: 22, views: 3320, dls: 390, sold: 198, tags: ['tích phân', 'nguyên hàm'] },
-  { t: 'Số phức - Lý thuyết trọng tâm & bài tập trắc nghiệm', s: 'toan', g: 12, p: 65000, sid: 'u4', pg: 96, days: 33, views: 2110, dls: 245, sold: 112, tags: ['số phức'] },
-  { t: 'Toán 11 - Dãy số, cấp số cộng, cấp số nhân', s: 'toan', g: 11, p: 55000, sid: 'u4', pg: 88, days: 48, views: 1670, dls: 195, sold: 87, tags: ['toán 11', 'dãy số'] },
-  { t: 'Toán 10 - Mệnh đề, tập hợp và bất phương trình', s: 'toan', g: 10, p: 0, sid: 'u4', pg: 62, days: 60, views: 4310, dls: 1820, sold: 0, tags: ['toán 10', 'miễn phí'] },
-  { t: 'Ôn thi Đánh giá năng lực ĐHQG - Phần Toán logic', s: 'toan', g: 12, p: 129000, sid: 'u4', pg: 268, days: 29, views: 2890, dls: 310, sold: 165, tags: ['ĐGNL', 'tư duy logic'] },
-  { t: 'Công phá Hoá hữu cơ 12 - Este, Lipit, Amin, Protein', s: 'hoa', g: 12, p: 105000, sid: 'u5', pg: 228, feat: true, days: 9, views: 5140, dls: 640, sold: 331, tags: ['hoá hữu cơ', 'este', 'amin'] },
-  { t: 'Bài toán kim loại tác dụng với axit - Phương pháp bảo toàn', s: 'hoa', g: 12, p: 85000, sid: 'u5', pg: 164, days: 20, views: 3020, dls: 350, sold: 178, tags: ['kim loại', 'bảo toàn electron'] },
-  { t: 'Sơ đồ tư duy Hoá học 12 - Trọn bộ 9 chương', s: 'hoa', g: 12, p: 0, sid: 'u5', pg: 18, days: 6, views: 9820, dls: 4210, sold: 0, tags: ['sơ đồ tư duy', 'miễn phí'] },
-  { t: 'Hoá học 11 - Nitơ, Photpho, Cacbon, Silic', s: 'hoa', g: 11, p: 62000, sid: 'u5', pg: 124, days: 44, views: 1560, dls: 175, sold: 82, tags: ['hoá 11', 'phi kim'] },
-  { t: 'Đề thi thử Hoá học 2025 - Bộ 10 đề chuẩn cấu trúc', s: 'hoa', g: 12, p: 99000, sid: 'u5', pg: 120, feat: true, days: 11, views: 4110, dls: 480, sold: 245, tags: ['đề thi thử', '10 đề'] },
-  { t: 'Hoá học 10 - Cấu tạo nguyên tử & Bảng tuần hoàn', s: 'hoa', g: 10, p: 48000, sid: 'u5', pg: 92, days: 66, views: 1240, dls: 140, sold: 61, tags: ['hoá 10', 'nguyên tử'] },
-  { t: 'Di truyền học quần thể - Chuyên đề Sinh 12 nâng cao', s: 'sinh', g: 12, p: 88000, sid: 'u5', pg: 172, days: 17, views: 2740, dls: 310, sold: 158, tags: ['di truyền', 'quần thể'] },
-  { t: 'Sinh học 12 - Tóm tắt lý thuyết toàn tập 40 trang', s: 'sinh', g: 12, p: 0, sid: 'u5', pg: 40, days: 8, views: 7620, dls: 3140, sold: 0, tags: ['tóm tắt', 'miễn phí'] },
-  { t: 'Bài tập quy luật di truyền Menđen - 180 câu có giải', s: 'sinh', g: 12, p: 75000, sid: 'u5', pg: 148, days: 31, views: 2010, dls: 230, sold: 118, tags: ['menđen', 'quy luật di truyền'] },
-  { t: 'Nghị luận văn học 12 - Bộ 25 đề mẫu điểm cao', s: 'van', g: 12, p: 92000, sid: 'u6', pg: 188, feat: true, days: 10, views: 4890, dls: 570, sold: 296, tags: ['nghị luận văn học', 'văn mẫu'] },
-  { t: 'Tổng hợp mở bài - kết bài hay cho 12 tác phẩm trọng tâm', s: 'van', g: 12, p: 0, sid: 'u6', pg: 32, days: 4, views: 11300, dls: 4920, sold: 0, tags: ['mở bài', 'kết bài', 'miễn phí'] },
-  { t: 'Nghị luận xã hội - 40 chủ đề nóng & dàn ý chi tiết', s: 'van', g: 12, p: 78000, sid: 'u6', pg: 156, days: 19, views: 3410, dls: 400, sold: 205, tags: ['nghị luận xã hội', 'dàn ý'] },
-  { t: 'Ngữ văn 11 - Phân tích các tác phẩm trọng tâm', s: 'van', g: 11, p: 58000, sid: 'u6', pg: 132, days: 50, views: 1480, dls: 170, sold: 74, tags: ['văn 11'] },
-  { t: 'Ngữ pháp Tiếng Anh THPT - 3000 câu trắc nghiệm phân dạng', s: 'anh', g: 12, p: 96000, sid: 'u7', pg: 232, feat: true, days: 13, views: 5320, dls: 610, sold: 312, tags: ['ngữ pháp', 'trắc nghiệm'] },
-  { t: '600 từ vựng Tiếng Anh thi THPT theo chủ đề', s: 'anh', g: 12, p: 0, sid: 'u7', pg: 28, days: 7, views: 10200, dls: 4380, sold: 0, tags: ['từ vựng', 'miễn phí'] },
-  { t: 'Đọc hiểu Tiếng Anh - Chiến thuật & 50 bài luyện', s: 'anh', g: 12, p: 82000, sid: 'u7', pg: 168, days: 26, views: 2630, dls: 300, sold: 152, tags: ['đọc hiểu', 'reading'] },
-  { t: 'Tiếng Anh 11 - Bài tập theo từng Unit (SGK mới)', s: 'anh', g: 11, p: 52000, sid: 'u7', pg: 108, days: 58, views: 1320, dls: 155, sold: 68, tags: ['tiếng anh 11', 'SGK mới'] },
-  { t: 'Lịch sử 12 - Sơ đồ hoá toàn bộ chương trình', s: 'su', g: 12, p: 45000, sid: 'u6', pg: 76, days: 36, views: 1920, dls: 220, sold: 96, tags: ['lịch sử 12', 'sơ đồ'] },
-  { t: 'Atlat Địa lý - Hướng dẫn khai thác & 200 câu vận dụng', s: 'dia', g: 12, p: 55000, sid: 'u6', pg: 98, days: 28, views: 2340, dls: 270, sold: 124, tags: ['atlat', 'địa lý 12'] },
-  { t: 'Tin học 11 - Lập trình Python căn bản cho học sinh', s: 'tin', g: 11, p: 0, sid: 'u4', pg: 84, days: 21, views: 3820, dls: 1420, sold: 0, tags: ['python', 'lập trình', 'miễn phí'] },
-  { t: 'GDCD 12 - Pháp luật & đời sống: 300 câu trắc nghiệm', s: 'gdcd', g: 12, p: 42000, sid: 'u6', pg: 88, days: 39, views: 1680, dls: 190, sold: 84, tags: ['gdcd', 'pháp luật'] },
-  { t: 'Chuyên đề Cơ học chất lưu (đang chờ duyệt)', s: 'ly', g: 10, p: 45000, sid: 'u2', pg: 64, st: 'pending', days: 1, views: 0, dls: 0, sold: 0, tags: ['chờ duyệt'] },
-  { t: 'Bộ đề Toán ôn tập hè lớp 10 (đang chờ duyệt)', s: 'toan', g: 10, p: 38000, sid: 'u4', pg: 72, st: 'pending', days: 2, views: 0, dls: 0, sold: 0, tags: ['ôn hè'] },
-  { t: 'Tài liệu sao chép không rõ nguồn (đã từ chối)', s: 'hoa', g: 12, p: 30000, sid: 'u5', pg: 20, st: 'rejected', days: 14, views: 0, dls: 0, sold: 0, tags: [] }
+  { t: 'Bộ 50 đề thi thử THPT Quốc gia môn Toán 2025 có lời giải chi tiết', s: 'bo-50-de-thi-thu-thpt-toan-2025', sub: 'toan', g: 12, p: 149000, seller: 'u_seller', pages: 420, feat: true, tags: ['đề thi thử', 'THPT QG', 'lời giải'], v: 15420, sold: 386, ra: 4.9, rc: 128, day: 4 },
+  { t: 'Chuyên đề Hàm số và ứng dụng đạo hàm - Toán 12', s: 'chuyen-de-ham-so-ung-dung-dao-ham-toan-12', sub: 'toan', g: 12, p: 0, seller: 'u_seller', pages: 86, tags: ['chuyên đề', 'hàm số'], v: 28710, sold: 0, ra: 4.7, rc: 214, day: 12 },
+  { t: 'Hình học không gian - 200 bài tập tự luận chọn lọc', s: 'hinh-hoc-khong-gian-200-bai-tap', sub: 'toan', g: 11, p: 89000, seller: 'u_seller', pages: 168, feat: true, tags: ['hình học', 'tự luận'], v: 9240, sold: 174, ra: 4.8, rc: 66, day: 20 },
+  { t: 'Tuyển tập đề HSG Toán cấp tỉnh 2020-2024', s: 'tuyen-tap-de-hsg-toan-cap-tinh', sub: 'toan', g: 12, p: 199000, seller: 'u_seller', pages: 312, tags: ['HSG', 'nâng cao'], v: 6180, sold: 92, ra: 4.9, rc: 41, day: 31 },
+  { t: 'Toán 10 - Mệnh đề, tập hợp và bất phương trình', s: 'toan-10-menh-de-tap-hop', sub: 'toan', g: 10, p: 0, seller: 'u_seller', pages: 64, tags: ['cơ bản'], v: 18930, sold: 0, ra: 4.5, rc: 97, day: 45 },
+  { t: 'Chuyên đề Dao động cơ - Lý thuyết và 300 bài tập phân dạng', s: 'chuyen-de-dao-dong-co-300-bai-tap', sub: 'ly', g: 12, p: 129000, seller: 'u_s2', pages: 246, feat: true, tags: ['dao động cơ', 'phân dạng'], v: 12380, sold: 258, ra: 4.8, rc: 91, day: 7 },
+  { t: 'Điện xoay chiều - Tổng ôn công thức nhanh', s: 'dien-xoay-chieu-tong-on-cong-thuc', sub: 'ly', g: 12, p: 69000, seller: 'u_s2', pages: 74, tags: ['công thức', 'tổng ôn'], v: 8420, sold: 142, ra: 4.6, rc: 58, day: 15 },
+  { t: 'Vật lý 11 - Dòng điện không đổi (bài giảng slide)', s: 'vat-ly-11-dong-dien-khong-doi', sub: 'ly', g: 11, p: 0, seller: 'u_s2', pages: 52, ft: 'pptx', tags: ['bài giảng', 'slide'], v: 11240, sold: 0, ra: 4.4, rc: 72, day: 28 },
+  { t: 'Bộ 30 đề thi thử Vật lý 2025 - bám sát cấu trúc mới', s: 'bo-30-de-thi-thu-vat-ly-2025', sub: 'ly', g: 12, p: 139000, seller: 'u_s2', pages: 288, tags: ['đề thi thử'], v: 7610, sold: 118, ra: 4.7, rc: 44, day: 9 },
+  { t: 'Hoá hữu cơ 12 - Este, Lipit, Cacbohidrat toàn tập', s: 'hoa-huu-co-12-este-lipit-cacbohidrat', sub: 'hoa', g: 12, p: 119000, seller: 'u_s4', pages: 198, feat: true, tags: ['hữu cơ', 'toàn tập'], v: 10880, sold: 196, ra: 4.8, rc: 74, day: 6 },
+  { t: 'Bài tập kim loại và hợp chất - phân dạng đầy đủ', s: 'bai-tap-kim-loai-hop-chat-phan-dang', sub: 'hoa', g: 12, p: 79000, seller: 'u_s4', pages: 142, tags: ['vô cơ', 'kim loại'], v: 6340, sold: 104, ra: 4.5, rc: 38, day: 18 },
+  { t: 'Hoá 10 - Cấu tạo nguyên tử và bảng tuần hoàn', s: 'hoa-10-cau-tao-nguyen-tu', sub: 'hoa', g: 10, p: 0, seller: 'u_s4', pages: 58, tags: ['cơ bản'], v: 14210, sold: 0, ra: 4.6, rc: 88, day: 38 },
+  { t: 'Di truyền học - Sơ đồ tư duy và bài tập vận dụng cao', s: 'di-truyen-hoc-so-do-tu-duy', sub: 'sinh', g: 12, p: 99000, seller: 'u_s4', pages: 156, tags: ['di truyền', 'sơ đồ tư duy'], v: 5920, sold: 86, ra: 4.7, rc: 32, day: 14 },
+  { t: 'Sinh học 11 - Chuyển hoá vật chất và năng lượng', s: 'sinh-hoc-11-chuyen-hoa-vat-chat', sub: 'sinh', g: 11, p: 0, seller: 'u_s4', pages: 66, tags: ['cơ bản'], v: 9180, sold: 0, ra: 4.3, rc: 54, day: 33 },
+  { t: 'Nghị luận xã hội - 100 đề mẫu và dàn ý chi tiết', s: 'nghi-luan-xa-hoi-100-de-mau', sub: 'van', g: 12, p: 109000, seller: 'u_s3', pages: 224, feat: true, tags: ['NLXH', 'dàn ý'], v: 19420, sold: 312, ra: 4.9, rc: 118, day: 3 },
+  { t: 'Phân tích tác phẩm Ngữ văn 12 - trọn bộ 18 tác phẩm', s: 'phan-tich-tac-pham-ngu-van-12', sub: 'van', g: 12, p: 129000, seller: 'u_s3', pages: 268, tags: ['phân tích', 'trọn bộ'], v: 13260, sold: 224, ra: 4.8, rc: 86, day: 11 },
+  { t: 'Ngữ văn 10 - Kỹ năng đọc hiểu văn bản', s: 'ngu-van-10-ky-nang-doc-hieu', sub: 'van', g: 10, p: 0, seller: 'u_s3', pages: 48, tags: ['đọc hiểu'], v: 8740, sold: 0, ra: 4.4, rc: 46, day: 41 },
+  { t: 'Tiếng Anh 12 - 3000 từ vựng theo chủ đề (có audio)', s: 'tieng-anh-12-3000-tu-vung-chu-de', sub: 'anh', g: 12, p: 89000, seller: 'u_s3', pages: 132, feat: true, tags: ['từ vựng', 'audio'], v: 16820, sold: 268, ra: 4.8, rc: 102, day: 5 },
+  { t: 'Ngữ pháp tiếng Anh THPT - tổng ôn 24 chuyên đề', s: 'ngu-phap-tieng-anh-thpt-24-chuyen-de', sub: 'anh', g: 12, p: 99000, seller: 'u_s3', pages: 186, tags: ['ngữ pháp'], v: 11340, sold: 178, ra: 4.7, rc: 68, day: 16 },
+  { t: 'Đề thi thử tiếng Anh 2025 - 25 đề có transcript', s: 'de-thi-thu-tieng-anh-2025-25-de', sub: 'anh', g: 12, p: 0, seller: 'u_s3', pages: 210, tags: ['đề thi thử'], v: 21460, sold: 0, ra: 4.6, rc: 134, day: 8 },
+  { t: 'Lịch sử Việt Nam 1945-1975 - sơ đồ hoá toàn bộ', s: 'lich-su-viet-nam-1945-1975-so-do', sub: 'su', g: 12, p: 79000, seller: 'u_s3', pages: 118, tags: ['sơ đồ', 'lịch sử VN'], v: 7280, sold: 96, ra: 4.6, rc: 34, day: 22 },
+  { t: 'Lịch sử thế giới hiện đại - trắc nghiệm phân dạng', s: 'lich-su-the-gioi-hien-dai-trac-nghiem', sub: 'su', g: 12, p: 0, seller: 'u_s3', pages: 92, tags: ['trắc nghiệm'], v: 5140, sold: 0, ra: 4.2, rc: 28, day: 36 },
+  { t: 'Địa lý 12 - Atlas và kỹ năng biểu đồ', s: 'dia-ly-12-atlas-ky-nang-bieu-do', sub: 'dia', g: 12, p: 69000, seller: 'u_s2', pages: 104, tags: ['atlas', 'biểu đồ'], v: 6820, sold: 88, ra: 4.5, rc: 30, day: 25 },
+  { t: 'Địa lý tự nhiên Việt Nam - tổng ôn nhanh', s: 'dia-ly-tu-nhien-viet-nam-tong-on', sub: 'dia', g: 12, p: 0, seller: 'u_s2', pages: 72, tags: ['tổng ôn'], v: 4930, sold: 0, ra: 4.3, rc: 22, day: 44 },
+  { t: 'Toán 12 - 500 câu trắc nghiệm tích phân', s: 'toan-12-500-cau-trac-nghiem-tich-phan', sub: 'toan', g: 12, p: 109000, seller: 'u_seller', pages: 184, tags: ['tích phân', 'trắc nghiệm'], v: 8940, sold: 136, ra: 4.7, rc: 52, day: 19 },
+  { t: 'Vật lý 12 - Sóng cơ và sóng âm chuyên sâu', s: 'vat-ly-12-song-co-song-am', sub: 'ly', g: 12, p: 89000, seller: 'u_s2', pages: 138, tags: ['sóng cơ'], v: 5620, sold: 74, ra: 4.6, rc: 26, day: 27 },
+  { t: 'Hoá 11 - Nitơ, Photpho và hợp chất', s: 'hoa-11-nito-photpho-hop-chat', sub: 'hoa', g: 11, p: 59000, seller: 'u_s4', pages: 88, st: 'pending', tags: ['vô cơ'], v: 0, sold: 0, ra: 0, rc: 0, day: 1 },
+  { t: 'Sinh 12 - Tiến hoá và sinh thái học tổng hợp', s: 'sinh-12-tien-hoa-sinh-thai-hoc', sub: 'sinh', g: 12, p: 89000, seller: 'u_s4', pages: 124, st: 'pending', tags: ['tiến hoá'], v: 0, sold: 0, ra: 0, rc: 0, day: 1 },
+  { t: 'Văn 11 - Thơ mới và văn học lãng mạn', s: 'van-11-tho-moi-van-hoc-lang-man', sub: 'van', g: 11, p: 0, seller: 'u_s3', pages: 56, st: 'pending', tags: ['thơ mới'], v: 0, sold: 0, ra: 0, rc: 0, day: 2 },
+  { t: 'Tiếng Anh 11 - Bài tập đọc hiểu nâng cao', s: 'tieng-anh-11-doc-hieu-nang-cao', sub: 'anh', g: 11, p: 129000, seller: 'u_s3', pages: 96, st: 'rejected', tags: ['đọc hiểu'], v: 0, sold: 0, ra: 0, rc: 0, day: 5 }
 ]
 
-function buildDescription(s: DocSeed): string {
-  const subjName = CATEGORIES.find((c) => c.slug === s.s)?.name || s.s
-  return `Tài liệu "${s.t}" thuộc môn ${subjName} lớp ${s.g}, được biên soạn công phu bởi đội ngũ giáo viên giàu kinh nghiệm luyện thi THPT Quốc gia.
+export const DOCUMENTS: any[] = DOC_SEEDS.map((d, i) => ({
+  id: `d_${String(i + 1).padStart(3, '0')}`,
+  title: d.t,
+  slug: d.s,
+  description: `${d.t}. Tài liệu được biên soạn kỹ lưỡng, bám sát chương trình mới, trình bày rõ ràng theo từng dạng bài kèm đáp án và lời giải chi tiết. Phù hợp cho học sinh tự học và giáo viên tham khảo trong quá trình giảng dạy, ôn tập cho các kỳ thi quan trọng.`,
+  subject: d.sub,
+  grade: d.g,
+  price: d.p,
+  is_free: d.p === 0,
+  thumbnail: '',
+  file_url: `documents/${d.s}.${d.ft || 'pdf'}`,
+  preview_url: `previews/${d.s}.pdf`,
+  file_type: d.ft || 'pdf',
+  file_size: d.pages * 42000 + 180000,
+  pages: d.pages,
+  status: d.st || 'approved',
+  reject_reason: d.st === 'rejected' ? 'Tài liệu trùng lặp với nội dung đã có trên hệ thống.' : undefined,
+  seller_id: d.seller,
+  tags: d.tags || [],
+  featured: Boolean(d.feat),
+  view_count: d.v ?? 0,
+  download_count: Math.floor((d.v ?? 0) * 0.18),
+  sold_count: d.sold ?? 0,
+  rating_avg: d.ra ?? 0,
+  rating_count: d.rc ?? 0,
+  created_at: ago(d.day),
+  updated_at: ago(Math.max(0, d.day - 1))
+}))
 
-NỘI DUNG CHÍNH:
-• Hệ thống lý thuyết trọng tâm được trình bày ngắn gọn, dễ nhớ, bám sát chương trình SGK và cấu trúc đề thi mới nhất.
-• Phân dạng bài tập từ cơ bản đến vận dụng cao (VD - VDC), mỗi dạng có phương pháp giải mẫu chi tiết.
-• Bài tập tự luyện có đáp án và lời giải đầy đủ, giúp học sinh tự kiểm tra và rút kinh nghiệm.
-• Tổng hợp các lỗi sai thường gặp và mẹo giải nhanh giúp tiết kiệm thời gian làm bài.
+const paidDocs = DOCUMENTS.filter((d) => !d.is_free && d.status === 'approved')
 
-ĐỐI TƯỢNG SỬ DỤNG:
-• Học sinh lớp ${s.g} đang ôn tập kiến thức và luyện thi.
-• Giáo viên cần nguồn tài liệu tham khảo để soạn giáo án, ra đề kiểm tra.
-• Phụ huynh muốn đồng hành cùng con trong quá trình học tập.
+export const ORDERS: any[] = paidDocs.slice(0, 14).flatMap((d, i) => {
+  const buyers = ['u_user', 'u_u2', 'u_user', 'u_u2']
+  return [0, 1].map((k) => {
+    const day = 2 + i * 2 + k
+    const commission = Math.round(d.price * 0.15)
+    return {
+      id: `o_${i}${k}`,
+      code: `MD${(Date.now() - day * 864e5).toString(36).toUpperCase().slice(-8)}${k}`,
+      buyer_id: buyers[(i + k) % buyers.length],
+      document_id: d.id,
+      seller_id: d.seller_id,
+      amount: d.price,
+      commission,
+      seller_amount: d.price - commission,
+      method: k === 0 ? 'wallet' : 'vnpay',
+      status: 'paid',
+      paid_at: ago(day, 3),
+      created_at: ago(day, 4)
+    }
+  })
+})
 
-Tài liệu gồm ${s.pg} trang, định dạng PDF chất lượng cao, in ấn rõ nét, có thể đọc trên mọi thiết bị.`
-}
-
-export const DOCUMENTS: DocumentItem[] = DOC_SEEDS.map((s, i) => {
-  const isFree = s.p === 0
-  const rc = s.st ? 0 : Math.max(0, Math.round(s.sold * 0.28) + (isFree ? Math.round(s.dls * 0.02) : 0))
-  const ra = rc === 0 ? 0 : Math.round((4.1 + ((i * 37) % 9) / 10) * 10) / 10
-  return {
-    id: `d${i + 1}`,
-    title: s.t,
-    slug: slugify(s.t) + '-' + (i + 1),
-    description: buildDescription(s),
-    subject: s.s,
-    grade: s.g,
-    price: s.p,
-    is_free: isFree,
-    thumbnail: '',
-    file_url: `/files/mapdocs-${i + 1}.pdf`,
-    preview_url: `/files/preview-${i + 1}.pdf`,
-    file_type: 'pdf' as const,
-    file_size: Math.round((s.pg * 0.09 + 0.6) * 1024 * 1024),
-    pages: s.pg,
-    status: (s.st || 'approved') as any,
-    reject_reason: s.st === 'rejected' ? 'Tài liệu vi phạm bản quyền, không rõ nguồn gốc. Vui lòng đăng tài liệu do bạn tự biên soạn.' : undefined,
-    seller_id: s.sid,
-    tags: s.tags || [],
-    view_count: s.views,
-    download_count: s.dls,
-    sold_count: s.sold,
-    rating_avg: ra > 5 ? 5 : ra,
-    rating_count: rc,
-    featured: !!s.feat,
-    created_at: d(s.days),
-    updated_at: d(Math.max(0, s.days - 1))
-  }
+ORDERS.push({
+  id: 'o_pending',
+  code: 'MDPENDING1',
+  buyer_id: 'u_user',
+  document_id: paidDocs[3]?.id || 'd_001',
+  seller_id: paidDocs[3]?.seller_id || 'u_seller',
+  amount: paidDocs[3]?.price || 100000,
+  commission: Math.round((paidDocs[3]?.price || 100000) * 0.15),
+  seller_amount: (paidDocs[3]?.price || 100000) - Math.round((paidDocs[3]?.price || 100000) * 0.15),
+  method: 'vnpay',
+  status: 'pending',
+  created_at: ago(0, 2)
 })
 
 const REVIEW_TEXTS = [
-  'Tài liệu rất chi tiết, lời giải dễ hiểu. Mình đã cải thiện điểm số rõ rệt sau khi luyện bộ này.',
-  'Nội dung bám sát đề thi, phân dạng khoa học. Rất đáng đồng tiền!',
-  'Chất lượng file rõ nét, trình bày đẹp mắt. Cảm ơn thầy cô đã biên soạn.',
-  'Bài tập từ dễ đến khó, phù hợp cho học sinh tự học tại nhà.',
-  'Phần lý thuyết tóm tắt cực kỳ hữu ích, tiết kiệm thời gian ôn tập.',
-  'Có một vài lỗi chính tả nhỏ nhưng nhìn chung tài liệu rất tốt.',
-  'Mình mua cho con ôn thi, con bảo dễ hiểu hơn sách tham khảo ngoài hiệu sách.',
-  'Đề bám cấu trúc mới 2025, giải chi tiết từng câu. Recommend!',
-  'Tài liệu ổn, mong tác giả cập nhật thêm phần vận dụng cao.',
-  'Đúng thứ mình cần cho giai đoạn nước rút. 5 sao!'
+  'Tài liệu rất chất lượng, trình bày rõ ràng và dễ hiểu. Lời giải chi tiết từng bước giúp mình tự học hiệu quả.',
+  'Nội dung bám sát đề thi, phân dạng khoa học. Rất đáng tiền!',
+  'Mình là giáo viên, dùng tài liệu này để soạn giáo án rất tiện. Cảm ơn tác giả.',
+  'Khá tốt, tuy nhiên có vài lỗi typo nhỏ. Nhìn chung vẫn đáng mua.',
+  'Bài tập từ dễ đến khó, phù hợp ôn thi. Recommend cho các bạn lớp 12.',
+  'File PDF nét, mục lục có bookmark tiện tra cứu. 5 sao!',
+  'Đầy đủ và hệ thống, giúp mình lấp được nhiều lỗ hổng kiến thức.'
 ]
 
-export const REVIEWS: Review[] = (() => {
-  const out: Review[] = []
-  let n = 1
-  const reviewers = ['u3', 'u4', 'u5', 'u6', 'u7', 'u2']
-  DOCUMENTS.filter((x) => x.rating_count > 0).forEach((doc, di) => {
-    const cnt = Math.min(5, Math.max(2, doc.rating_count % 6))
-    for (let i = 0; i < cnt; i++) {
-      const uid = reviewers[(di + i) % reviewers.length]
-      if (uid === doc.seller_id) continue
-      out.push({
-        id: `r${n++}`,
-        document_id: doc.id,
-        user_id: uid,
-        rating: [5, 5, 4, 5, 4, 3][(di + i) % 6],
-        comment: REVIEW_TEXTS[(di * 3 + i) % REVIEW_TEXTS.length],
-        created_at: d(Math.max(0, 30 - di - i * 2))
-      })
-    }
-  })
-  return out
-})()
+export const REVIEWS: any[] = DOCUMENTS.filter((d) => d.rating_count > 0)
+  .slice(0, 18)
+  .flatMap((d, i) =>
+    [0, 1, 2].slice(0, (i % 3) + 1).map((k) => ({
+      id: `r_${i}${k}`,
+      document_id: d.id,
+      user_id: ['u_user', 'u_u2', 'u_u3'][k],
+      rating: [5, 5, 4, 5, 4][(i + k) % 5],
+      comment: REVIEW_TEXTS[(i + k) % REVIEW_TEXTS.length],
+      created_at: ago(3 + i + k * 2)
+    }))
+  )
 
-export const ORDERS: Order[] = [
-  { id: 'o1', code: 'MD24A1B2C3', buyer_id: 'u3', document_id: 'd1', seller_id: 'u2', amount: 89000, commission: 13350, seller_amount: 75650, payment_method: 'wallet', status: 'paid', created_at: d(20) },
-  { id: 'o2', code: 'MD24D4E5F6', buyer_id: 'u3', document_id: 'd8', seller_id: 'u4', amount: 119000, commission: 17850, seller_amount: 101150, payment_method: 'vnpay', status: 'paid', created_at: d(14) },
-  { id: 'o3', code: 'MD24G7H8I9', buyer_id: 'u3', document_id: 'd16', seller_id: 'u5', amount: 105000, commission: 15750, seller_amount: 89250, payment_method: 'wallet', status: 'paid', created_at: d(9) },
-  { id: 'o4', code: 'MD24J1K2L3', buyer_id: 'u7', document_id: 'd9', seller_id: 'u4', amount: 109000, commission: 16350, seller_amount: 92650, payment_method: 'momo', status: 'paid', created_at: d(5) },
-  { id: 'o5', code: 'MD24M4N5O6', buyer_id: 'u3', document_id: 'd25', seller_id: 'u6', amount: 92000, commission: 13800, seller_amount: 78200, payment_method: 'vnpay', status: 'pending', created_at: d(1) }
+export const TRANSACTIONS: any[] = [
+  { id: 't_01', user_id: 'u_user', type: 'topup', amount: 500000, balance_after: 500000, ref: 'VNP20250801', note: 'Nạp tiền qua VNPay', status: 'success', created_at: ago(30) },
+  { id: 't_02', user_id: 'u_user', type: 'purchase', amount: -149000, balance_after: 351000, ref: 'MDAB12CD3', note: 'Mua: Bộ 50 đề thi thử THPT Quốc gia môn Toán 2025', status: 'success', created_at: ago(26) },
+  { id: 't_03', user_id: 'u_user', type: 'purchase', amount: -109000, balance_after: 242000, ref: 'MDBC23DE4', note: 'Mua: Nghị luận xã hội - 100 đề mẫu', status: 'success', created_at: ago(19) },
+  { id: 't_04', user_id: 'u_user', type: 'topup', amount: 200000, balance_after: 442000, ref: 'VNP20250815', note: 'Nạp tiền qua VNPay', status: 'success', created_at: ago(12) },
+  { id: 't_05', user_id: 'u_user', type: 'purchase', amount: -89000, balance_after: 353000, ref: 'MDCD34EF5', note: 'Mua: Tiếng Anh 12 - 3000 từ vựng', status: 'success', created_at: ago(6) },
+  { id: 't_06', user_id: 'u_seller', type: 'sale', amount: 126650, balance_after: 3126650, ref: 'MDAB12CD3', note: 'Bán tài liệu (đã trừ 15% hoa hồng)', status: 'success', created_at: ago(26) },
+  { id: 't_07', user_id: 'u_seller', type: 'sale', amount: 75650, balance_after: 3202300, ref: 'MDEF45GH6', note: 'Bán tài liệu (đã trừ 15% hoa hồng)', status: 'success', created_at: ago(20) },
+  { id: 't_08', user_id: 'u_seller', type: 'withdraw', amount: -2000000, balance_after: 1202300, ref: 'WD250810', note: 'Rút về Vietcombank ****4521', status: 'success', created_at: ago(14) },
+  { id: 't_09', user_id: 'u_seller', type: 'sale', amount: 92650, balance_after: 1294950, ref: 'MDGH56IJ7', note: 'Bán tài liệu (đã trừ 15% hoa hồng)', status: 'success', created_at: ago(9) },
+  { id: 't_10', user_id: 'u_seller', type: 'sale', amount: 168300, balance_after: 1463250, ref: 'MDIJ67KL8', note: 'Bán tài liệu (đã trừ 15% hoa hồng)', status: 'success', created_at: ago(4) },
+  { id: 't_11', user_id: 'u_seller', type: 'withdraw', amount: -500000, balance_after: 963250, ref: 'WD250825', note: 'Rút về Vietcombank ****4521', status: 'pending', created_at: ago(1) },
+  { id: 't_12', user_id: 'u_s2', type: 'sale', amount: 109650, balance_after: 2140000, ref: 'MDKL78MN9', note: 'Bán tài liệu (đã trừ 15% hoa hồng)', status: 'success', created_at: ago(7) },
+  { id: 't_13', user_id: 'u_s3', type: 'sale', amount: 92650, balance_after: 1680000, ref: 'MDMN89OP1', note: 'Bán tài liệu (đã trừ 15% hoa hồng)', status: 'success', created_at: ago(3) },
+  { id: 't_14', user_id: 'u_u2', type: 'topup', amount: 120000, balance_after: 120000, ref: 'VNP20250820', note: 'Nạp tiền qua VNPay', status: 'success', created_at: ago(8) }
 ]
 
-export const TRANSACTIONS: Transaction[] = [
-  { id: 't1', user_id: 'u3', type: 'topup', amount: 1000000, balance_after: 1000000, note: 'Nạp tiền vào ví qua VNPay', created_at: d(25) },
-  { id: 't2', user_id: 'u3', type: 'purchase', amount: -89000, balance_after: 911000, note: 'Mua tài liệu: Tổng ôn Vật lý 12 - Dao động cơ học', ref_id: 'o1', created_at: d(20) },
-  { id: 't3', user_id: 'u2', type: 'sale', amount: 75650, balance_after: 4775650, note: 'Bán tài liệu (đã trừ 15% hoa hồng)', ref_id: 'o1', created_at: d(20) },
-  { id: 't4', user_id: 'u3', type: 'purchase', amount: -119000, balance_after: 792000, note: 'Mua tài liệu: Chuyên đề Hàm số và ứng dụng đạo hàm', ref_id: 'o2', created_at: d(14) },
-  { id: 't5', user_id: 'u4', type: 'sale', amount: 101150, balance_after: 3120000, note: 'Bán tài liệu (đã trừ 15% hoa hồng)', ref_id: 'o2', created_at: d(14) },
-  { id: 't6', user_id: 'u2', type: 'withdraw', amount: -2000000, balance_after: 2775650, note: 'Rút tiền về Vietcombank ****4321', created_at: d(10) },
-  { id: 't7', user_id: 'u3', type: 'purchase', amount: -105000, balance_after: 687000, note: 'Mua tài liệu: Công phá Hoá hữu cơ 12', ref_id: 'o3', created_at: d(9) },
-  { id: 't8', user_id: 'u5', type: 'sale', amount: 89250, balance_after: 2260000, note: 'Bán tài liệu (đã trừ 15% hoa hồng)', ref_id: 'o3', created_at: d(9) },
-  { id: 't9', user_id: 'u3', type: 'topup', amount: 500000, balance_after: 500000, note: 'Nạp tiền vào ví qua Momo', created_at: d(3) }
+export const BLOGS: any[] = [
+  {
+    id: 'b_01',
+    slug: 'chien-luoc-on-thi-thpt-quoc-gia-2025',
+    title: 'Chiến lược ôn thi THPT Quốc gia 2025 hiệu quả trong 6 tháng',
+    excerpt: 'Lộ trình 6 tháng chia thành 3 giai đoạn rõ ràng giúp bạn hệ thống lại toàn bộ kiến thức và tối ưu điểm số trong kỳ thi quan trọng nhất.',
+    cover: '',
+    content: `## Giai đoạn 1: Hệ thống lại nền tảng (tháng 1-2)
+
+Đây là giai đoạn quan trọng nhất nhưng thường bị bỏ qua. Bạn cần rà soát lại toàn bộ kiến thức từ lớp 10 đến lớp 12, đặc biệt là các phần kiến thức nền tảng.
+
+- Lập danh sách các chuyên đề theo từng môn
+- Đánh giá mức độ nắm vững của bản thân theo thang 1-5
+- Ưu tiên các chuyên đề dưới mức 3
+
+## Giai đoạn 2: Luyện dạng bài chuyên sâu (tháng 3-4)
+
+Sau khi có nền tảng, bạn chuyển sang luyện tập theo dạng. Mỗi dạng bài nên làm ít nhất 30-50 câu để hình thành phản xạ.
+
+Kinh nghiệm cho thấy học sinh làm đúng 80% các dạng bài cơ bản sẽ đạt được mức 7-8 điểm mà không cần đến các câu vận dụng cao.
+
+## Giai đoạn 3: Luyện đề và rút kinh nghiệm (tháng 5-6)
+
+Giai đoạn cuối, mỗi tuần nên làm 3-4 đề thi thử trong điều kiện giống thi thật. Quan trọng nhất là **phân tích lỗi sai** sau mỗi đề.
+
+- Ghi lại mọi câu sai vào sổ tay
+- Phân loại nguyên nhân: chưa học, học rồi mà quên, hoặc bất cẩn
+- Ôn lại nhóm "học rồi mà quên" mỗi tuần
+
+## Lời kết
+
+Không có công thức chung cho tất cả, nhưng một lộ trình rõ ràng sẽ giúp bạn giảm lo lắng và tăng hiệu quả đáng kể. Chúc bạn thành công!`,
+    author_id: 'u_admin',
+    tags: ['ôn thi', 'THPT QG', 'lộ trình'],
+    view_count: 8420,
+    published: true,
+    published_at: ago(5),
+    created_at: ago(5)
+  },
+  {
+    id: 'b_02',
+    slug: 'cach-chon-tai-lieu-hoc-tap-chat-luong',
+    title: 'Cách chọn tài liệu học tập chất lượng: 7 tiêu chí cần biết',
+    excerpt: 'Giữa hàng nghìn tài liệu trên mạng, làm sao biết đâu là tài liệu đáng đầu tư thời gian? Đây là 7 tiêu chí đánh giá thực tế.',
+    cover: '',
+    content: `## 1. Bám sát chương trình hiện hành
+
+Chương trình giáo dục thay đổi liên tục. Tài liệu tốt phải ghi rõ áp dụng cho chương trình nào, năm nào.
+
+## 2. Có lời giải chi tiết
+
+Đáp án A/B/C/D không đủ. Bạn cần biết **tại sao** đáp án đó đúng và các đáp án khác sai ở đâu.
+
+## 3. Phân dạng khoa học
+
+Tài liệu tốt nhóm bài tập theo dạng, mỗi dạng có phương pháp giải chung rồi mới đến bài tập áp dụng.
+
+## 4. Độ khó tăng dần
+
+Nhảy ngay vào câu vận dụng cao sẽ gây mất động lực. Tài liệu tốt luôn có lộ trình nhận biết → thông hiểu → vận dụng.
+
+## 5. Trình bày rõ ràng
+
+Font dễ đọc, công thức được đánh số, có mục lục và bookmark trong file PDF.
+
+## 6. Tác giả có uy tín
+
+Ưu tiên tài liệu từ giáo viên đang giảng dạy, có thông tin rõ ràng và phản hồi tốt từ người dùng trước.
+
+## 7. Đánh giá từ cộng đồng
+
+Đọc nhận xét thực tế của người đã dùng. Trên MapDocs, mỗi tài liệu đều có phần đánh giá và điểm số minh bạch.`,
+    author_id: 'u_admin',
+    tags: ['tài liệu', 'kinh nghiệm'],
+    view_count: 5240,
+    published: true,
+    published_at: ago(11),
+    created_at: ago(11)
+  },
+  {
+    id: 'b_03',
+    slug: 'huong-dan-dang-ban-tai-lieu-tren-mapdocs',
+    title: 'Hướng dẫn đăng bán tài liệu trên MapDocs và nhận 85% doanh thu',
+    excerpt: 'Bạn là giáo viên hoặc học sinh có tài liệu chất lượng? Đây là hướng dẫn từng bước để bắt đầu kiếm thu nhập từ MapDocs.',
+    cover: '',
+    content: `## Bước 1: Tạo tài khoản và xác thực
+
+Đăng ký tài khoản miễn phí, sau đó hoàn thiện hồ sơ với thông tin thật. Hồ sơ đầy đủ giúp tăng độ tin cậy và tỷ lệ bán hàng.
+
+## Bước 2: Chuẩn bị tài liệu
+
+- Định dạng PDF là tối ưu nhất (giữ nguyên layout trên mọi thiết bị)
+- Kích thước tối đa 50MB
+- Nên có trang bìa và mục lục
+- Thêm watermark nhẹ để bảo vệ bản quyền
+
+## Bước 3: Đăng tải và định giá
+
+Truy cập **Dashboard → Đăng bán tài liệu**, điền đầy đủ thông tin. Về giá:
+
+| Loại tài liệu | Khoảng giá gợi ý |
+|---|---|
+| Chuyên đề đơn (50-100 trang) | 59.000đ - 99.000đ |
+| Bộ đề thi thử (200+ trang) | 129.000đ - 199.000đ |
+| Trọn bộ chương trình | 199.000đ - 299.000đ |
+
+## Bước 4: Chờ duyệt
+
+Đội ngũ kiểm duyệt sẽ xem xét trong vòng 24 giờ. Tài liệu bị từ chối sẽ có lý do cụ thể để bạn chỉnh sửa.
+
+## Bước 5: Nhận doanh thu
+
+Mỗi giao dịch bạn nhận **85%** giá bán, MapDocs giữ 15% cho chi phí vận hành và thanh toán. Số dư có thể rút về ngân hàng khi đạt tối thiểu 200.000đ.
+
+## Mẹo tăng doanh thu
+
+1. Đặt tiêu đề rõ ràng, chứa từ khoá học sinh hay tìm
+2. Viết mô tả chi tiết về nội dung bên trong
+3. Cung cấp bản preview vài trang đầu
+4. Phản hồi nhanh các câu hỏi và đánh giá`,
+    author_id: 'u_admin',
+    tags: ['đăng bán', 'hướng dẫn', 'thu nhập'],
+    view_count: 6810,
+    published: true,
+    published_at: ago(18),
+    created_at: ago(18)
+  },
+  {
+    id: 'b_04',
+    slug: 'phuong-phap-so-do-tu-duy-cho-mon-tu-nhien',
+    title: 'Phương pháp sơ đồ tư duy áp dụng cho các môn tự nhiên',
+    excerpt: 'Sơ đồ tư duy không chỉ dành cho môn xã hội. Đây là cách áp dụng hiệu quả cho Toán, Lý, Hoá, Sinh.',
+    cover: '',
+    content: `## Vì sao sơ đồ tư duy hiệu quả với môn tự nhiên?
+
+Nhiều người nghĩ môn tự nhiên chỉ cần làm bài tập. Nhưng thực tế, việc **hệ thống hoá công thức và mối liên hệ giữa các khái niệm** là chìa khoá để giải nhanh.
+
+## Áp dụng cho môn Toán
+
+Với mỗi chuyên đề, tạo một sơ đồ gồm:
+
+- Trung tâm: tên chuyên đề
+- Nhánh 1: định nghĩa và tính chất cơ bản
+- Nhánh 2: các dạng bài thường gặp
+- Nhánh 3: công thức và mẹo giải nhanh
+- Nhánh 4: lỗi thường mắc
+
+## Áp dụng cho môn Lý và Hoá
+
+Ưu tiên sơ đồ dạng **luồng biến đổi**: từ đại lượng đầu vào đến kết quả, qua các công thức trung gian. Cách này giúp bạn nhìn ra ngay đường đi khi gặp bài mới.
+
+## Áp dụng cho môn Sinh
+
+Sinh học có nhiều quá trình liên hoàn (quang hợp, hô hấp, di truyền). Sơ đồ tư duy dạng chu trình là phù hợp nhất.
+
+## Công cụ đề xuất
+
+Vẽ tay vẫn hiệu quả nhất vì quá trình vẽ là quá trình ghi nhớ. Nếu dùng máy, có thể thử XMind hoặc Miro.`,
+    author_id: 'u_admin',
+    tags: ['phương pháp học', 'sơ đồ tư duy'],
+    view_count: 3920,
+    published: true,
+    published_at: ago(24),
+    created_at: ago(24)
+  },
+  {
+    id: 'b_05',
+    slug: 'quan-ly-thoi-gian-cho-hoc-sinh-lop-12',
+    title: 'Quản lý thời gian cho học sinh lớp 12: khung giờ vàng',
+    excerpt: 'Học 12 tiếng một ngày không hiệu quả bằng học 6 tiếng đúng cách. Tìm hiểu về khung giờ vàng và cách tận dụng.',
+    cover: '',
+    content: `## Nguyên tắc cốt lõi: chất lượng hơn số lượng
+
+Nghiên cứu cho thấy khả năng tập trung sâu của con người chỉ duy trì được **90-120 phút** mỗi phiên. Sau đó hiệu suất giảm mạnh.
+
+## Khung giờ vàng theo loại nhiệm vụ
+
+| Khung giờ | Trạng thái | Nhiệm vụ phù hợp |
+|---|---|---|
+| 5h30 - 7h30 | Não tỉnh táo nhất | Học kiến thức mới, môn khó |
+| 9h - 11h | Tập trung cao | Giải bài tập phức tạp |
+| 14h - 16h | Hơi buồn ngủ | Ôn lại, làm trắc nghiệm nhẹ |
+| 19h30 - 21h30 | Ghi nhớ tốt | Học thuộc, ôn từ vựng |
+
+## Kỹ thuật Pomodoro cải tiến
+
+Thay vì 25 phút truyền thống, học sinh lớp 12 nên dùng chu kỳ **50 phút học - 10 phút nghỉ**, sau 3 chu kỳ nghỉ dài 30 phút.
+
+## Đừng bỏ qua giấc ngủ
+
+Ngủ đủ 7-8 tiếng là điều kiện bắt buộc để trí nhớ dài hạn hình thành. Thức đêm học bài thực chất là **phá hoại** kiến thức bạn vừa nạp vào.
+
+## Bảng kế hoạch tuần
+
+Cuối mỗi tuần, hãy dành 20 phút lập kế hoạch cho tuần sau với 3 ưu tiên rõ ràng. Đừng lập kế hoạch quá chi tiết vì bạn sẽ không theo được.`,
+    author_id: 'u_admin',
+    tags: ['quản lý thời gian', 'lớp 12'],
+    view_count: 4570,
+    published: true,
+    published_at: ago(32),
+    created_at: ago(32)
+  },
+  {
+    id: 'b_06',
+    slug: 'bao-ve-ban-quyen-tai-lieu-so',
+    title: 'Bảo vệ bản quyền tài liệu số: điều người đăng bán cần biết',
+    excerpt: 'Tài liệu bị sao chép trái phép là nỗi lo lớn nhất của người bán. Đây là các biện pháp thực tế bạn có thể áp dụng.',
+    cover: '',
+    content: `## Thực trạng
+
+Tài liệu số rất dễ bị sao chép và phát tán. Tuy nhiên, có nhiều cách để giảm thiểu thiệt hại đáng kể.
+
+## Biện pháp kỹ thuật
+
+### 1. Watermark động
+
+Chèn watermark chứa email hoặc ID người mua vào từng trang. Khi tài liệu bị phát tán, bạn biết ngay nguồn rò rỉ.
+
+### 2. Khoá quyền in và copy
+
+PDF cho phép đặt quyền chỉ đọc. Không tuyệt đối nhưng ngăn được phần lớn trường hợp.
+
+### 3. Phân phối qua nền tảng
+
+Đăng bán qua nền tảng như MapDocs an toàn hơn gửi file trực tiếp, vì có lịch sử tải và cơ chế báo cáo.
+
+## Biện pháp pháp lý
+
+Theo Luật Sở hữu trí tuệ Việt Nam, tài liệu bạn tự biên soạn được bảo hộ tự động. Bạn nên:
+
+- Lưu bản nháp có timestamp làm bằng chứng
+- Ghi rõ thông tin bản quyền trên trang bìa
+- Đăng ký quyền tác giả nếu tài liệu có giá trị lớn
+
+## Góc nhìn thực tế
+
+Đừng để nỗi lo bản quyền ngăn bạn chia sẻ. Phần lớn người mua là người học chân chính. Việc liên tục cập nhật tài liệu mới sẽ luôn giữ bạn đi trước những bản sao lậu.`,
+    author_id: 'u_admin',
+    tags: ['bản quyền', 'đăng bán'],
+    view_count: 2810,
+    published: true,
+    published_at: ago(40),
+    created_at: ago(40)
+  }
 ]
 
-const BLOG_CONTENT_1 = `## Vì sao giai đoạn nước rút lại quan trọng?
-
-Ba tháng cuối trước kỳ thi THPT Quốc gia là khoảng thời gian quyết định. Đây không còn là lúc học kiến thức mới, mà là lúc **hệ thống hoá, luyện đề và tối ưu chiến thuật làm bài**.
-
-## 1. Xây dựng lộ trình theo tuần
-
-Thay vì học dàn trải, hãy chia nhỏ mục tiêu:
-
-- **Tuần 1-4**: Rà soát toàn bộ lý thuyết trọng tâm. Mỗi môn dành 3 buổi/tuần.
-- **Tuần 5-8**: Luyện đề theo chuyên đề. Mỗi ngày 1 chuyên đề + 20 câu vận dụng.
-- **Tuần 9-12**: Luyện đề tổng hợp đúng giờ thi. Tối thiểu 3 đề/tuần/môn.
-
-## 2. Kỹ thuật "3 lần chạm" với mỗi dạng bài
-
-Nghiên cứu cho thấy học sinh chỉ thực sự nhớ một dạng bài sau khi tiếp xúc 3 lần ở các thời điểm khác nhau:
-
-1. Lần 1: Học phương pháp giải mẫu.
-2. Lần 2: Tự làm lại sau 2 ngày.
-3. Lần 3: Gặp lại trong đề tổng hợp sau 1 tuần.
-
-## 3. Sổ tay lỗi sai — vũ khí bí mật
-
-Mỗi khi làm sai một câu, hãy ghi lại vào sổ tay theo mẫu: *Đề bài → Lỗi sai → Nguyên nhân → Cách tránh*. Trước ngày thi, đọc lại sổ tay này còn hiệu quả hơn đọc lại toàn bộ sách.
-
-## 4. Chiến thuật phòng thi
-
-- Quét đề 2 phút đầu, đánh dấu câu dễ - trung bình - khó.
-- Làm câu dễ trước, không sa đà quá 90 giây cho một câu trắc nghiệm.
-- Dành 10 phút cuối để rà soát và tô lại phiếu trả lời.
-
-## 5. Giữ sức khoẻ và tinh thần
-
-Ngủ đủ 7 tiếng vẫn hiệu quả hơn thức đến 2 giờ sáng. Não bộ củng cố trí nhớ trong lúc ngủ sâu — đây là điều nhiều học sinh bỏ qua.
-
-> **Kết luận**: Điểm số không đến từ việc học nhiều nhất, mà từ việc học đúng cách nhất.`
-
-const BLOG_CONTENT_2 = `## Cấu trúc đề thi 2025 có gì mới?
-
-Bộ GD&ĐT đã công bố đề minh hoạ theo Chương trình GDPT 2018 với nhiều thay đổi đáng chú ý về **định dạng câu hỏi**.
-
-## Ba dạng câu hỏi mới
-
-### Dạng 1: Trắc nghiệm nhiều lựa chọn
-Vẫn giữ 4 phương án A/B/C/D, chọn 1 đáp án đúng. Chiếm khoảng 50% số câu.
-
-### Dạng 2: Trắc nghiệm đúng/sai
-Mỗi câu có 4 ý a), b), c), d). Thí sinh phải xác định đúng/sai cho từng ý. Điểm được tính theo số ý trả lời đúng: 1 ý = 0,1đ; 2 ý = 0,25đ; 3 ý = 0,5đ; 4 ý = 1,0đ.
-
-Đây là dạng **dễ mất điểm nhất** vì đòi hỏi hiểu bản chất, không thể đoán mò.
-
-### Dạng 3: Trả lời ngắn
-Thí sinh tự tính và điền đáp số. Không có phương án gợi ý, loại bỏ hoàn toàn khả năng khoanh bừa.
-
-## Chiến lược ôn tập tương ứng
-
-- **Với dạng đúng/sai**: Luyện đọc kỹ từng mệnh đề, chú ý các từ khoá "luôn luôn", "chỉ khi", "không bao giờ".
-- **Với trả lời ngắn**: Rèn kỹ năng tính toán chính xác, chú ý đơn vị và làm tròn.
-- **Tổng thể**: Học bản chất thay vì học mẹo.
-
-## Tài liệu nên dùng
-
-Ưu tiên các bộ đề đã cập nhật cấu trúc mới. Trên MapDocs, các tài liệu có tag **"2025"** đều đã được biên soạn theo định dạng này.`
-
-const BLOG_CONTENT_3 = `## Bán tài liệu online — nguồn thu nhập mới cho giáo viên
-
-Nhiều thầy cô đã dành hàng trăm giờ biên soạn giáo án, bộ đề, chuyên đề nhưng chúng chỉ nằm trong ổ cứng. MapDocs giúp bạn biến kho tài liệu đó thành thu nhập ổn định.
-
-## Bước 1: Chuẩn bị tài liệu chất lượng
-
-- Xuất file PDF để giữ nguyên định dạng trên mọi thiết bị.
-- Đặt tiêu đề rõ ràng: *[Môn] + [Lớp] + [Chuyên đề] + [Đặc điểm nổi bật]*.
-- Chèn watermark nhẹ ở góc trang để bảo vệ bản quyền.
-
-## Bước 2: Định giá hợp lý
-
-Khảo sát trên MapDocs cho thấy mức giá bán chạy nhất:
-
-- Tài liệu 20-50 trang: **30.000đ - 60.000đ**
-- Tài liệu 50-150 trang: **60.000đ - 100.000đ**
-- Bộ tài liệu > 150 trang: **100.000đ - 150.000đ**
-
-## Bước 3: Tối ưu mô tả
-
-Mô tả tốt cần trả lời 3 câu hỏi: *Tài liệu này có gì? Dành cho ai? Người học sẽ đạt được gì?*
-
-## Bước 4: Hiểu về hoa hồng
-
-MapDocs thu **15% hoa hồng** trên mỗi giao dịch. Bạn nhận **85%** giá bán, cộng thẳng vào ví và có thể rút về tài khoản ngân hàng bất cứ lúc nào (tối thiểu 200.000đ).
-
-## Bước 5: Duy trì và phát triển
-
-- Cập nhật tài liệu mỗi năm theo cấu trúc đề mới.
-- Trả lời đánh giá của người mua để tăng độ tin cậy.
-- Đăng đều đặn 2-4 tài liệu/tháng.`
-
-const BLOG_CONTENT_4 = `## Học nhóm hay tự học?
-
-Câu trả lời không phải "chọn một" mà là **kết hợp đúng tỷ lệ**. Nghiên cứu giáo dục chỉ ra tỷ lệ lý tưởng là 70% tự học và 30% học nhóm.
-
-## Khi nào nên tự học?
-
-- Tiếp thu kiến thức mới cần tập trung sâu.
-- Luyện đề tính giờ để mô phỏng điều kiện phòng thi.
-- Rà soát lỗi sai cá nhân.
-
-## Khi nào học nhóm phát huy tác dụng?
-
-- **Giảng lại cho bạn**: Phương pháp Feynman — bạn chỉ thực sự hiểu khi giải thích được cho người khác.
-- **Tranh luận đáp án**: Đặc biệt hiệu quả với dạng câu đúng/sai của đề thi 2025.
-- **Chia sẻ tài liệu**: Mỗi người phụ trách tóm tắt một chuyên đề rồi trao đổi.
-
-## Mô hình nhóm 4 người hiệu quả
-
-1. **Người điều phối**: Đặt lịch, chọn chủ đề buổi học.
-2. **Người ra đề**: Chuẩn bị 10 câu kiểm tra nhanh đầu buổi.
-3. **Người tổng hợp**: Ghi lại kiến thức và lỗi sai chung.
-4. **Người phản biện**: Đặt câu hỏi "tại sao" để đào sâu.
-
-Vai trò nên luân phiên mỗi tuần.
-
-## Những sai lầm cần tránh
-
-- Nhóm quá đông (> 6 người) dễ mất tập trung.
-- Học nhóm nhưng mỗi người làm việc riêng.
-- Không có mục tiêu cụ thể cho từng buổi.`
-
-export const BLOGS: Blog[] = [
-  { id: 'b1', title: 'Lộ trình ôn thi THPT Quốc gia 3 tháng cuối hiệu quả nhất', slug: 'lo-trinh-on-thi-thpt-quoc-gia-3-thang-cuoi', excerpt: 'Ba tháng cuối là giai đoạn quyết định. Bài viết chia sẻ lộ trình chi tiết theo tuần, kỹ thuật "3 lần chạm" và chiến thuật phòng thi giúp bạn bứt phá điểm số.', content: BLOG_CONTENT_1, author_id: 'u1', tags: ['ôn thi', 'lộ trình', 'THPT Quốc gia'], published: true, view_count: 5240, created_at: d(6) },
-  { id: 'b2', title: 'Cấu trúc đề thi THPT 2025: 3 dạng câu hỏi mới và cách chinh phục', slug: 'cau-truc-de-thi-thpt-2025-ba-dang-cau-hoi-moi', excerpt: 'Đề thi theo Chương trình GDPT 2018 bổ sung dạng đúng/sai và trả lời ngắn. Phân tích chi tiết cách tính điểm và chiến lược ôn tập tương ứng.', content: BLOG_CONTENT_2, author_id: 'u1', tags: ['2025', 'cấu trúc đề', 'đổi mới'], published: true, view_count: 8910, created_at: d(12) },
-  { id: 'b3', title: 'Hướng dẫn giáo viên kiếm thu nhập từ việc bán tài liệu online', slug: 'huong-dan-giao-vien-ban-tai-lieu-online', excerpt: 'Từ chuẩn bị file, định giá, viết mô tả đến hiểu về hoa hồng 15% — tất cả những gì thầy cô cần biết để bắt đầu kiếm thu nhập trên MapDocs.', content: BLOG_CONTENT_3, author_id: 'u1', tags: ['giáo viên', 'thu nhập', 'hướng dẫn'], published: true, view_count: 3670, created_at: d(20) },
-  { id: 'b4', title: 'Học nhóm hay tự học: tỷ lệ vàng 70/30 và mô hình nhóm 4 người', slug: 'hoc-nhom-hay-tu-hoc-ty-le-vang-70-30', excerpt: 'Không phải chọn một trong hai. Bài viết phân tích khi nào nên tự học, khi nào học nhóm và mô hình nhóm 4 người với vai trò luân phiên.', content: BLOG_CONTENT_4, author_id: 'u1', tags: ['phương pháp học', 'học nhóm'], published: true, view_count: 2480, created_at: d(30) }
+export const NOTIFICATIONS: any[] = [
+  { id: 'n_01', user_id: 'u_user', title: 'Mua tài liệu thành công', body: 'Bạn đã mua "Tiếng Anh 12 - 3000 từ vựng theo chủ đề". Tải về ngay trong mục Kho của tôi.', type: 'success', link: '/dashboard/da-mua', read: false, created_at: ago(6) },
+  { id: 'n_02', user_id: 'u_user', title: 'Nạp tiền thành công', body: 'Ví của bạn đã được cộng 200.000đ.', type: 'success', link: '/dashboard/doanh-thu', read: false, created_at: ago(12) },
+  { id: 'n_03', user_id: 'u_user', title: 'Tài liệu mới trong môn Toán', body: 'Có 3 tài liệu mới phù hợp với môn học bạn theo dõi.', type: 'info', link: '/tai-lieu?subject=toan', read: true, created_at: ago(18) },
+  { id: 'n_04', user_id: 'u_seller', title: 'Bạn có đơn hàng mới', body: 'Tài liệu "Bộ 50 đề thi thử THPT Quốc gia môn Toán 2025" vừa được mua. Bạn nhận 126.650đ.', type: 'success', link: '/dashboard/doanh-thu', read: false, created_at: ago(4) },
+  { id: 'n_05', user_id: 'u_seller', title: 'Yêu cầu rút tiền đang xử lý', body: 'Yêu cầu rút 500.000đ đang được xử lý, dự kiến hoàn tất trong 1-2 ngày làm việc.', type: 'warning', link: '/dashboard/doanh-thu', read: false, created_at: ago(1) },
+  { id: 'n_06', user_id: 'u_seller', title: 'Đánh giá mới 5 sao', body: 'Tài liệu của bạn nhận được đánh giá 5 sao mới.', type: 'info', link: '/dashboard/dang-ban', read: true, created_at: ago(9) },
+  { id: 'n_07', user_id: 'u_admin', title: '3 tài liệu chờ duyệt', body: 'Có 3 tài liệu mới đang chờ kiểm duyệt.', type: 'warning', link: '/admin/tai-lieu', read: false, created_at: ago(1) },
+  { id: 'n_08', user_id: 'u_admin', title: 'Khiếu nại mới', body: 'Có 2 khiếu nại mới cần xử lý.', type: 'error', link: '/admin/khieu-nai', read: false, created_at: ago(2) }
 ]
 
-export const NOTIFICATIONS: Notification[] = [
-  { id: 'n1', user_id: 'u2', title: 'Tài liệu được duyệt', body: 'Tài liệu "Tổng ôn Vật lý 12 - Dao động cơ học" của bạn đã được duyệt và hiển thị công khai.', type: 'document', link: '/dashboard/tai-lieu', read: false, created_at: d(5) },
-  { id: 'n2', user_id: 'u2', title: 'Bạn có đơn hàng mới', body: 'Một người dùng vừa mua tài liệu của bạn. Bạn nhận được 75.650đ vào ví.', type: 'order', link: '/dashboard/doanh-thu', read: false, created_at: d(20) },
-  { id: 'n3', user_id: 'u3', title: 'Mua tài liệu thành công', body: 'Bạn đã mua thành công "Công phá Hoá hữu cơ 12". Vào mục Tài liệu đã mua để tải xuống.', type: 'order', link: '/dashboard/da-mua', read: true, created_at: d(9) },
-  { id: 'n4', user_id: 'u3', title: 'Chào mừng đến MapDocs!', body: 'Cảm ơn bạn đã đăng ký. Khám phá hơn 30 tài liệu chất lượng, trong đó có nhiều tài liệu miễn phí.', type: 'system', link: '/tai-lieu', read: true, created_at: d(120) },
-  { id: 'n5', user_id: 'u5', title: 'Tài liệu bị từ chối', body: 'Tài liệu của bạn bị từ chối do vi phạm bản quyền. Xem chi tiết lý do trong mục Tài liệu của tôi.', type: 'document', link: '/dashboard/tai-lieu', read: false, created_at: d(14) }
+export const FAVORITES: any[] = [
+  { id: 'f_01', user_id: 'u_user', document_id: 'd_001', created_at: ago(10) },
+  { id: 'f_02', user_id: 'u_user', document_id: 'd_006', created_at: ago(8) },
+  { id: 'f_03', user_id: 'u_user', document_id: 'd_015', created_at: ago(5) },
+  { id: 'f_04', user_id: 'u_user', document_id: 'd_018', created_at: ago(3) },
+  { id: 'f_05', user_id: 'u_u2', document_id: 'd_001', created_at: ago(7) },
+  { id: 'f_06', user_id: 'u_u2', document_id: 'd_010', created_at: ago(4) }
 ]
 
-export const REPORTS: ReportItem[] = [
-  { id: 'rp1', document_id: 'd5', user_id: 'u3', reason: 'Nội dung sai lệch', detail: 'Câu 45 và 46 trong phần điện xoay chiều có đáp án không chính xác, mong tác giả kiểm tra lại.', status: 'open', created_at: d(4) },
-  { id: 'rp2', document_id: 'd12', user_id: 'u7', reason: 'Vi phạm bản quyền', detail: 'Tài liệu này giống hệt sách "Chinh phục số phức" đang bán trên thị trường.', status: 'open', created_at: d(8) },
-  { id: 'rp3', document_id: 'd19', user_id: 'u3', reason: 'Chất lượng file kém', detail: 'File scan bị mờ, nhiều trang không đọc được chữ.', status: 'resolved', created_at: d(16) }
+export const DOWNLOADS: any[] = [
+  { id: 'dl_01', user_id: 'u_user', document_id: 'd_001', created_at: ago(25) },
+  { id: 'dl_02', user_id: 'u_user', document_id: 'd_002', created_at: ago(22) },
+  { id: 'dl_03', user_id: 'u_user', document_id: 'd_015', created_at: ago(18) },
+  { id: 'dl_04', user_id: 'u_user', document_id: 'd_018', created_at: ago(5) },
+  { id: 'dl_05', user_id: 'u_u2', document_id: 'd_005', created_at: ago(14) }
 ]
 
-export const FAVORITES = [
-  { id: 'f1', user_id: 'u3', document_id: 'd8', created_at: d(15) },
-  { id: 'f2', user_id: 'u3', document_id: 'd16', created_at: d(11) },
-  { id: 'f3', user_id: 'u3', document_id: 'd25', created_at: d(6) },
-  { id: 'f4', user_id: 'u3', document_id: 'd3', created_at: d(2) }
-]
-
-export const DOWNLOADS = [
-  { id: 'dl1', user_id: 'u3', document_id: 'd1', created_at: d(19) },
-  { id: 'dl2', user_id: 'u3', document_id: 'd3', created_at: d(3) },
-  { id: 'dl3', user_id: 'u3', document_id: 'd10', created_at: d(2) }
+export const REPORTS: any[] = [
+  { id: 'rp_01', document_id: 'd_004', user_id: 'u_user', reason: 'Vi phạm bản quyền', detail: 'Nội dung trùng với sách xuất bản của NXB Giáo dục, trang 45-88.', status: 'open', created_at: ago(2) },
+  { id: 'rp_02', document_id: 'd_011', user_id: 'u_u2', reason: 'Sai mô tả', detail: 'Mô tả ghi 142 trang nhưng file thực tế chỉ có 96 trang.', status: 'open', created_at: ago(1) },
+  { id: 'rp_03', document_id: 'd_022', user_id: 'u_user', reason: 'Chất lượng kém', detail: 'File scan mờ, nhiều trang không đọc được.', status: 'resolved', admin_note: 'Đã yêu cầu người bán tải lại file chất lượng cao. Đã xử lý xong.', created_at: ago(8) },
+  { id: 'rp_04', document_id: 'd_007', user_id: 'u_u2', reason: 'Nội dung không phù hợp', detail: 'Có một số câu ví dụ dùng từ ngữ chưa chuẩn mực.', status: 'dismissed', admin_note: 'Đã kiểm tra, nội dung bình thường, không vi phạm.', created_at: ago(15) }
 ]
 
 export const SETTINGS: Record<string, any> = {
+  id: 'settings',
   commission_rate: 0.15,
   min_withdraw: 200000,
   min_price: 10000,
   max_file_mb: 50,
-  hotline: '1900 6789',
+  hotline: '1900 6868',
   email: 'hotro@mapdocs.vn',
-  address: 'Tầng 5, Toà nhà Sông Đà, Phạm Hùng, Nam Từ Liêm, Hà Nội',
-  facebook: 'https://facebook.com/mapdocs'
+  address: 'Tầng 12, Toà nhà Sunrise, 90 Nguyễn Chí Thanh, Đống Đa, Hà Nội',
+  facebook: 'https://facebook.com/mapdocs.vn'
+}
+
+for (const c of CATEGORIES) {
+  c.document_count = DOCUMENTS.filter((d) => d.subject === c.slug && d.status === 'approved').length
 }

@@ -1,91 +1,102 @@
 import { SignJWT, jwtVerify } from 'jose'
 import type { H3Event } from 'h3'
-import type { User, PublicUser } from '~/types'
-import { db, cryptoId } from './driver'
+import { useDriver } from './driver'
+import type { User } from '~/types'
 
 const COOKIE = 'mapdocs_token'
-const MAX_AGE = 60 * 60 * 24 * 7
+const ALG = 'HS256'
 
 function secret(): Uint8Array {
   return new TextEncoder().encode(useRuntimeConfig().jwtSecret)
 }
 
-async function sha256(text: string): Promise<string> {
-  const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
+export async function hashPassword(password: string, salt = 'mapdocs'): Promise<string> {
+  const enc = new TextEncoder()
+  let bytes: Uint8Array = enc.encode(`${salt}:${password}:mapdocs-v2`)
+  for (let i = 0; i < 800; i++) {
+    const buf = await crypto.subtle.digest('SHA-256', bytes as any)
+    bytes = new Uint8Array(buf)
+  }
+  return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-export async function hashPassword(pw: string): Promise<{ hash: string; salt: string }> {
-  const salt = cryptoId()
-  return { hash: await sha256(salt + ':' + pw), salt }
+export async function verifyPassword(password: string, hash: string, salt = 'mapdocs'): Promise<boolean> {
+  const h = await hashPassword(password, salt)
+  if (h.length !== hash.length) return false
+  let diff = 0
+  for (let i = 0; i < h.length; i++) diff |= h.charCodeAt(i) ^ hash.charCodeAt(i)
+  return diff === 0
 }
 
-export async function verifyPassword(user: User, pw: string): Promise<boolean> {
-  if (!user.password) return false
-  if (!user.salt) return user.password === pw
-  return (await sha256(user.salt + ':' + pw)) === user.password
-}
-
-export async function signToken(userId: string): Promise<string> {
-  return await new SignJWT({ sub: userId })
-    .setProtectedHeader({ alg: 'HS256' })
+export async function signToken(payload: Record<string, any>, expires = '7d'): Promise<string> {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: ALG })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime(expires)
     .sign(secret())
 }
 
-export async function verifyToken(token: string): Promise<string | null> {
+export async function readToken(token: string): Promise<Record<string, any> | null> {
   try {
     const { payload } = await jwtVerify(token, secret())
-    return (payload.sub as string) || null
+    return payload as Record<string, any>
   } catch {
     return null
   }
 }
 
-export function setAuthCookie(event: H3Event, token: string) {
-  setCookie(event, COOKIE, token, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: MAX_AGE, secure: false })
+export function setAuthCookie(event: H3Event, token: string): void {
+  setCookie(event, COOKIE, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7,
+    secure: false
+  })
 }
 
-export function clearAuthCookie(event: H3Event) {
+export function clearAuthCookie(event: H3Event): void {
   deleteCookie(event, COOKIE, { path: '/' })
 }
 
-export async function getUser(event: H3Event): Promise<User | null> {
-  if (event.context.authUser !== undefined) return event.context.authUser
+export function publicUser(u: User | any) {
+  if (!u) return null
+  const { password_hash, salt, ...rest } = u
+  return rest
+}
+
+export function slimUser(u: any) {
+  if (!u) return null
+  return { id: u.id, name: u.name, avatar: u.avatar || '', role: u.role, bio: u.bio || '' }
+}
+
+export async function currentUser(event: H3Event): Promise<any | null> {
+  const cached = event.context.mdUser
+  if (cached !== undefined) return cached
+
   const token = getCookie(event, COOKIE)
   if (!token) {
-    event.context.authUser = null
+    event.context.mdUser = null
     return null
   }
-  const uid = await verifyToken(token)
-  if (!uid) {
-    event.context.authUser = null
+  const payload = await readToken(token)
+  if (!payload?.sub) {
+    event.context.mdUser = null
     return null
   }
-  const user = await db().findOne<User>('users', { id: uid })
-  event.context.authUser = user && !user.blocked ? user : null
-  return event.context.authUser
+  const user = await useDriver().findOne<User>('users', { id: String(payload.sub) })
+  event.context.mdUser = user && !user.blocked ? user : null
+  return event.context.mdUser
 }
 
-export async function requireUser(event: H3Event): Promise<User> {
-  const u = await getUser(event)
-  if (!u) throw createError({ statusCode: 401, statusMessage: 'Bạn cần đăng nhập để thực hiện thao tác này' })
-  return u
+export async function requireUser(event: H3Event): Promise<any> {
+  const user = await currentUser(event)
+  if (!user) throw createError({ statusCode: 401, statusMessage: 'Bạn cần đăng nhập để tiếp tục' })
+  return user
 }
 
-export async function requireAdmin(event: H3Event): Promise<User> {
-  const u = await requireUser(event)
-  if (u.role !== 'admin') throw createError({ statusCode: 403, statusMessage: 'Bạn không có quyền truy cập' })
-  return u
-}
-
-export function publicUser(u: User | null | undefined): PublicUser | undefined {
-  if (!u) return undefined
-  return { id: u.id, name: u.name, avatar: u.avatar, role: u.role, bio: u.bio }
-}
-
-export function safeUser(u: User) {
-  const { password, salt, ...rest } = u as any
-  return rest as User
+export async function requireAdmin(event: H3Event): Promise<any> {
+  const user = await requireUser(event)
+  if (user.role !== 'admin') throw createError({ statusCode: 403, statusMessage: 'Bạn không có quyền truy cập' })
+  return user
 }

@@ -2,442 +2,532 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  /* An scrollbar (hang pill / tab cuon ngang tren mobile) */
-  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-  .no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
-}
-
 @layer base {
-  html { scroll-behavior: smooth; }
-  body { @apply bg-slate-50 text-slate-800 antialiased; }
-  /* Scrollbar mac dinh (public pages) */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-slate-400; }
+  :root {
+    --ring: 59 130 246;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-slate-700 bg-slate-50 antialiased;
+  }
+
+  ::selection {
+    @apply bg-primary-600/25;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+    background-clip: content-box;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-ui font-bold text-slate-900 tracking-tight;
+  }
+
+  a {
+    @apply transition-colors;
+  }
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap; }
-  .btn-primary { @apply btn bg-primary-900 text-white hover:bg-primary-950 hover:shadow-hover hover:scale-[1.02] active:scale-100; }
-  .btn-accent { @apply btn bg-accent-500 text-white hover:bg-accent-600 hover:shadow-hover hover:scale-[1.02] active:scale-100; }
-  .btn-outline { @apply btn border border-line bg-white text-ink hover:border-primary-900 hover:text-primary-900 hover:shadow-soft; }
-  .btn-ghost { @apply btn text-ink-soft hover:bg-slate-100 hover:text-ink; }
-  .btn-danger { @apply btn bg-bad text-white hover:bg-red-700 hover:shadow-hover hover:scale-[1.02] active:scale-100; }
-  .btn-sm { @apply px-3 py-1.5 text-xs rounded-md; }
-  .card { @apply bg-white rounded-xl2 shadow-card border border-line; }
-  .input { @apply w-full rounded-lg border-slate-300 text-sm placeholder:text-slate-400 focus:border-primary-900 focus:ring-1 focus:ring-primary-900; }
-  .label { @apply block text-sm font-medium text-ink mb-1.5; }
-  .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
-  .section-title { @apply text-xl sm:text-2xl font-bold text-primary-950 flex items-center gap-2; }
-  .link { @apply text-primary-900 hover:text-accent-500 hover:underline transition-colors; }
-
-  /* ===== Tables ===== */
-  .table-th { @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-soft bg-slate-50; }
-  .table-td { @apply px-4 py-3 text-sm text-ink border-t border-line align-middle; }
-  .table-row { @apply transition-colors hover:bg-slate-50/80; }
-
-  /* Nut icon vuong (dung trong bang / danh sach) */
-  .act {
-    @apply w-8 h-8 shrink-0 grid place-items-center rounded-lg border border-line text-ink-soft
-           hover:text-primary-900 hover:border-primary-900 hover:bg-primary-50
-           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent
-           transition-colors;
+  .container-x {
+    @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6;
   }
 
-  /* Badge trang thai dang pill */
-  .pill { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
-  .pill-ok { @apply pill bg-green-50 text-green-700; }
-  .pill-warn { @apply pill bg-amber-50 text-amber-700; }
-  .pill-bad { @apply pill bg-red-50 text-red-700; }
-  .pill-info { @apply pill bg-primary-50 text-primary-900; }
-  .pill-mute { @apply pill bg-slate-100 text-slate-600; }
-
-  /* ===== Filter tab (admin) ===== */
-  .tab {
-    @apply inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-surface
-           px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors
-           hover:border-primary-900 hover:bg-primary-50 hover:text-primary-900;
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-card;
   }
-  .tab-on {
-    @apply border-primary-900 bg-primary-900 text-white
-           hover:border-primary-900 hover:bg-primary-950 hover:text-white;
-  }
-  .toolbar { @apply card mb-5 space-y-3 p-4; }
-  .tab-row { @apply flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0; }
-  .tab-row { scrollbar-width: none; -ms-overflow-style: none; }
-  .tab-row::-webkit-scrollbar { display: none; }
 
-  /* ===== Stat card (dashboard + admin) ===== */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium text-sm px-4 h-10 transition-all select-none;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40;
+    @apply disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm;
+  }
+
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-700 shadow-sm;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+  }
+
+  .btn-outline {
+    @apply btn bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:border-slate-400;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700;
+  }
+
+  .btn-sm {
+    @apply h-8 px-3 text-xs rounded-md;
+  }
+
+  .btn-lg {
+    @apply h-12 px-6 text-base rounded-xl;
+  }
+
+  .input {
+    @apply w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400;
+    @apply focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition;
+  }
+
+  .textarea {
+    @apply input h-auto py-2.5 leading-relaxed;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-slate-700 mb-1.5;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .pill-blue { @apply pill bg-primary-50 text-primary-700; }
+  .pill-green { @apply pill bg-emerald-50 text-emerald-700; }
+  .pill-amber { @apply pill bg-amber-50 text-amber-700; }
+  .pill-red { @apply pill bg-red-50 text-red-700; }
+  .pill-slate { @apply pill bg-slate-100 text-slate-600; }
+
+  .tbl {
+    @apply w-full text-sm;
+  }
+
+  .tbl thead th {
+    @apply text-left text-xs font-semibold uppercase tracking-wide text-slate-500 px-4 py-3 border-b border-slate-200 bg-slate-50/60;
+  }
+
+  .tbl tbody td {
+    @apply px-4 py-3 border-b border-slate-100 align-middle;
+  }
+
+  .tbl tbody tr:hover {
+    @apply bg-slate-50/70;
+  }
+
   .stat-card {
-    @apply relative overflow-hidden flex items-center gap-4 rounded-xl2 border border-line p-5
-           shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-hover;
+    @apply relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5;
   }
-  .stat-card__icon {
-    @apply relative w-12 h-12 shrink-0 grid place-items-center rounded-xl text-xl text-white
-           bg-gradient-to-br transition-transform duration-200;
+
+  .tab {
+    @apply inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition;
   }
-  .stat-card:hover .stat-card__icon { @apply scale-105; }
-  .stat-card__label { @apply text-xs font-medium text-ink-soft; }
-  .stat-card__value { @apply text-xl font-extrabold text-ink truncate; }
-  .stat-card__sub { @apply text-xs text-slate-400 truncate; }
 
-  /* Nen gradient nhat theo tone - khong dung trang tinh #fff */
-  .stat-tone-primary { background: linear-gradient(135deg, #f4f8ff 0%, #e8f0fe 100%); }
-  .stat-tone-accent  { background: linear-gradient(135deg, #fff8f1 0%, #fff3e6 100%); }
-  .stat-tone-ok      { background: linear-gradient(135deg, #f3fbf6 0%, #e7f7ee 100%); }
-  .stat-tone-warn    { background: linear-gradient(135deg, #fffbf0 0%, #fdf3dc 100%); }
-  .stat-tone-bad     { background: linear-gradient(135deg, #fff5f5 0%, #fde8e8 100%); }
-  .stat-tone-violet  { background: linear-gradient(135deg, #f8f5ff 0%, #efe9fe 100%); }
+  .tab-on {
+    @apply bg-primary-600 text-white hover:bg-primary-700 hover:text-white;
+  }
+
+  .link-u {
+    @apply relative text-slate-500 hover:text-white transition-colors;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .skel {
+    @apply relative overflow-hidden bg-slate-200/70 rounded;
+  }
+
+  .skel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
+    animation: shimmer 1.6s infinite;
+  }
 }
 
-/* ===== Page transition (Nuxt) ===== */
-.page-enter-active, .page-leave-active { transition: opacity .2s ease, transform .2s ease; }
-.page-enter-from { opacity: 0; transform: translateY(6px); }
-.page-leave-to { opacity: 0; }
-
-/* ===== Skeleton shimmer ===== */
-.skeleton {
-  background: linear-gradient(90deg, #eef2f6 25%, #f8fafc 50%, #eef2f6 75%);
-  background-size: 1000px 100%;
-  animation: shimmer 1.4s linear infinite;
-}
-@keyframes shimmer {
-  0% { background-position: -500px 0; }
-  100% { background-position: 500px 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-enter-active, .page-leave-active { transition: none; }
-  .skeleton { animation: none; }
-}
-
-/* =========================================================================
-   DARK THEME "mdk" — chi ap dung cho vung dashboard / admin
-   Cam hung: https://thegioidev.com/dashboard (zinc scale)
-   Cach dung: bao boc layout bang <div class="mdk"> ... </div>
-   Public pages (default layout) KHONG bi anh huong.
-   ========================================================================= */
 .mdk {
-  --dk-bg: #09090b;
-  --dk-panel: #18181b;
-  --dk-soft: #1f1f23;
-  --dk-line: #27272a;
-  --dk-line2: #3f3f46;
-  --dk-text: #fafafa;
-  --dk-sub: #a1a1aa;
-  --dk-mute: #71717a;
-
-  font-family: 'Inter', 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
-  background: var(--dk-bg);
-  color: var(--dk-text);
-  color-scheme: dark;
+  --mdk-bg: #09090b;
+  --mdk-panel: #18181b;
+  --mdk-soft: #1c1c1f;
+  --mdk-line: #27272a;
+  --mdk-line2: #3f3f46;
+  --mdk-text: #fafafa;
+  --mdk-sub: #a1a1aa;
+  --mdk-mute: #71717a;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--mdk-bg);
+  color: var(--mdk-text);
+  min-height: 100vh;
 }
 
-/* ---- Scrollbar 6px (chi trong vung dark) ---- */
-.mdk ::-webkit-scrollbar,
-.mdk::-webkit-scrollbar { width: 6px; height: 6px; }
-.mdk ::-webkit-scrollbar-track,
-.mdk::-webkit-scrollbar-track { background: transparent; }
-.mdk ::-webkit-scrollbar-thumb,
-.mdk::-webkit-scrollbar-thumb { background: var(--dk-line); border-radius: 9999px; }
-.mdk ::-webkit-scrollbar-thumb:hover,
-.mdk::-webkit-scrollbar-thumb:hover { background: var(--dk-line2); }
-.mdk { scrollbar-width: thin; scrollbar-color: var(--dk-line) transparent; }
-
-/* ---- Card / surface ---- */
-.mdk .card {
-  background: var(--dk-panel);
-  border-color: var(--dk-line);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-}
-.mdk .bg-white { background-color: var(--dk-panel) !important; }
-.mdk .bg-slate-50,
-.mdk .bg-slate-100 { background-color: var(--dk-soft) !important; }
-.mdk .bg-slate-50\/60,
-.mdk .bg-slate-50\/80 { background-color: rgba(39, 39, 42, 0.5) !important; }
-.mdk .bg-slate-200 { background-color: var(--dk-line) !important; }
-.mdk .bg-slate-700 { background-color: var(--dk-line2) !important; }
-
-/* ---- Chu ---- */
-.mdk .text-slate-800,
-.mdk .text-slate-700 { color: var(--dk-text) !important; }
-.mdk .text-slate-600,
-.mdk .text-slate-500 { color: var(--dk-sub) !important; }
-.mdk .text-slate-400 { color: var(--dk-mute) !important; }
-.mdk .text-ink { color: var(--dk-text) !important; }
-.mdk .text-ink-soft { color: var(--dk-sub) !important; }
-
-/* ---- Vien ---- */
-.mdk .border-line,
-.mdk .border-slate-200,
-.mdk .border-slate-100,
-.mdk .border-slate-300,
-.mdk .divide-slate-100 > * + * { border-color: var(--dk-line) !important; }
-
-/* ---- Bang ---- */
-.mdk .table-th {
-  background-color: rgba(39, 39, 42, 0.55) !important;
-  color: var(--dk-sub) !important;
-  border-color: var(--dk-line);
-}
-.mdk .table-td { color: var(--dk-text) !important; border-top-color: var(--dk-line) !important; }
-.mdk .table-row:hover { background-color: rgba(39, 39, 42, 0.6) !important; }
-
-/* ---- Nut ---- */
-.mdk .btn-outline {
-  background-color: var(--dk-soft);
-  border-color: var(--dk-line);
-  color: var(--dk-text);
-}
-.mdk .btn-outline:hover {
-  background-color: var(--dk-line);
-  border-color: var(--dk-line2);
-  color: #fff;
-}
-.mdk .btn-ghost { color: var(--dk-sub); }
-.mdk .btn-ghost:hover { background-color: var(--dk-line); color: #fff; }
-.mdk .btn-primary { background-color: #2563eb; }
-.mdk .btn-primary:hover { background-color: #1d4ed8; }
-
-/* ---- Input / form ---- */
-.mdk .input,
-.mdk input[type='text'], .mdk input[type='email'], .mdk input[type='password'],
-.mdk input[type='number'], .mdk input[type='search'], .mdk input[type='url'],
-.mdk textarea, .mdk select {
-  background-color: var(--dk-soft) !important;
-  border-color: var(--dk-line) !important;
-  color: var(--dk-text) !important;
-}
-.mdk .input::placeholder, .mdk input::placeholder, .mdk textarea::placeholder { color: var(--dk-mute) !important; }
-.mdk .input:focus, .mdk input:focus, .mdk textarea:focus, .mdk select:focus {
-  border-color: #3b82f6 !important;
-  --tw-ring-color: #3b82f6;
-}
-.mdk select option { background-color: var(--dk-panel); color: var(--dk-text); }
-
-/* ---- Link ---- */
-.mdk .link { color: #60a5fa; }
-.mdk .link:hover { color: #93c5fd; }
-.mdk .text-primary-900, .mdk .text-primary-400 { color: #60a5fa !important; }
-.mdk .hover\:text-primary-900:hover { color: #93c5fd !important; }
-.mdk .bg-primary-50, .mdk .bg-primary-50\/60, .mdk .bg-primary-50\/70,
-.mdk .hover\:bg-primary-50\/50:hover, .mdk .hover\:bg-primary-50:hover {
-  background-color: rgba(59, 130, 246, 0.14) !important;
-}
-.mdk .bg-primary-900 { background-color: #2563eb !important; }
-.mdk .border-primary-900, .mdk .hover\:border-primary-900:hover,
-.mdk .border-primary-200 { border-color: #3b82f6 !important; }
-
-/* ---- Nut icon vuong trong bang ---- */
-.mdk .act {
-  border-color: var(--dk-line);
-  color: var(--dk-sub);
-  background-color: transparent;
-}
-.mdk .act:hover {
-  border-color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.14);
-  color: #93c5fd;
+.mdk *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-/* ---- Pill trang thai (nen mo, chu sang) ---- */
-.mdk .pill-ok, .mdk .bg-green-50, .mdk .bg-emerald-50 { background-color: rgba(34, 197, 94, 0.16) !important; }
-.mdk .pill-ok, .mdk .text-green-700, .mdk .text-green-600,
-.mdk .text-emerald-700, .mdk .text-emerald-600 { color: #4ade80 !important; }
-.mdk .pill-warn, .mdk .bg-amber-50, .mdk .bg-accent-50 { background-color: rgba(245, 158, 11, 0.16) !important; }
-.mdk .pill-warn, .mdk .text-amber-700, .mdk .text-amber-600,
-.mdk .text-amber-800, .mdk .text-amber-500 { color: #fbbf24 !important; }
-.mdk .pill-bad, .mdk .bg-red-50 { background-color: rgba(239, 68, 68, 0.16) !important; }
-.mdk .pill-bad, .mdk .text-red-700, .mdk .text-red-600, .mdk .text-red-500 { color: #f87171 !important; }
-.mdk .pill-mute { background-color: var(--dk-line) !important; color: var(--dk-sub) !important; }
-.mdk .pill-info { background-color: rgba(59, 130, 246, 0.16) !important; color: #93c5fd !important; }
-.mdk .border-red-200, .mdk .border-red-300, .mdk .border-red-500 { border-color: rgba(239, 68, 68, 0.4) !important; }
-.mdk .border-amber-200, .mdk .border-amber-300 { border-color: rgba(245, 158, 11, 0.4) !important; }
-.mdk .border-green-300, .mdk .border-emerald-200 { border-color: rgba(34, 197, 94, 0.4) !important; }
-.mdk .text-accent-500, .mdk .text-accent-600 { color: #fb923c !important; }
-.mdk .border-accent-300, .mdk .hover\:border-accent-500:hover { border-color: #fb923c !important; }
-.mdk .hover\:text-accent-500:hover { color: #fdba74 !important; }
-
-/* ---- Filter tab (admin) ---- */
-.mdk .tab {
-  background-color: var(--dk-soft);
-  border-color: var(--dk-line);
-  color: var(--dk-sub);
-}
-.mdk .tab:hover {
-  border-color: var(--dk-line2);
-  background-color: var(--dk-line);
-  color: var(--dk-text);
-}
-.mdk .tab-on,
-.mdk .tab-on:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
-  color: #fff;
+.mdk *::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* ---- Stat card dark: nen panel + glow theo tone ---- */
+.mdk *::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 999px;
+  border: 0;
+}
+
+.mdk *::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+.mdk h1, .mdk h2, .mdk h3, .mdk h4, .mdk h5, .mdk h6 {
+  color: var(--mdk-text);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.mdk .card,
 .mdk .stat-card {
-  background: var(--dk-panel) !important;
-  border-color: var(--dk-line);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-.mdk .stat-card:hover { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55); border-color: var(--dk-line2); }
-.mdk .stat-tone-primary { background: linear-gradient(160deg, #18181b 0%, #16203a 100%) !important; }
-.mdk .stat-tone-accent { background: linear-gradient(160deg, #18181b 0%, #2c1e10 100%) !important; }
-.mdk .stat-tone-ok { background: linear-gradient(160deg, #18181b 0%, #10261a 100%) !important; }
-.mdk .stat-tone-warn { background: linear-gradient(160deg, #18181b 0%, #2a2210 100%) !important; }
-.mdk .stat-tone-bad { background: linear-gradient(160deg, #18181b 0%, #2a1416 100%) !important; }
-.mdk .stat-tone-violet { background: linear-gradient(160deg, #18181b 0%, #211a35 100%) !important; }
-.mdk .stat-card__label { color: var(--dk-sub) !important; }
-.mdk .stat-card__value { color: var(--dk-text) !important; }
-.mdk .stat-card__sub { color: var(--dk-mute) !important; }
-
-/* ---- Skeleton dark ---- */
-.mdk .skeleton {
-  background: linear-gradient(90deg, #1f1f23 25%, #2a2a2f 50%, #1f1f23 75%);
-  background-size: 1000px 100%;
+  background: var(--mdk-panel);
+  border-color: var(--mdk-line);
+  box-shadow: none;
 }
 
-/* ---- Section title / badge ---- */
-.mdk .section-title { color: var(--dk-text); }
-.mdk .badge.bg-slate-100 { background-color: var(--dk-line) !important; color: var(--dk-sub) !important; }
+.mdk .bg-white { background-color: var(--mdk-panel) !important; }
+.mdk .bg-slate-50, .mdk .bg-slate-50\/60, .mdk .bg-slate-50\/70 { background-color: var(--mdk-soft) !important; }
+.mdk .bg-slate-100 { background-color: var(--mdk-line) !important; }
 
-/* =========================================================================
-   Sidebar dark (dashboard + admin) — kieu thegioidev
-   ========================================================================= */
+.mdk .text-slate-900, .mdk .text-slate-800 { color: var(--mdk-text) !important; }
+.mdk .text-slate-700, .mdk .text-slate-600 { color: var(--mdk-sub) !important; }
+.mdk .text-slate-500, .mdk .text-slate-400 { color: var(--mdk-mute) !important; }
+
+.mdk .border-slate-200, .mdk .border-slate-100 { border-color: var(--mdk-line) !important; }
+.mdk .border-slate-300 { border-color: var(--mdk-line2) !important; }
+.mdk .divide-slate-100 > * + * { border-color: var(--mdk-line) !important; }
+
+.mdk .input,
+.mdk .textarea,
+.mdk input[type='text'],
+.mdk input[type='email'],
+.mdk input[type='password'],
+.mdk input[type='number'],
+.mdk input[type='search'],
+.mdk select,
+.mdk textarea {
+  background: var(--mdk-soft);
+  border-color: var(--mdk-line);
+  color: var(--mdk-text);
+}
+
+.mdk .input::placeholder,
+.mdk input::placeholder,
+.mdk textarea::placeholder {
+  color: var(--mdk-mute);
+}
+
+.mdk .input:focus,
+.mdk input:focus,
+.mdk select:focus,
+.mdk textarea:focus {
+  border-color: #52525b;
+  box-shadow: 0 0 0 3px rgba(82, 82, 91, .28);
+}
+
+.mdk .label { color: var(--mdk-sub); }
+
+.mdk .btn-outline {
+  background: var(--mdk-soft);
+  border-color: var(--mdk-line2);
+  color: var(--mdk-text);
+}
+
+.mdk .btn-outline:hover {
+  background: var(--mdk-line);
+  border-color: #52525b;
+}
+
+.mdk .btn-ghost { color: var(--mdk-sub); }
+.mdk .btn-ghost:hover { background: var(--mdk-line); color: var(--mdk-text); }
+
+.mdk .tbl thead th {
+  background: rgba(24, 24, 27, .6);
+  border-color: var(--mdk-line);
+  color: var(--mdk-mute);
+}
+
+.mdk .tbl tbody td { border-color: var(--mdk-line); }
+.mdk .tbl tbody tr:hover { background: rgba(39, 39, 42, .45); }
+
+.mdk .pill-slate { background: var(--mdk-line); color: var(--mdk-sub); }
+.mdk .pill-blue { background: rgba(59, 130, 246, .14); color: #93c5fd; }
+.mdk .pill-green { background: rgba(16, 185, 129, .14); color: #6ee7b7; }
+.mdk .pill-amber { background: rgba(245, 158, 11, .14); color: #fcd34d; }
+.mdk .pill-red { background: rgba(239, 68, 68, .14); color: #fca5a5; }
+
+.mdk .tab { color: var(--mdk-mute); }
+.mdk .tab:hover { background: var(--mdk-line); color: var(--mdk-text); }
+.mdk .tab-on { background: #fafafa; color: #09090b; }
+.mdk .tab-on:hover { background: #e4e4e7; color: #09090b; }
+
+.mdk .skel { background: var(--mdk-line); }
+.mdk .skel::after {
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, .07), transparent);
+}
+
 .mdk-side {
-  background: var(--dk-panel);
-  border-right: 1px solid var(--dk-line);
+  width: 240px;
+  flex: 0 0 240px;
+  background: var(--mdk-bg);
+  border-right: 1px solid var(--mdk-line);
+  display: flex;
+  flex-direction: column;
 }
+
 .mdk-group {
-  padding: 0.875rem 0.75rem 0.375rem;
-  font-size: 10px;
+  padding: 18px 16px 6px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: .085em;
   text-transform: uppercase;
   color: #52525b;
 }
+
 .mdk-nav {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
+  gap: 10px;
+  margin: 1px 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
   font-size: 13.5px;
   font-weight: 500;
-  color: #d4d4d8;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  color: var(--mdk-sub);
+  transition: background .15s, color .15s;
 }
-.mdk-nav:hover { background-color: #27272a; color: #fafafa; }
-.mdk-nav__chev { margin-left: auto; font-size: 11px; color: #52525b; transition: transform 0.15s ease; }
-.mdk-nav:hover .mdk-nav__chev { transform: translateX(2px); color: #a1a1aa; }
-.router-link-exact-active.mdk-nav,
-.router-link-exact-active.mdk-nav:hover {
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.26) 0%, rgba(37, 99, 235, 0.06) 100%);
-  color: #fff;
+
+.mdk-nav:hover {
+  background: var(--mdk-panel);
+  color: var(--mdk-text);
+}
+
+.mdk-nav-on {
+  background: var(--mdk-line);
+  color: var(--mdk-text);
   font-weight: 600;
 }
-.router-link-exact-active.mdk-nav::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.35rem;
-  bottom: 0.35rem;
-  width: 3px;
-  border-radius: 0 999px 999px 0;
-  background: #3b82f6;
-}
-.router-link-exact-active.mdk-nav .mdk-nav__chev { color: #93c5fd; }
 
-/* ---- Quick action card (Truy cap nhanh) ---- */
+.mdk-nav-on:hover { background: var(--mdk-line); }
+
+.mdk-nav .mdk-nav-ic {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  font-size: 18px;
+  opacity: .85;
+}
+
+.mdk-sub {
+  display: block;
+  margin: 1px 8px 1px 34px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--mdk-mute);
+  transition: background .15s, color .15s;
+}
+
+.mdk-sub:hover { background: var(--mdk-panel); color: var(--mdk-sub); }
+.mdk-sub-on { color: var(--mdk-text); background: var(--mdk-line); }
+
+.mdk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--mdk-panel);
+  border: 1px solid var(--mdk-line);
+  font-size: 12px;
+  color: var(--mdk-sub);
+  white-space: nowrap;
+}
+
+.mdk-chip b {
+  color: var(--mdk-text);
+  font-weight: 600;
+}
+
 .mdk-quick {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 0.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--dk-line);
-  background: #1c1c1f;
-  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+  gap: 9px;
+  padding: 16px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--mdk-line);
+  background: var(--mdk-soft);
+  transition: border-color .18s, transform .18s, background .18s;
 }
-.mdk-quick:hover { transform: translateY(-2px); border-color: var(--dk-line2); background: #232327; }
-.mdk-quick__icon {
-  width: 2.5rem;
-  height: 2.5rem;
+
+.mdk-quick:hover {
+  border-color: var(--mdk-line2);
+  background: var(--mdk-panel);
+  transform: translateY(-2px);
+}
+
+.mdk-quick-ic {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
+  font-size: 20px;
   color: #fff;
-  font-size: 1rem;
 }
-.mdk-quick__label { font-size: 12px; font-weight: 500; color: #d4d4d8; text-align: center; line-height: 1.3; }
-.mdk-quick:hover .mdk-quick__label { color: #fff; }
 
-/* ---- Chip nho tren topbar ---- */
-.mdk-chip {
+.mdk-quick-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mdk-sub);
+  text-align: center;
+  line-height: 1.35;
+}
+
+.mdk-quick:hover .mdk-quick-label { color: var(--mdk-text); }
+
+.stat-spark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  pointer-events: none;
+}
+
+.mdk-topbar {
+  height: 60px;
+  background: rgba(9, 9, 11, .82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--mdk-line);
+}
+
+.mdk-search {
+  height: 36px;
+  background: var(--mdk-panel);
+  border: 1px solid var(--mdk-line);
+  border-radius: 8px;
+  color: var(--mdk-text);
+  font-size: 13px;
+}
+
+.mdk-search:focus {
+  border-color: var(--mdk-line2);
+  box-shadow: none;
+  outline: none;
+}
+
+.mdk-kbd {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  height: 2.25rem;
-  padding: 0 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--dk-line);
-  background: #1c1c1f;
-  font-size: 12px;
-  color: #d4d4d8;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-.mdk-chip:hover { border-color: var(--dk-line2); background: #232327; }
-.mdk-chip__icon { width: 1.375rem; height: 1.375rem; display: grid; place-items: center; border-radius: 999px; font-size: 11px; color: #fff; }
-.mdk-chip__value { font-weight: 700; color: #fafafa; }
-
-@media (prefers-reduced-motion: reduce) {
-  .mdk-quick:hover { transform: none; }
-  .mdk .stat-card:hover { transform: none; }
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 4px;
+  border: 1px solid var(--mdk-line2);
+  background: var(--mdk-soft);
+  font-size: 10px;
+  color: var(--mdk-mute);
+  font-family: ui-monospace, monospace;
 }
 
-/* =========================================================================
-   HIEU UNG "HELLO" — trang chuc mung sau khi dang ky lan dau
-   Tham khao: hibank.sbs
-   ========================================================================= */
-.success-hello-fill {
-  font-family: 'Dancing Script', cursive;
-  font-size: 150px;
-  font-weight: 600;
-  fill: #ffffff;
-  opacity: 0;
-  animation: helloFill 0.75s ease 1.38s forwards;
+@keyframes helloStroke {
+  0% { stroke-dashoffset: 1200; opacity: 1; }
+  92% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
 }
+
 @keyframes helloFill {
   from { opacity: 0; transform: translateY(2px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* Vien net chay truoc khi to mau */
+
+@keyframes checkPop {
+  0% { opacity: 0; transform: scale(.3) rotate(-25deg); }
+  60% { opacity: 1; transform: scale(1.12) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes confettiFall {
+  0% { opacity: 0; transform: translate(0, 0) scale(.4) rotate(0); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--cx), var(--cy)) scale(1) rotate(var(--cr)); }
+}
+
 .success-hello-stroke {
   font-family: 'Dancing Script', cursive;
   font-size: 150px;
-  font-weight: 600;
   fill: none;
-  stroke: rgba(255, 255, 255, 0.92);
+  stroke: #ffffff;
   stroke-width: 1.6;
   stroke-dasharray: 1200;
   stroke-dashoffset: 1200;
-  animation: helloStroke 1.5s ease forwards, helloStrokeOut 0.4s ease 1.5s forwards;
-}
-@keyframes helloStroke { to { stroke-dashoffset: 0; } }
-@keyframes helloStrokeOut { to { opacity: 0; } }
-@media (max-width: 640px) {
-  .success-hello-fill, .success-hello-stroke { font-size: 132px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .success-hello-fill { animation: none; opacity: 1; }
-  .success-hello-stroke { animation: none; opacity: 0; }
+  opacity: 0;
+  animation: helloStroke 2.1s ease-in-out .18s forwards;
 }
 
-.line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.success-hello-fill {
+  font-family: 'Dancing Script', cursive;
+  font-size: 150px;
+  fill: #ffffff;
+  opacity: 0;
+  animation: helloFill .75s ease 1.38s forwards;
+}
+
+.success-check {
+  animation: checkPop .5s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+.confetti-bit {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  animation: confettiFall 1.8s ease-out forwards;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}

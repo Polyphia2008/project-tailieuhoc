@@ -1,8 +1,8 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import {
   USERS, CATEGORIES, DOCUMENTS, ORDERS, REVIEWS, TRANSACTIONS,
   BLOGS, NOTIFICATIONS, REPORTS, FAVORITES, DOWNLOADS, SETTINGS
 } from './seed'
+import { useR2, r2Configured } from './r2'
 
 export type TableName =
   | 'users' | 'documents' | 'categories' | 'orders' | 'reviews'
@@ -21,13 +21,14 @@ export interface FindOpts {
 }
 
 export interface Driver {
-  readonly kind: 'supabase' | 'mock'
+  readonly kind: 'r2' | 'memory'
   find<T = any>(table: TableName, opts?: FindOpts): Promise<{ rows: T[]; total: number }>
   findOne<T = any>(table: TableName, where: Record<string, any>): Promise<T | null>
   insert<T = any>(table: TableName, row: any): Promise<T>
   update<T = any>(table: TableName, id: string, patch: any): Promise<T>
   remove(table: TableName, id: string): Promise<void>
   increment(table: TableName, id: string, field: string, by?: number): Promise<void>
+  count(table: TableName, opts?: FindOpts): Promise<number>
   getSettings(): Promise<Record<string, any>>
   setSettings(patch: Record<string, any>): Promise<Record<string, any>>
 }
@@ -36,210 +37,227 @@ export function cryptoId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 10)
 }
 
-function norm(s: any): string {
-  return String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase()
+export function orderCode(): string {
+  return 'MD' + (Date.now().toString(36) + Math.random().toString(36).slice(2, 5)).toUpperCase()
+}
+
+function unaccent(s: any): string {
+  return String(s ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
 }
 
 interface Store {
-  users: any[]; documents: any[]; categories: any[]; orders: any[]; reviews: any[]
-  transactions: any[]; blogs: any[]; notifications: any[]; reports: any[]
-  favorites: any[]; downloads: any[]; settings: Record<string, any>
+  users: any[]
+  documents: any[]
+  categories: any[]
+  orders: any[]
+  reviews: any[]
+  transactions: any[]
+  blogs: any[]
+  notifications: any[]
+  reports: any[]
+  favorites: any[]
+  downloads: any[]
+  settings: Record<string, any>
 }
 
 const G = globalThis as any
 
+function clone<T>(x: T): T {
+  return JSON.parse(JSON.stringify(x))
+}
+
 function store(): Store {
   if (!G.__mapdocs_store) {
-    const clone = (x: any) => JSON.parse(JSON.stringify(x))
     G.__mapdocs_store = {
-      users: clone(USERS), documents: clone(DOCUMENTS), categories: clone(CATEGORIES),
-      orders: clone(ORDERS), reviews: clone(REVIEWS), transactions: clone(TRANSACTIONS),
-      blogs: clone(BLOGS), notifications: clone(NOTIFICATIONS), reports: clone(REPORTS),
-      favorites: clone(FAVORITES), downloads: clone(DOWNLOADS), settings: clone(SETTINGS)
+      users: clone(USERS),
+      documents: clone(DOCUMENTS),
+      categories: clone(CATEGORIES),
+      orders: clone(ORDERS),
+      reviews: clone(REVIEWS),
+      transactions: clone(TRANSACTIONS),
+      blogs: clone(BLOGS),
+      notifications: clone(NOTIFICATIONS),
+      reports: clone(REPORTS),
+      favorites: clone(FAVORITES),
+      downloads: clone(DOWNLOADS),
+      settings: clone(SETTINGS)
     } as Store
   }
   return G.__mapdocs_store as Store
 }
 
-class MockDriver implements Driver {
-  readonly kind = 'mock' as const
+class MemoryDriver implements Driver {
+  readonly kind = 'memory' as const
 
-  private table(t: TableName): any[] {
+  protected table(t: TableName): any[] {
     return (store() as any)[t] as any[]
   }
 
-  async find<T = any>(t: TableName, opts: FindOpts = {}): Promise<{ rows: T[]; total: number }> {
+  protected filter(t: TableName, opts: FindOpts): any[] {
     let rows = [...this.table(t)]
 
-    if (opts.where) for (const [k, v] of Object.entries(opts.where)) {
-      if (v === undefined) continue
-      rows = rows.filter((r) => r[k] === v)
+    if (opts.where) {
+      for (const [k, v] of Object.entries(opts.where)) {
+        if (v === undefined) continue
+        rows = rows.filter((r) => r[k] === v)
+      }
     }
-    if (opts.whereNot) for (const [k, v] of Object.entries(opts.whereNot)) rows = rows.filter((r) => r[k] !== v)
-    if (opts.whereIn) for (const [k, arr] of Object.entries(opts.whereIn)) rows = rows.filter((r) => arr.includes(r[k]))
-    if (opts.gte) for (const [k, v] of Object.entries(opts.gte)) rows = rows.filter((r) => Number(r[k]) >= Number(v))
-    if (opts.lte) for (const [k, v] of Object.entries(opts.lte)) rows = rows.filter((r) => Number(r[k]) <= Number(v))
-
+    if (opts.whereNot) {
+      for (const [k, v] of Object.entries(opts.whereNot)) rows = rows.filter((r) => r[k] !== v)
+    }
+    if (opts.whereIn) {
+      for (const [k, arr] of Object.entries(opts.whereIn)) rows = rows.filter((r) => arr.includes(r[k]))
+    }
+    if (opts.gte) {
+      for (const [k, v] of Object.entries(opts.gte)) {
+        if (v === undefined || v === null) continue
+        rows = rows.filter((r) => Number(r[k]) >= Number(v))
+      }
+    }
+    if (opts.lte) {
+      for (const [k, v] of Object.entries(opts.lte)) {
+        if (v === undefined || v === null) continue
+        rows = rows.filter((r) => Number(r[k]) <= Number(v))
+      }
+    }
     if (opts.search?.term) {
-      const term = norm(opts.search.term)
+      const term = unaccent(opts.search.term)
+      const fields = opts.search.fields
       rows = rows.filter((r) =>
-        opts.search!.fields.some((f) => {
+        fields.some((f) => {
           const val = r[f]
-          if (Array.isArray(val)) return val.some((x) => norm(x).includes(term))
-          return norm(val).includes(term)
+          if (Array.isArray(val)) return val.some((x: any) => unaccent(x).includes(term))
+          return unaccent(val).includes(term)
         })
       )
     }
-
-    const total = rows.length
-
     if (opts.order) {
       const { field, asc } = opts.order
       rows.sort((a, b) => {
-        const av = a[field], bv = b[field]
-        if (typeof av === 'number' && typeof bv === 'number') return asc ? av - bv : bv - av
-        return asc ? String(av ?? '').localeCompare(String(bv ?? '')) : String(bv ?? '').localeCompare(String(av ?? ''))
+        const x = a[field]
+        const y = b[field]
+        if (typeof x === 'number' && typeof y === 'number') return asc ? x - y : y - x
+        return asc ? String(x ?? '').localeCompare(String(y ?? '')) : String(y ?? '').localeCompare(String(x ?? ''))
       })
     }
+    return rows
+  }
 
-    const off = opts.offset || 0
-    if (opts.limit !== undefined) rows = rows.slice(off, off + opts.limit)
-    else if (off) rows = rows.slice(off)
-
-    return { rows: JSON.parse(JSON.stringify(rows)) as T[], total }
+  async find<T = any>(t: TableName, opts: FindOpts = {}): Promise<{ rows: T[]; total: number }> {
+    const rows = this.filter(t, opts)
+    const total = rows.length
+    const offset = opts.offset ?? 0
+    const limit = opts.limit ?? total
+    return { rows: clone(rows.slice(offset, offset + limit)) as T[], total }
   }
 
   async findOne<T = any>(t: TableName, where: Record<string, any>): Promise<T | null> {
     const row = this.table(t).find((r) => Object.entries(where).every(([k, v]) => r[k] === v))
-    return row ? (JSON.parse(JSON.stringify(row)) as T) : null
+    return row ? (clone(row) as T) : null
   }
 
   async insert<T = any>(t: TableName, row: any): Promise<T> {
-    const rec = { id: row.id || cryptoId(), ...row }
-    this.table(t).unshift(rec)
-    return JSON.parse(JSON.stringify(rec)) as T
+    const rec = { id: row.id || cryptoId(), created_at: row.created_at || new Date().toISOString(), ...row }
+    if (!rec.id) rec.id = cryptoId()
+    this.table(t).push(rec)
+    await this.persist(t)
+    return clone(rec) as T
   }
 
   async update<T = any>(t: TableName, id: string, patch: any): Promise<T> {
     const arr = this.table(t)
     const i = arr.findIndex((r) => r.id === id)
-    if (i === -1) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy bản ghi' })
+    if (i < 0) throw new Error(`${t}#${id} not found`)
     arr[i] = { ...arr[i], ...patch }
-    return JSON.parse(JSON.stringify(arr[i])) as T
+    await this.persist(t)
+    return clone(arr[i]) as T
   }
 
   async remove(t: TableName, id: string): Promise<void> {
     const arr = this.table(t)
     const i = arr.findIndex((r) => r.id === id)
     if (i >= 0) arr.splice(i, 1)
+    await this.persist(t)
   }
 
   async increment(t: TableName, id: string, field: string, by = 1): Promise<void> {
-    const row = this.table(t).find((r) => r.id === id)
-    if (row) row[field] = (Number(row[field]) || 0) + by
+    const arr = this.table(t)
+    const row = arr.find((r) => r.id === id)
+    if (!row) return
+    row[field] = Number(row[field] ?? 0) + by
+    await this.persist(t)
+  }
+
+  async count(t: TableName, opts: FindOpts = {}): Promise<number> {
+    return this.filter(t, opts).length
   }
 
   async getSettings(): Promise<Record<string, any>> {
-    return JSON.parse(JSON.stringify(store().settings))
+    return clone(store().settings)
   }
 
   async setSettings(patch: Record<string, any>): Promise<Record<string, any>> {
     store().settings = { ...store().settings, ...patch }
-    return JSON.parse(JSON.stringify(store().settings))
+    await this.persist('users')
+    return clone(store().settings)
   }
+
+  protected async persist(_t: TableName): Promise<void> {}
 }
 
-class SupabaseDriver implements Driver {
-  readonly kind = 'supabase' as const
-  private c: SupabaseClient
+class R2Driver extends MemoryDriver {
+  readonly kind = 'r2' as const
+  private dirty = new Set<string>()
+  private timer: any = null
 
-  constructor(url: string, key: string) {
-    this.c = createClient(url, key, { auth: { persistSession: false } })
+  protected async persist(t: TableName): Promise<void> {
+    this.dirty.add(t)
+    if (this.timer) return
+    this.timer = setTimeout(() => {
+      this.timer = null
+      const tables = [...this.dirty]
+      this.dirty.clear()
+      const r2 = useR2()
+      Promise.all(tables.map((t) => r2.writeJson(`db/${t}.json`, (store() as any)[t]))).catch(() => {})
+    }, 1200)
   }
 
-  private build(t: TableName, opts: FindOpts = {}, count = false) {
-    let q: any = this.c.from(t).select('*', count ? { count: 'exact' } : undefined)
-    if (opts.where) for (const [k, v] of Object.entries(opts.where)) if (v !== undefined) q = q.eq(k, v)
-    if (opts.whereNot) for (const [k, v] of Object.entries(opts.whereNot)) q = q.neq(k, v)
-    if (opts.whereIn) for (const [k, arr] of Object.entries(opts.whereIn)) q = q.in(k, arr)
-    if (opts.gte) for (const [k, v] of Object.entries(opts.gte)) q = q.gte(k, v)
-    if (opts.lte) for (const [k, v] of Object.entries(opts.lte)) q = q.lte(k, v)
-    if (opts.search?.term) {
-      const term = opts.search.term.replace(/[%,()]/g, ' ')
-      q = q.or(opts.search.fields.map((f) => `${f}.ilike.%${term}%`).join(','))
+  async hydrate(): Promise<void> {
+    const r2 = useR2()
+    const tables: TableName[] = [
+      'users', 'documents', 'categories', 'orders', 'reviews',
+      'transactions', 'blogs', 'notifications', 'reports', 'favorites', 'downloads'
+    ]
+    for (const t of tables) {
+      const data = await r2.readJson<any[]>(`db/${t}.json`)
+      if (Array.isArray(data) && data.length) (store() as any)[t] = data
+      else await r2.writeJson(`db/${t}.json`, (store() as any)[t])
     }
-    if (opts.order) q = q.order(opts.order.field, { ascending: !!opts.order.asc })
-    if (opts.limit !== undefined) {
-      const off = opts.offset || 0
-      q = q.range(off, off + opts.limit - 1)
+    const s = await r2.readJson<Record<string, any>>('db/settings.json')
+    if (s) store().settings = s
+    else await r2.writeJson('db/settings.json', store().settings)
+  }
+}
+
+export function useDriver(): Driver {
+  if (!G.__mapdocs_driver) {
+    if (r2Configured()) {
+      const d = new R2Driver()
+      G.__mapdocs_driver = d
+      d.hydrate().catch(() => {})
+    } else {
+      G.__mapdocs_driver = new MemoryDriver()
     }
-    return q
   }
-
-  async find<T = any>(t: TableName, opts: FindOpts = {}): Promise<{ rows: T[]; total: number }> {
-    const { data, error, count } = await this.build(t, opts, true)
-    if (error) throw createError({ statusCode: 500, statusMessage: error.message })
-    return { rows: (data || []) as T[], total: count ?? (data?.length || 0) }
-  }
-
-  async findOne<T = any>(t: TableName, where: Record<string, any>): Promise<T | null> {
-    let q: any = this.c.from(t).select('*')
-    for (const [k, v] of Object.entries(where)) q = q.eq(k, v)
-    const { data, error } = await q.limit(1).maybeSingle()
-    if (error) throw createError({ statusCode: 500, statusMessage: error.message })
-    return (data as T) || null
-  }
-
-  async insert<T = any>(t: TableName, row: any): Promise<T> {
-    const { data, error } = await this.c.from(t).insert(row).select().single()
-    if (error) throw createError({ statusCode: 500, statusMessage: error.message })
-    return data as T
-  }
-
-  async update<T = any>(t: TableName, id: string, patch: any): Promise<T> {
-    const { data, error } = await this.c.from(t).update(patch).eq('id', id).select().single()
-    if (error) throw createError({ statusCode: 500, statusMessage: error.message })
-    return data as T
-  }
-
-  async remove(t: TableName, id: string): Promise<void> {
-    const { error } = await this.c.from(t).delete().eq('id', id)
-    if (error) throw createError({ statusCode: 500, statusMessage: error.message })
-  }
-
-  async increment(t: TableName, id: string, field: string, by = 1): Promise<void> {
-    const cur = await this.findOne<any>(t, { id })
-    if (!cur) return
-    await this.update(t, id, { [field]: (Number(cur[field]) || 0) + by })
-  }
-
-  async getSettings(): Promise<Record<string, any>> {
-    const { data } = await this.c.from('settings').select('*').limit(1).maybeSingle()
-    return (data?.value as any) || SETTINGS
-  }
-
-  async setSettings(patch: Record<string, any>): Promise<Record<string, any>> {
-    const merged = { ...(await this.getSettings()), ...patch }
-    await this.c.from('settings').upsert({ id: 1, value: merged })
-    return merged
-  }
+  return G.__mapdocs_driver as Driver
 }
 
-let _driver: Driver | null = null
-
-export function db(): Driver {
-  if (_driver) return _driver
-  const cfg = useRuntimeConfig()
-  const url = cfg.public.supabaseUrl
-  const key = cfg.supabaseServiceKey
-  if (url && key) {
-    _driver = new SupabaseDriver(url, key)
-    console.log('[MapDocs] Data driver: SUPABASE')
-  } else {
-    _driver = new MockDriver()
-    console.log('[MapDocs] Data driver: MOCK (in-memory seed data)')
-  }
-  return _driver
+export function driverStatus() {
+  const d = useDriver()
+  return { kind: d.kind, r2: r2Configured() }
 }
-
-export const isMock = () => db().kind === 'mock'
