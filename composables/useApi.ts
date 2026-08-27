@@ -1,19 +1,41 @@
+import { toast } from 'vue-sonner'
+
 export function useApi() {
-  const ui = useUiStore()
-  async function call<T = any>(url: string, opts: any = {}, o: { silent?: boolean; successToast?: boolean } = {}): Promise<T | null> {
+  function errMessage(e: any): string {
+    return e?.data?.statusMessage || e?.data?.message || e?.statusMessage || e?.message || 'Đã xảy ra lỗi, vui lòng thử lại'
+  }
+
+  async function call<T = any>(url: string, opts: any = {}): Promise<T> {
+    const client = import.meta.server ? useRequestFetch() : $fetch
+    return client<T>(url, opts)
+  }
+
+  async function get<T = any>(url: string, query?: Record<string, any>): Promise<T> {
+    return call<T>(url, { query })
+  }
+
+  async function post<T = any>(url: string, body?: any): Promise<T> {
+    return call<T>(url, { method: 'POST', body })
+  }
+
+  async function put<T = any>(url: string, body?: any): Promise<T> {
+    return call<T>(url, { method: 'PUT', body })
+  }
+
+  async function del<T = any>(url: string): Promise<T> {
+    return call<T>(url, { method: 'DELETE' })
+  }
+
+  async function guard<T>(fn: () => Promise<T>, success?: string): Promise<T | null> {
     try {
-      const res: any = await $fetch(url, opts)
-      if (o.successToast && res?.message) ui.success(res.message)
-      return (res?.data !== undefined ? res.data : res) as T
+      const res = await fn()
+      if (success) toast.success(success)
+      return res
     } catch (e: any) {
-      const msg = e?.data?.statusMessage || e?.data?.message || e?.statusMessage || 'Đã có lỗi xảy ra, vui lòng thử lại'
-      if (!o.silent) ui.error(msg)
+      toast.error(errMessage(e))
       return null
     }
   }
-  const get = <T = any>(url: string, query?: any, o?: any) => call<T>(url, { query }, o)
-  const post = <T = any>(url: string, body?: any, o?: any) => call<T>(url, { method: 'POST', body }, { successToast: true, ...o })
-  const put = <T = any>(url: string, body?: any, o?: any) => call<T>(url, { method: 'PUT', body }, { successToast: true, ...o })
-  const del = <T = any>(url: string, body?: any, o?: any) => call<T>(url, { method: 'DELETE', body }, { successToast: true, ...o })
-  return { call, get, post, put, del }
+
+  return { call, get, post, put, del, guard, errMessage }
 }

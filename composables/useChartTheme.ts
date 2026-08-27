@@ -1,78 +1,134 @@
-/**
- * useChartTheme — bo mau + option Chart.js cho dark theme (dashboard / admin)
- * Phong cach thegioidev.com: nen toi, grid mo, tooltip zinc-900.
- */
 export function useChartTheme() {
-  const colors = {
+  const dark = {
     text: '#a1a1aa',
-    grid: 'rgba(63,63,70,.45)',
-    blue: '#3b82f6',
-    green: '#22c55e',
-    amber: '#f59e0b',
-    violet: '#a855f7',
-    rose: '#f43f5e',
-    cyan: '#06b6d4',
+    textStrong: '#fafafa',
+    grid: 'rgba(63, 63, 70, .45)',
+    border: '#27272a',
     panel: '#18181b',
-    line: '#27272a'
+    tooltipBg: 'rgba(24, 24, 27, .96)'
   }
 
-  function hexAlpha(hex: string, a: number) {
+  const palette = {
+    blue: '#3b82f6',
+    orange: '#f97316',
+    green: '#10b981',
+    purple: '#8b5cf6',
+    rose: '#f43f5e',
+    amber: '#f59e0b',
+    cyan: '#06b6d4',
+    zinc: '#71717a'
+  }
+
+  function fade(hex: string, alpha: number): string {
     const h = hex.replace('#', '')
     const r = parseInt(h.slice(0, 2), 16)
     const g = parseInt(h.slice(2, 4), 16)
     const b = parseInt(h.slice(4, 6), 16)
-    return `rgba(${r},${g},${b},${a})`
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
   }
 
-  /** Gradient dung cho fill duoi duong line chart */
-  function areaGradient(ctx: CanvasRenderingContext2D, height: number, hex: string, alpha = 0.35) {
-    const g = ctx.createLinearGradient(0, 0, 0, height || 240)
-    g.addColorStop(0, hexAlpha(hex, alpha))
-    g.addColorStop(1, hexAlpha(hex, 0))
+  function gradient(ctx: any, hex: string, top = 0.34): CanvasGradient | string {
+    const area = ctx?.chart?.chartArea
+    if (!area) return fade(hex, top)
+    const g = ctx.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom)
+    g.addColorStop(0, fade(hex, top))
+    g.addColorStop(1, fade(hex, 0))
     return g
   }
 
-  /** Option chung cho moi chart dark */
-  function baseOptions(opts: { tickFormat?: (v: any) => string; legend?: boolean } = {}) {
+  function baseOptions(extra: Record<string, any> = {}) {
     return {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index' as const, intersect: false },
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
-          display: opts.legend !== false,
-          position: 'bottom' as const,
-          labels: { color: colors.text, boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: 16, font: { size: 11 } }
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: dark.text,
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 7,
+            boxHeight: 7,
+            padding: 16,
+            font: { size: 11, family: 'Inter' }
+          }
         },
         tooltip: {
-          backgroundColor: colors.panel,
-          borderColor: colors.line,
+          backgroundColor: dark.tooltipBg,
+          borderColor: dark.border,
           borderWidth: 1,
-          titleColor: '#fafafa',
-          bodyColor: '#d4d4d8',
-          padding: 10,
+          titleColor: dark.textStrong,
+          bodyColor: dark.text,
+          padding: 11,
           cornerRadius: 8,
           displayColors: true,
-          boxWidth: 8,
-          boxHeight: 8,
-          usePointStyle: true
+          usePointStyle: true,
+          titleFont: { size: 12, family: 'Inter', weight: '600' },
+          bodyFont: { size: 12, family: 'Inter' }
         }
       },
       scales: {
+        x: {
+          grid: { display: false, drawBorder: false },
+          border: { display: false },
+          ticks: {
+            color: dark.text,
+            font: { size: 10, family: 'Inter' },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 12
+          }
+        },
         y: {
           beginAtZero: true,
+          grid: { color: dark.grid, drawBorder: false, drawTicks: false },
           border: { display: false },
-          grid: { color: colors.grid, drawTicks: false },
-          ticks: { color: colors.text, font: { size: 11 }, padding: 8, callback: opts.tickFormat }
-        },
-        x: {
-          border: { display: false },
-          grid: { display: false },
-          ticks: { color: colors.text, font: { size: 11 }, padding: 6 }
+          ticks: {
+            color: dark.text,
+            font: { size: 10, family: 'Inter' },
+            padding: 8,
+            maxTicksLimit: 6
+          }
         }
-      }
+      },
+      ...extra
     }
   }
 
-  return { colors, areaGradient, hexAlpha, baseOptions }
+  function lineDataset(label: string, data: number[], hex: string, opts: Record<string, any> = {}) {
+    return {
+      label,
+      data,
+      borderColor: hex,
+      backgroundColor: (ctx: any) => gradient(ctx, hex),
+      borderWidth: 2,
+      fill: true,
+      tension: 0.38,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: hex,
+      pointHoverBorderColor: dark.panel,
+      pointHoverBorderWidth: 2,
+      ...opts
+    }
+  }
+
+  function barDataset(label: string, data: number[], hex: string, opts: Record<string, any> = {}) {
+    return {
+      label,
+      data,
+      backgroundColor: fade(hex, 0.72),
+      hoverBackgroundColor: hex,
+      borderRadius: 4,
+      borderSkipped: false,
+      barThickness: 'flex',
+      maxBarThickness: 22,
+      ...opts
+    }
+  }
+
+  return { dark, palette, fade, gradient, baseOptions, lineDataset, barDataset }
 }

@@ -1,7 +1,8 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   const auth = useAuthStore()
-  if (!auth.user) await auth.fetchMe()
-  if (!auth.isLoggedIn) {
-    return navigateTo(`/auth/dang-nhap?redirect=${encodeURIComponent(to.fullPath)}`)
+  if (!auth.ready) await auth.fetchMe()
+
+  if (!auth.loggedIn) {
+    return navigateTo(`/auth/dang-nhap?next=${encodeURIComponent(to.fullPath)}`)
   }
 })

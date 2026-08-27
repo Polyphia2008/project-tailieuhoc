@@ -3,45 +3,91 @@ import type { User } from '~/types'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
-  const mode = ref<'mock' | 'supabase'>('mock')
-  const loading = ref(false)
+  const unread = ref(0)
+  const ready = ref(false)
+  const pending = ref(false)
 
-  const isLoggedIn = computed(() => !!user.value)
+  const loggedIn = computed(() => Boolean(user.value))
   const isAdmin = computed(() => user.value?.role === 'admin')
   const isSeller = computed(() => user.value?.role === 'seller' || user.value?.role === 'admin')
+  const balance = computed(() => Number(user.value?.balance || 0))
+
+  function client() {
+    return import.meta.server ? useRequestFetch() : $fetch
+  }
 
   async function fetchMe() {
     try {
-      // SSR: $fetch khong tu dong forward cookie -> dung useRequestFetch de giu phien dang nhap
-      const request = import.meta.server ? useRequestFetch() : $fetch
-      const res = await request<any>('/api/auth/me')
-      user.value = res?.data ?? null
-      if (res?.mode) mode.value = res.mode
-    } catch { user.value = null }
-  }
-  async function login(email: string, password: string) {
-    loading.value = true
-    try {
-      const res = await $fetch<any>('/api/auth/login', { method: 'POST', body: { email, password } })
-      user.value = res.data
-      return res
-    } finally { loading.value = false }
-  }
-  async function register(name: string, email: string, password: string) {
-    loading.value = true
-    try {
-      const res = await $fetch<any>('/api/auth/register', { method: 'POST', body: { name, email, password } })
-      user.value = res.data
-      return res
-    } finally { loading.value = false }
-  }
-  async function logout() {
-    try { await $fetch('/api/auth/logout', { method: 'POST' }) } finally {
+      const res = await client()<{ user: User | null; unread: number }>('/api/auth/me')
+      user.value = res.user
+      unread.value = res.unread || 0
+    } catch {
       user.value = null
-      await navigateTo('/')
+      unread.value = 0
+    } finally {
+      ready.value = true
     }
   }
-  function setUser(u: User | null) { user.value = u }
 
-  return { user, mode, loading, isLoggedIn, isAdmin, isSeller, fetchMe, login, register, logout, setUser }
+  async function login(email: string, password: string) {
+    pending.value = true
+    try {
+      const res = await $fetch<{ user: User }>('/api/auth/login', {
+        method: 'POST',
+        body: { email, password }
+      })
+      user.value = res.user
+      await fetchMe()
+      return res.user
+    } finally {
+      pending.value = false
+    }
+  }
+
+  async function register(name: string, email: string, password: string) {
+    pending.value = true
+    try {
+      const res = await $fetch<{ user: User; first_register: boolean }>('/api/auth/register', {
+        method: 'POST',
+        body: { name, email, password }
+      })
+      user.value = res.user
+      return res
+    } finally {
+      pending.value = false
+    }
+  }
+
+  async function logout() {
+    try {
+      await $fetch('/api/auth/logout', { method: 'POST' })
+    } finally {
+      user.value = null
+      unread.value = 0
+    }
+  }
+
+  async function refresh() {
+    await fetchMe()
+  }
+
+  function patchBalance(next: number) {
+    if (user.value) user.value.balance = next
+  }
+
+  async function markAllRead() {
+    try {
+      const res = await $fetch<{ unread: number }>('/api/user/notifications', {
+        method: 'POST',
+        body: { all: true }
+      })
+      unread.value = res.unread
+    } catch {}
+  }
+
+  return {
+    user, unread, ready, pending,
+    loggedIn, isAdmin, isSeller, balance,
+    fetchMe, login, register, logout, refresh, patchBalance, markAllRead
+  }
 })
