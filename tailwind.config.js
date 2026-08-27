@@ -1,10 +1,11 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
+  darkMode: 'class',
   content: [
     './components/**/*.{vue,js,ts}',
     './layouts/**/*.vue',
     './pages/**/*.vue',
     './composables/**/*.{js,ts}',
+    './plugins/**/*.{js,ts}',
     './app.vue',
     './error.vue'
   ],
@@ -12,59 +13,83 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#eef6ff', 100: '#d9eaff', 200: '#bcdaff', 300: '#8ec3ff', 400: '#59a2ff',
-          500: '#337eff', 600: '#1b5df5', 700: '#1449e1', 800: '#173db6', 900: '#0b4a8f', 950: '#0a2d5c'
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554'
         },
         accent: {
-          50: '#fff8ed', 100: '#fff3e6', 200: '#ffdba8', 300: '#ffc171', 400: '#ff9d38',
-          500: '#ff8412', 600: '#f06806', 700: '#c74e07', 800: '#9e3e0e', 900: '#7f350f'
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12'
         },
-        // Design tokens MapDocs (giai doan 2)
-        surface: '#f8fafc',
-        ink: { DEFAULT: '#0f172a', soft: '#475569' },
-        line: '#e2e8f0',
-        ok: '#16a34a',
-        warn: '#f59e0b',
-        bad: '#dc2626',
-        // Dark theme tokens (phong cach thegioidev.com - zinc scale)
-        dk: {
-          bg: '#09090b',      // zinc-950  - nen trang
-          panel: '#18181b',   // zinc-900  - card / sidebar
-          soft: '#1f1f23',    // nen phu (hover nhe)
-          line: '#27272a',    // zinc-800  - vien
-          line2: '#3f3f46',   // zinc-700  - vien manh / scrollbar hover
-          text: '#fafafa',    // zinc-50   - chu chinh
-          sub: '#a1a1aa',     // zinc-400  - chu phu
-          mute: '#71717a'     // zinc-500  - chu mo
+        mdk: {
+          bg: '#09090b',
+          panel: '#18181b',
+          soft: '#1c1c1f',
+          line: '#27272a',
+          line2: '#3f3f46',
+          text: '#fafafa',
+          sub: '#a1a1aa',
+          mute: '#71717a'
         }
       },
       fontFamily: {
-        sans: ['Be Vietnam Pro', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        ui: ['Inter', 'Be Vietnam Pro', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        hand: ['"Dancing Script"', 'cursive']
+        sans: ['Be Vietnam Pro', 'Inter', 'system-ui', 'sans-serif'],
+        ui: ['Inter', 'system-ui', 'sans-serif'],
+        hand: ['Dancing Script', 'cursive']
       },
-      borderRadius: { xl2: '12px' },
       boxShadow: {
-        card: '0 1px 3px rgba(0,0,0,.06)',
-        hover: '0 8px 25px rgba(11,74,143,.12)',
-        soft: '0 2px 8px rgba(16,24,40,.06)',
-        pop: '0 20px 45px rgba(11,74,143,.18)'
+        card: '0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04)',
+        lift: '0 12px 32px -8px rgba(16,24,40,.16)',
+        dark: '0 1px 0 rgba(255,255,255,.02) inset, 0 8px 24px -12px rgba(0,0,0,.8)'
       },
       keyframes: {
-        'fade-up': { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-        'fade-in': { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        shimmer: { '0%': { backgroundPosition: '-500px 0' }, '100%': { backgroundPosition: '500px 0' } },
-        'scale-in': { '0%': { opacity: '0', transform: 'scale(.96)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-        'slide-down': { '0%': { opacity: '0', transform: 'translateY(-6px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-        'hello-fill': { from: { opacity: '0', transform: 'translateY(2px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
-        'check-pop': { '0%': { opacity: '0', transform: 'scale(0) rotate(-35deg)' }, '60%': { opacity: '1', transform: 'scale(1.12) rotate(4deg)' }, '100%': { opacity: '1', transform: 'scale(1) rotate(0)' } }
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' }
+        },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' }
+        },
+        'scale-in': {
+          from: { opacity: '0', transform: 'scale(.95)' },
+          to: { opacity: '1', transform: 'scale(1)' }
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' }
+        },
+        float: {
+          '0%,100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' }
+        },
+        'glow-pulse': {
+          '0%,100%': { opacity: '.35' },
+          '50%': { opacity: '.7' }
+        }
       },
       animation: {
-        'fade-up': 'fade-up .45s ease-out both',
-        'fade-in': 'fade-in .3s ease-out both',
-        shimmer: 'shimmer 1.4s linear infinite',
-        'scale-in': 'scale-in .18s cubic-bezier(.16,1,.3,1) both',
-        'slide-down': 'slide-down .16s ease-out both'
+        'fade-up': 'fade-up .5s cubic-bezier(.22,1,.36,1) both',
+        'fade-in': 'fade-in .4s ease both',
+        'scale-in': 'scale-in .3s cubic-bezier(.22,1,.36,1) both',
+        shimmer: 'shimmer 1.6s infinite',
+        float: 'float 5s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 4s ease-in-out infinite'
       }
     }
   },

@@ -2,13 +2,14 @@ export type UserRole = 'admin' | 'seller' | 'user'
 export type DocStatus = 'pending' | 'approved' | 'rejected'
 export type OrderStatus = 'pending' | 'paid' | 'failed' | 'refunded'
 export type TxType = 'purchase' | 'sale' | 'withdraw' | 'topup' | 'commission'
-export type FileType = 'pdf' | 'docx' | 'xlsx' | 'image' | 'zip'
+export type FileType = 'pdf' | 'docx' | 'pptx' | 'xlsx' | 'image' | 'zip'
+export type ReportStatus = 'open' | 'resolved' | 'dismissed'
 
 export interface User {
   id: string
   name: string
   email: string
-  password?: string
+  password_hash?: string
   salt?: string
   role: UserRole
   avatar?: string
@@ -17,6 +18,7 @@ export interface User {
   balance: number
   blocked?: boolean
   email_verified?: boolean
+  google_id?: string
   provider?: 'local' | 'google'
   created_at: string
 }
@@ -35,8 +37,9 @@ export interface Category {
   slug: string
   icon: string
   color: string
+  parent_id?: string | null
   description?: string
-  doc_count?: number
+  document_count?: number
 }
 
 export interface DocumentItem {
@@ -58,16 +61,15 @@ export interface DocumentItem {
   reject_reason?: string
   seller_id: string
   seller?: PublicUser
-  tags: string[]
+  tags?: string[]
+  featured?: boolean
   view_count: number
   download_count: number
   sold_count: number
   rating_avg: number
   rating_count: number
-  featured: boolean
   created_at: string
-  updated_at: string
-  revenue?: number
+  updated_at?: string
 }
 
 export interface Order {
@@ -79,8 +81,9 @@ export interface Order {
   amount: number
   commission: number
   seller_amount: number
-  payment_method: string
+  method: 'wallet' | 'vnpay' | 'mock'
   status: OrderStatus
+  paid_at?: string
   created_at: string
   document?: DocumentItem
   buyer?: PublicUser
@@ -90,10 +93,10 @@ export interface Review {
   id: string
   document_id: string
   user_id: string
-  user?: PublicUser
   rating: number
   comment: string
   created_at: string
+  user?: PublicUser
 }
 
 export interface Transaction {
@@ -102,22 +105,25 @@ export interface Transaction {
   type: TxType
   amount: number
   balance_after: number
-  note: string
-  ref_id?: string
+  ref?: string
+  note?: string
+  status: 'pending' | 'success' | 'failed'
   created_at: string
 }
 
 export interface Blog {
   id: string
-  title: string
   slug: string
+  title: string
   excerpt: string
-  content: string
   cover?: string
+  content: string
   author_id: string
   author?: PublicUser
-  tags: string[]
+  tags?: string[]
   view_count: number
+  published: boolean
+  published_at?: string
   created_at: string
 }
 
@@ -126,22 +132,49 @@ export interface Notification {
   user_id: string
   title: string
   body: string
-  type: string
+  type: 'info' | 'success' | 'warning' | 'error'
   link?: string
   read: boolean
   created_at: string
 }
 
-export interface ReportItem {
+export interface Favorite {
+  id: string
+  user_id: string
+  document_id: string
+  created_at: string
+}
+
+export interface Download {
+  id: string
+  user_id: string
+  document_id: string
+  created_at: string
+}
+
+export interface Report {
   id: string
   document_id: string
-  document?: DocumentItem
   user_id: string
-  user?: PublicUser
   reason: string
-  detail: string
-  status: 'open' | 'resolved' | 'dismissed'
+  detail?: string
+  status: ReportStatus
+  admin_note?: string
   created_at: string
+  document?: DocumentItem
+  user?: PublicUser
+}
+
+export interface Settings {
+  id: string
+  commission_rate: number
+  min_withdraw: number
+  min_price: number
+  max_file_mb: number
+  hotline: string
+  email: string
+  address: string
+  facebook: string
 }
 
 export interface Paged<T> {
@@ -149,11 +182,14 @@ export interface Paged<T> {
   total: number
   page: number
   limit: number
-  totalPages: number
+  pages: number
 }
 
-export interface Toast {
-  id: number
-  message: string
-  type: 'success' | 'error' | 'info'
+export interface Subject {
+  key: string
+  name: string
+  icon: string
+  from: string
+  to: string
+  text: string
 }

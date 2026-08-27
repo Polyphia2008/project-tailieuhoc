@@ -1,5 +1,6 @@
 node_modules
 *.log
+logs/
 .nuxt
 .nitro
 .cache
@@ -13,8 +14,6 @@ dist
 .vscode
 .idea
 *.tar.gz
-
-# Core dumps (sandbox OOM)
 core
 core.*
 screenshots/

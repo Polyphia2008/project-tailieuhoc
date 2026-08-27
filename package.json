@@ -2,21 +2,19 @@
   "name": "mapdocs",
   "private": true,
   "type": "module",
-  "version": "1.0.0",
-  "description": "MapDocs - Nen tang chia se & mua ban tai lieu hoc tap",
+  "version": "2.0.0",
+  "description": "MapDocs - Kho tai lieu hoc tap chat luong cao",
   "scripts": {
     "dev": "nuxt dev --host 0.0.0.0 --port 3000",
     "build": "nuxt build",
     "preview": "nuxt preview",
     "start": "node .output/server/index.mjs",
-    "postinstall": "nuxt prepare",
-    "seed": "node scripts/seed-supabase.mjs"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@iconify-json/solar": "^1.2.7",
     "@nuxt/icon": "^1.15.0",
     "@pinia/nuxt": "^0.5.5",
-    "@supabase/supabase-js": "^2.45.4",
     "@vueuse/motion": "^3.0.3",
     "chart.js": "^4.4.4",
     "jose": "^5.9.3",
