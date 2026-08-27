@@ -1,253 +1,151 @@
-# MapDocs — Nền tảng chia sẻ & mua bán tài liệu học tập
+# MapDocs v2.0 — Kho tài liệu học tập chất lượng cao
 
-MapDocs là nền tảng cho phép học sinh, sinh viên và giáo viên **chia sẻ, mua bán và tải về tài liệu học tập** một cách nhanh chóng, an toàn. Người bán đăng tài liệu lên hệ thống, được kiểm duyệt trước khi hiển thị công khai, và nhận **85% doanh thu** cho mỗi lượt bán (nền tảng giữ 15% hoa hồng).
+Nền tảng chia sẻ & mua bán tài liệu học tập (Toán, Lý, Hoá, Sinh, Văn, Anh, Sử, Địa) với dashboard/admin dark theme phong cách thegioidev.com.
 
-Toàn bộ hệ thống được xây dựng trên **Nuxt 3** với kiến trúc full-stack: giao diện Vue 3 + Tailwind CSS ở phía client, API server-side bằng Nitro, dữ liệu lưu trên **Supabase (PostgreSQL)**. Hệ thống có sẵn **Mock Database in-memory**, nên bạn có thể chạy demo đầy đủ ngay mà **không cần cấu hình Supabase**.
+## URLs
 
----
+- **Preview sandbox**: https://3000-iwqu5oi5exjvux525m7sh-8f57ffe2.sandbox.novita.ai
+- **GitHub**: https://github.com/Polyphia2008/project-tailieuhoc
 
-## ✨ Tính năng chính
-
-### 👤 Tài khoản & xác thực
-- Đăng ký / đăng nhập bằng email + mật khẩu (JWT lưu trong httpOnly cookie, hạn 7 ngày)
-- Đăng nhập nhanh bằng **Google OAuth**
-- Quên mật khẩu / đặt lại mật khẩu
-- Ba vai trò: `user` (người mua) — `seller` (người bán) — `admin` (quản trị)
-- Trang hồ sơ: đổi thông tin cá nhân, ảnh đại diện, trường học, mật khẩu
-
-### 📚 Thư viện tài liệu
-- Lọc theo **môn học** (10 môn), **khối lớp** (1–12), **miễn phí / trả phí**
-- Tìm kiếm theo tiêu đề, mô tả, tags
-- Sắp xếp: mới nhất, bán chạy, đánh giá cao, giá tăng/giảm
-- Phân trang, skeleton loading, đồng bộ bộ lọc lên URL query
-- Trang chi tiết: ảnh bìa, mô tả, thông tin file (số trang, dung lượng, định dạng), thông tin người bán, danh sách đánh giá, tài liệu liên quan
-
-### 💰 Bán tài liệu & kiểm duyệt
-- Người bán đăng tài liệu: tiêu đề, mô tả, môn, lớp, giá, file, ảnh bìa, tags
-- Trạng thái: `pending` → admin duyệt → `approved` / `rejected` (kèm lý do)
-- **Hoa hồng 15%** tự động khấu trừ khi có đơn hàng thành công
-- Người bán theo dõi tài liệu của mình, lượt xem, lượt bán, doanh thu
-
-### 💳 Ví điện tử & thanh toán
-- Nạp tiền vào ví, rút tiền (tối thiểu 200.000₫, admin duyệt)
-- Thanh toán bằng **số dư ví** (trừ trực tiếp) hoặc cổng **VNPay / Momo / Stripe**
-- Trang cổng thanh toán mô phỏng (`/thanh-toan/gia-lap`) với đếm ngược 10 phút
-- Trang kết quả thanh toán (`/thanh-toan/ket-qua`) đọc mã phản hồi chuẩn VNPay
-- Lịch sử giao dịch đầy đủ: nạp, rút, mua, thu nhập, hoàn tiền
-
-### ⭐ Tương tác
-- Đánh giá tài liệu (1–5 sao + bình luận), chỉ người đã mua mới được đánh giá
-- Yêu thích / bỏ yêu thích tài liệu
-- Báo cáo (khiếu nại) tài liệu vi phạm, admin xử lý và ghi chú
-
-### 📊 Dashboard người bán
-- Tổng quan: doanh thu, số đơn, số tài liệu, biểu đồ **Chart.js**
-- Tài liệu đã mua, tài liệu của tôi, đăng bán tài liệu mới
-- Trang doanh thu chi tiết, danh sách yêu thích, hồ sơ cá nhân
-
-### 🛡️ Admin panel
-- **Tổng quan**: KPI toàn hệ thống, biểu đồ doanh thu
-- **Tài liệu**: duyệt / từ chối / gắn nổi bật / xoá
-- **Người dùng**: khoá / mở khoá, đổi vai trò
-- **Danh mục**: thêm / sửa / xoá môn học
-- **Giao dịch**: GMV, hoa hồng, số đơn, lọc theo trạng thái, tìm kiếm
-- **Khiếu nại**: xử lý / từ chối kèm mẫu ghi chú sẵn
-- **Bài viết**: CRUD blog (tự sinh slug, tags, ảnh bìa, publish)
-- **Cài đặt**: tỉ lệ hoa hồng, hạn mức rút/giá tối thiểu, thông tin liên hệ
-
-### 📰 Blog / Tin tức
-- Danh sách bài viết có bài nổi bật, tìm kiếm, phân trang
-- Trang chi tiết: nội dung HTML định dạng đẹp, tags, chia sẻ Facebook, sao chép link, bài viết liên quan
-
----
-
-## 🛠 Công nghệ sử dụng
+## Tech Stack
 
 | Lớp | Công nghệ |
 |---|---|
-| Framework | **Nuxt 3** (SSR + Nitro server) |
-| UI | **Vue 3** Composition API, `<script setup lang="ts">` |
-| Ngôn ngữ | **TypeScript** |
-| CSS | **Tailwind CSS** (màu chủ đạo `#0b4a8f`, nhấn `#ff8412`) |
-| State | **Pinia** (`useAuthStore`, `useUiStore`) |
-| Database | **Supabase / PostgreSQL** (có Mock DB dự phòng) |
-| Biểu đồ | **Chart.js 4** |
-| Auth | JWT (`jose`) + Google OAuth |
-| Font / Icon | Be Vietnam Pro, Font Awesome 6 |
-| Deploy | **Vercel** |
+| Framework | Nuxt 3 + Vue 3 + TypeScript |
+| UI | TailwindCSS, Radix UI (radix-vue), Sonner toast, Solar Icon Set |
+| State | Pinia |
+| Animation | @vueuse/motion (stagger fade-up) |
+| Chart | Chart.js (dark theme qua `useChartTheme`) |
+| Backend | Nuxt Nitro (h3) + jose (JWT) |
+| Storage | Cloudflare R2 stub (in-memory khi chưa cấu hình env) |
+| Fonts | Inter (UI), Be Vietnam Pro (nội dung), Dancing Script (hello animation) |
 
----
-
-## 🚀 Cài đặt nhanh
+## Cài đặt
 
 ```bash
 git clone https://github.com/Polyphia2008/project-tailieuhoc.git
 cd project-tailieuhoc
 npm install
-npm run dev
-```
-
-Mở trình duyệt tại **http://localhost:3000**
-
-> Không cần cấu hình `.env` để chạy demo — hệ thống tự dùng **Mock Database** với đầy đủ dữ liệu mẫu (8 người dùng, 10 môn học, 39 tài liệu, 93 đánh giá, 4 bài blog…).
-
-### Các lệnh khác
-
-```bash
-npm run build                        # build production
-npm run preview                      # xem thử bản build
-npm run seed -- --dry                # kiểm tra dữ liệu mẫu (không ghi DB)
-npm run seed                         # đẩy dữ liệu mẫu lên Supabase
-npm run seed -- --truncate           # xoá sạch rồi seed lại
-```
-
----
-
-## 🔑 Tài khoản demo
-
-```
-Admin:  admin@mapdocs.vn  / 123456
-Seller: seller@mapdocs.vn / 123456
-User:   user@mapdocs.vn   / 123456
-```
-
----
-
-## ⚙️ Biến môi trường
-
-Sao chép `.env.example` thành `.env` rồi điền thông tin:
-
-```bash
 cp .env.example .env
+pm2 start ecosystem.config.cjs
 ```
 
-| Biến | Mô tả |
+Server chạy tại `http://localhost:3000`. PM2 giới hạn heap 768MB (`--max-old-space-size=768`) phù hợp sandbox RAM thấp.
+
+```bash
+pm2 logs mapdocs --nostream    # xem log
+pm2 restart mapdocs            # restart
+rm -f core                     # xoá core dump sau mỗi lần OOM
+```
+
+## Tài khoản demo
+
+| Email | Mật khẩu | Vai trò |
+|---|---|---|
+| admin@mapdocs.vn | 123456 | Quản trị viên (truy cập `/admin`) |
+| seller@mapdocs.vn | 123456 | Người bán |
+| user@mapdocs.vn | 123456 | Học sinh |
+
+## Tính năng đã hoàn thành
+
+### Giao diện
+- **Landing page hiện đại** (Vercel/Linear style): hero dark với grid + gradient glow, floating DocCard demo, logo cloud, 3 cột tính năng, showcase tài liệu, testimonials, CTA banner gradient, footer 4 cột
+- **Dashboard dark theme** (theo thegioidev): sidebar 240px cố định với 3 nhóm menu (SẢN PHẨM & DỊCH VỤ / CUSTOMER / OTHERS) + submenu collapse, topbar search + kbd `⌘K` + chips (hoa hồng, số dư) + notification dropdown + avatar dropdown, 4 stat card có **gradient sparkline** SVG, Chart.js line dark, quick access grid 4 cột với icon gradient tròn
+- **Admin panel dark zinc**: sidebar riêng 8 link chia 4 nhóm, 8 stat card sparkline, 2 chart (line GMV/hoa hồng + bar tăng trưởng), top người bán, phân bố theo môn, bảng bulk actions (duyệt/từ chối/xoá) với checkbox
+- **Auth layout split**: gradient panel bên trái (logo, 3 điểm mạnh stagger, chips môn học) + form bên phải với input có icon, thanh độ mạnh mật khẩu, divider HOẶC, nút Google brand icon
+- **Hello animation** (`/auth/chuc-mung`): check icon SVG scale+rotate → 26 confetti particles toả ra → SVG text "hello" Dancing Script 150px (stroke vẽ trước, fill delay 1.38s) → tên người dùng → button "Khám phá ngay"
+- **Scrollbar**: 10px cho public, **6px** trong scope `.mdk` (track trong suốt, thumb `#27272a`, hover `#3f3f46`)
+
+### Backend (40 API routes)
+| Nhóm | Endpoints |
 |---|---|
-| `SUPABASE_URL` | URL project Supabase — **để trống ⇒ dùng Mock DB** |
-| `SUPABASE_ANON_KEY` | Khoá public của Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | Khoá service role (bắt buộc để seed & ghi dữ liệu) |
-| `JWT_SECRET` | Chuỗi bí mật ký JWT — **phải đổi khi lên production** |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Thông tin Google OAuth |
-| `VNP_TMN_CODE` / `VNP_HASH_SECRET` / `VNP_URL` | Cấu hình cổng VNPay |
-| `COMMISSION_RATE` | Tỉ lệ hoa hồng, mặc định `0.15` |
-| `SITE_URL` / `NUXT_PUBLIC_SITE_URL` | Địa chỉ site |
-| `NITRO_PRESET` | Preset build, mặc định `node-server` |
+| Auth | `register`, `login`, `logout`, `me`, `forgot`, `reset`, `verify`, `google` |
+| Documents | `index` GET/POST, `[slug]` GET, `[id]` PUT/DELETE, `review`, `favorite`, `report`, `download` |
+| Orders | `checkout`, `confirm`, `index` |
+| User | `profile`, `documents`, `transactions`, `favorites`, `notifications` GET/POST, `topup`, `withdraw`, `stats` |
+| Admin | `stats`, `documents` GET/POST, `users` GET/POST, `orders`, `categories` GET/POST, `reports` GET/POST, `blogs` GET/POST, `settings` GET/POST, `transactions` |
+| Khác | `categories`, `stats`, `blogs` (list + detail), `payment/vnpay-create`, `files/[...key]` |
 
-### Dùng Supabase thật
+### Nghiệp vụ
+- JWT httpOnly cookie + hash mật khẩu SHA-256 800 vòng có salt
+- Ví MapDocs: nạp/rút, hoa hồng 15%, người bán nhận 85%
+- Order code format `MD` + base36
+- VNPay tích hợp (HMAC-SHA512) + **cổng giả lập** khi chưa có env
+- Kiểm duyệt tài liệu (pending → approved/rejected) + thông báo tự động
+- Đánh giá, yêu thích, báo cáo vi phạm, thông báo, lịch sử tải
 
-1. Tạo project trên [supabase.com](https://supabase.com)
-2. Mở **SQL Editor**, chạy toàn bộ file `supabase/schema.sql` (tạo 12 bảng, index, trigger, view, RLS)
-3. Điền `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` vào `.env`
-4. Chạy `npm run seed` để nạp dữ liệu mẫu
+## Data Architecture
 
----
+11 bảng: `users`, `categories`, `documents`, `orders`, `reviews`, `transactions`, `blogs`, `notifications`, `favorites`, `downloads`, `reports` + `settings`.
 
-## ☁️ Deploy lên Vercel
+**Seed data**: 8 người dùng, 8 danh mục, 30 tài liệu (26 approved / 3 pending / 1 rejected), 29 đơn hàng, 18+ đánh giá, 14 giao dịch, 6 bài blog (đầy đủ nội dung markdown), 8 thông báo, 4 khiếu nại.
 
-1. Truy cập [vercel.com/new](https://vercel.com/new) → **Import** repo `project-tailieuhoc`
-2. Vercel tự nhận diện Nuxt 3 (đã có sẵn `vercel.json`)
-3. Thêm các biến môi trường trong **Settings → Environment Variables**
-4. Nhấn **Deploy**
+Driver hai chế độ (`server/utils/driver.ts`):
+- Chưa có env R2 → **in-memory** (mock), reset khi restart
+- Có đủ env R2 → hydrate từ `db/*.json` trên R2, ghi lại có debounce 1.2s
 
-Build command `npm run build` · Output `.output` · Region `sin1` (Singapore)
+## Cấu hình Cloudflare R2 (production)
 
----
+1. Tạo R2 bucket trên Cloudflare dashboard
+2. Tạo API token (R2 → Manage API Tokens) lấy Access Key ID + Secret
+3. Thêm vào `.env`:
 
-## 📁 Cấu trúc thư mục
+```env
+R2_ACCOUNT_ID=xxxxxxxxxxxx
+R2_ACCESS_KEY_ID=xxxxxxxxxxxx
+R2_SECRET_ACCESS_KEY=xxxxxxxxxxxx
+R2_BUCKET_NAME=mapdocs
+R2_PUBLIC_URL=https://pub-xxxx.r2.dev
+```
+
+4. Restart: `pm2 restart mapdocs`
+
+`server/utils/r2.ts` đã có **AWS SigV4 signing thật** (Web Crypto API), tự động chuyển từ `MemoryR2` sang `RealR2` khi đủ 4 biến bắt buộc. Kiểm tra trạng thái tại `/admin/cai-dat`.
+
+## Kiểm thử
 
 ```
-project-tailieuhoc/
-├── assets/css/main.css        # Tailwind + class dùng chung (.btn, .card, .input…)
+27/27 page route  = 200 (public, auth, dashboard, admin, blog, thanh toán)
+24/24 GET API     = 200
+Flow end-to-end   = register → topup → checkout → confirm → download → review → favorite  OK
+```
+
+## Cấu trúc thư mục
+
+```
+webapp/
+├── assets/css/main.css          # .mdk dark scope, scrollbar 6px, hello keyframes
 ├── components/
-│   ├── ui/                    # Modal, Pagination, Empty, Avatar, Toast…
-│   ├── document/              # DocCard, DocFilter, ReviewList…
-│   └── layout/                # Header, Footer, Sidebar
-├── composables/               # useApi, useFormat, useSubjects
-├── layouts/                   # default.vue, admin.vue, auth.vue
-├── middleware/                # auth.ts, admin.ts, guest.ts
-├── pages/
-│   ├── index.vue              # Trang chủ
-│   ├── tai-lieu/              # Thư viện + chi tiết tài liệu
-│   ├── auth/                  # Đăng nhập, đăng ký, quên mật khẩu
-│   ├── dashboard/             # 7 trang người bán
-│   ├── admin/                 # 8 trang quản trị
-│   ├── blog/                  # Danh sách + chi tiết bài viết
-│   └── thanh-toan/            # Cổng giả lập + kết quả thanh toán
+│   ├── AppIcon.vue              # mapper tên ngắn → Solar/simple-icons
+│   ├── dashboard/               # StatCard (sparkline), QuickAction
+│   ├── document/                # DocCard, DocSkeleton
+│   ├── landing/                 # HeroSection, FeaturesGrid, Testimonials
+│   ├── layout/                  # DefaultHeader, DashSidebar, DashTopbar, AdminSidebar, AdminTopbar, FooterPublic
+│   └── ui/                      # Toaster, Modal, Avatar, Empty, Spinner, Rating, HelloAnimation
+├── composables/                 # useApi, useFormat, useSubjects, useChartTheme, useR2
+├── layouts/                     # default, auth, dashboard, admin
+├── middleware/                  # auth, admin
+├── pages/                       # 27 trang
 ├── server/
-│   ├── api/                   # Toàn bộ REST API
-│   └── utils/                 # driver.ts (Mock/Supabase), seed.ts, auth.ts
-├── stores/                    # Pinia: auth.ts, ui.ts
-├── supabase/schema.sql        # Schema PostgreSQL đầy đủ
-├── scripts/seed-supabase.mjs  # Script nạp dữ liệu mẫu
-├── error.vue                  # Trang lỗi 404 / 403 / 500
-└── vercel.json                # Cấu hình deploy
+│   ├── api/                     # 40 routes
+│   └── utils/                   # auth, helpers, seed, driver, r2
+├── stores/                      # auth (useRequestFetch SSR), ui
+└── types/index.ts
 ```
 
----
+## Chưa hoàn thiện / bước tiếp theo
 
-## 🔌 API chính
+1. **Upload file thật** — form `/dashboard/tai-lieu` hiện chỉ tạo metadata; cần multipart upload lên R2 và sinh preview PDF
+2. **Bảng dashboard/admin chi tiết hơn** — một số trang dùng bảng generic 3-5 cột, nên tách cột riêng theo từng loại dữ liệu (đơn hàng, khiếu nại, bài viết)
+3. **Filter tabs trên admin** — biến `filter` đã có nhưng chưa render tab UI (đang lọc qua search)
+4. **Modal CRUD** — thêm/sửa danh mục và bài viết qua Radix Dialog (API đã sẵn sàng)
+5. **Google OAuth thật** — hiện fallback tạo user demo khi chưa có client ID
+6. **Email thật** — `forgot` trả `dev_link` thay vì gửi mail (cần Resend/SendGrid)
+7. **Realtime notification** — hiện fetch theo request, có thể chuyển sang polling/SSE
 
-Tất cả API trả về định dạng `{ success, data, message? }`.
+## Deployment
 
-### Xác thực — `/api/auth`
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| POST | `/api/auth/register` | Đăng ký |
-| POST | `/api/auth/login` | Đăng nhập |
-| POST | `/api/auth/logout` | Đăng xuất |
-| GET  | `/api/auth/me` | Thông tin phiên hiện tại |
-| GET  | `/api/auth/google` | Bắt đầu Google OAuth |
-| POST | `/api/auth/forgot` | Quên mật khẩu |
-
-### Tài liệu — `/api/documents`
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| GET  | `/api/documents` | Danh sách (lọc `category`, `grade`, `free`, `q`, `sort`, `page`) |
-| GET  | `/api/documents/:slug` | Chi tiết tài liệu |
-| POST | `/api/documents` | Đăng tài liệu mới |
-| PUT  | `/api/documents/:id` | Cập nhật |
-| DELETE | `/api/documents/:id` | Xoá |
-| GET  | `/api/categories` | Danh sách môn học |
-
-### Đơn hàng & thanh toán — `/api/orders`
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| GET  | `/api/orders` | Đơn hàng của tôi |
-| POST | `/api/orders/checkout` | Tạo đơn (`wallet` trừ ngay, cổng khác trả `redirect`) |
-| POST | `/api/orders/confirm` | Xác nhận kết quả `success` / `cancel` |
-
-### Người dùng — `/api/user`
-`GET /api/user/profile` · `PUT /api/user/profile` · `GET /api/user/transactions` · `POST /api/user/topup` · `POST /api/user/withdraw` · `GET /api/user/favorites` · `POST /api/user/favorites` · `GET /api/user/notifications`
-
-### Đánh giá & báo cáo
-`GET|POST /api/reviews` · `POST /api/reports`
-
-### Blog — `/api/blogs`
-`GET /api/blogs` (chỉ bài `published`) · `GET /api/blogs/:slug` (kèm 3 bài liên quan)
-
-### Quản trị — `/api/admin`
-`/api/admin/stats` · `/api/admin/documents` · `/api/admin/users` · `/api/admin/categories` · `/api/admin/orders` · `/api/admin/reports` · `/api/admin/blogs` · `/api/admin/settings` · `/api/admin/transactions`
-
----
-
-## 📄 Giấy phép
-
-Dự án phục vụ mục đích học tập. Dữ liệu mẫu và hình ảnh chỉ mang tính minh hoạ.
-
-## Kiểm tra cuối (comprehensive test)
-
-Toàn bộ **30/30** request trả về HTTP 200 (dev server, đã đăng nhập bằng cookie
-cho các trang cần quyền):
-
-| Nhóm | Số trang | Kết quả |
-|---|---|---|
-| Public (`/`, `/tai-lieu` + 3 query variants, chi tiết tài liệu, `/blog`, chi tiết blog) | 8 | ✅ 200 |
-| Auth (`dang-nhap`, `dang-ky`, `quen-mat-khau`, `dat-lai-mat-khau` ±token) | 5 | ✅ 200 |
-| Dashboard (`index`, `da-mua`, `dang-ban`, `tai-lieu`, `doanh-thu`, `yeu-thich`, `ho-so`) | 7 | ✅ 200 |
-| Admin (`index`, `tai-lieu`, `nguoi-dung`, `giao-dich`, `khieu-nai`, `danh-muc`, `bai-viet`, `cai-dat`) | 8 | ✅ 200 |
-| Thanh toán (`gia-lap`, `ket-qua`) | 2 | ✅ 200 |
-
-Log lỗi (`~/.pm2/logs/mapdocs-error-0.log`): `CssSyntaxError` = 0, `Vue warn` = 0,
-`Failed to resolve` = 0.
-
-Tài khoản demo: `admin@mapdocs.vn` / `seller@mapdocs.vn` / `user@mapdocs.vn` — mật khẩu `123456`.
+- **Platform**: chạy local qua PM2 (không deploy production theo yêu cầu)
+- **Status**: ✅ Active trên port 3000
+- **Preset**: `node-server` (Nitro). Muốn deploy Cloudflare: đặt `NITRO_PRESET=cloudflare-pages`
+- **Last Updated**: 2026-08-27
