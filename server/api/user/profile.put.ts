@@ -1,29 +1,33 @@
-import { db } from '~/server/utils/driver'
-import { requireUser, safeUser, hashPassword, verifyPassword } from '~/server/utils/auth'
-import { sanitize } from '~/server/utils/helpers'
-import type { User } from '~/types'
+import { useDriver } from '~/server/utils/driver'
+import { requireUser, publicUser, hashPassword, verifyPassword } from '~/server/utils/auth'
+import { fail, str } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
-  const b = await readBody(event)
-  const patch: any = {}
-  if (b.name) patch.name = sanitize(b.name, 60)
-  if (b.phone !== undefined) patch.phone = sanitize(b.phone, 20)
-  if (b.bio !== undefined) patch.bio = sanitize(b.bio, 500)
-  if (b.avatar !== undefined) patch.avatar = sanitize(b.avatar, 300)
-  if (b.bank_name !== undefined) patch.bank_name = sanitize(b.bank_name, 60)
-  if (b.bank_number !== undefined) patch.bank_number = sanitize(b.bank_number, 30)
+  const body = await readBody(event)
+  const db = useDriver()
 
-  if (b.new_password) {
-    if (String(b.new_password).length < 6)
-      throw createError({ statusCode: 400, statusMessage: 'Mật khẩu mới phải từ 6 ký tự' })
-    if (!(await verifyPassword(user, String(b.old_password || ''))))
-      throw createError({ statusCode: 400, statusMessage: 'Mật khẩu hiện tại không đúng' })
-    const { hash, salt } = await hashPassword(String(b.new_password))
-    patch.password = hash
-    patch.salt = salt
+  const patch: Record<string, any> = {}
+  if (str(body.name)) {
+    const name = String(body.name).trim()
+    if (name.length < 2) fail(400, 'Tên phải có ít nhất 2 ký tự')
+    patch.name = name
+  }
+  if (body.bio !== undefined) patch.bio = String(body.bio).slice(0, 500)
+  if (body.phone !== undefined) patch.phone = String(body.phone).slice(0, 20)
+  if (body.avatar !== undefined) patch.avatar = String(body.avatar).slice(0, 500)
+
+  if (body.new_password) {
+    const np = String(body.new_password)
+    if (np.length < 6) fail(400, 'Mật khẩu mới phải có ít nhất 6 ký tự')
+    if (user.password_hash) {
+      if (!body.current_password) fail(400, 'Vui lòng nhập mật khẩu hiện tại')
+      const ok = await verifyPassword(String(body.current_password), user.password_hash, user.salt || 'mapdocs')
+      if (!ok) fail(400, 'Mật khẩu hiện tại không đúng')
+    }
+    patch.password_hash = await hashPassword(np, user.salt || 'mapdocs')
   }
 
-  const updated = await db().update<User>('users', user.id, patch)
-  return { success: true, data: safeUser(updated), message: 'Đã cập nhật hồ sơ' }
+  const updated = await db.update('users', user.id, patch)
+  return { user: publicUser(updated) }
 })

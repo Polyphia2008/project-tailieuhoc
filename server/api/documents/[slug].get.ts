@@ -1,46 +1,63 @@
-import type { DocumentItem, Review, User } from '~/types'
-import { db } from '~/server/utils/driver'
-import { getUser, publicUser } from '~/server/utils/auth'
-import { attachSellers, hasPurchased } from '~/server/utils/helpers'
+import { useDriver } from '~/server/utils/driver'
+import { currentUser, slimUser } from '~/server/utils/auth'
+import { fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
-  const slug = getRouterParam(event, 'slug') || ''
-  const doc = await db().findOne<DocumentItem>('documents', { slug })
-  if (!doc) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy tài liệu' })
+  const slug = getRouterParam(event, 'slug')!
+  const db = useDriver()
 
-  const me = await getUser(event)
-  const isOwnerOrAdmin = me && (me.id === doc.seller_id || me.role === 'admin')
-  if (doc.status !== 'approved' && !isOwnerOrAdmin) {
-    throw createError({ statusCode: 404, statusMessage: 'Tài liệu không khả dụng' })
-  }
+  const doc = await db.findOne<any>('documents', { slug })
+  if (!doc) fail(404, 'Không tìm thấy tài liệu')
 
-  await db().increment('documents', doc.id, 'view_count', 1)
-  doc.view_count = (doc.view_count || 0) + 1
+  const me = await currentUser(event)
+  const isOwner = me?.id === doc.seller_id
+  const isAdmin = me?.role === 'admin'
+  if (doc.status !== 'approved' && !isOwner && !isAdmin) fail(404, 'Không tìm thấy tài liệu')
 
-  const [withSeller] = await attachSellers([doc])
+  if (doc.status === 'approved') await db.increment('documents', doc.id, 'view_count')
 
-  const { rows: rawReviews } = await db().find<Review>('reviews', {
+  const seller = await db.findOne<any>('users', { id: doc.seller_id })
+
+  const { rows: reviews } = await db.find<any>('reviews', {
     where: { document_id: doc.id },
-    order: { field: 'created_at' }
+    order: { field: 'created_at' },
+    limit: 30
   })
-  const uids = [...new Set(rawReviews.map((r) => r.user_id))]
-  const { rows: reviewers } = uids.length ? await db().find<User>('users', { whereIn: { id: uids } }) : { rows: [] as User[] }
-  const umap = new Map(reviewers.map((u) => [u.id, publicUser(u)]))
-  const reviews = rawReviews.map((r) => ({ ...r, user: umap.get(r.user_id) }))
+  const reviewerIds = [...new Set(reviews.map((r) => r.user_id))]
+  const { rows: reviewers } = await db.find<any>('users', { whereIn: { id: reviewerIds } })
+  const rmap = new Map(reviewers.map((u) => [u.id, slimUser(u)]))
 
-  const { rows: rel } = await db().find<DocumentItem>('documents', {
+  const { rows: related } = await db.find<any>('documents', {
     where: { subject: doc.subject, status: 'approved' },
-    order: { field: 'sold_count' },
-    limit: 7
+    whereNot: { id: doc.id },
+    order: { field: 'view_count' },
+    limit: 8
   })
-  const related = await attachSellers(rel.filter((r) => r.id !== doc.id).slice(0, 6))
 
-  let owned = doc.is_free
+  let owned = false
   let favorited = false
+  let reviewed = false
   if (me) {
-    if (!owned) owned = me.id === doc.seller_id || me.role === 'admin' || (await hasPurchased(me.id, doc.id))
-    favorited = !!(await db().findOne('favorites', { user_id: me.id, document_id: doc.id }))
+    owned = doc.is_free || isOwner || isAdmin || Boolean(await db.findOne('orders', { buyer_id: me.id, document_id: doc.id, status: 'paid' }))
+    favorited = Boolean(await db.findOne('favorites', { user_id: me.id, document_id: doc.id }))
+    reviewed = Boolean(await db.findOne('reviews', { user_id: me.id, document_id: doc.id }))
   }
 
-  return { success: true, data: { document: withSeller, reviews, related, owned, favorited } }
+  const dist = [5, 4, 3, 2, 1].map((star) => ({
+    star,
+    count: reviews.filter((r) => r.rating === star).length
+  }))
+
+  const sellerDocs = await db.count('documents', { where: { seller_id: doc.seller_id, status: 'approved' } })
+
+  return {
+    document: { ...doc, seller: slimUser(seller) },
+    reviews: reviews.map((r) => ({ ...r, user: rmap.get(r.user_id) || null })),
+    dist,
+    related,
+    owned,
+    favorited,
+    reviewed,
+    seller_stats: { documents: sellerDocs }
+  }
 })

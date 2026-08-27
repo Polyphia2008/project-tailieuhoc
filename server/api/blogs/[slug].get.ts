@@ -1,11 +1,26 @@
-import { db } from '~/server/utils/driver'
-import type { Blog } from '~/types'
+import { useDriver } from '~/server/utils/driver'
+import { slimUser } from '~/server/utils/auth'
+import { fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')!
-  const blog = await db().findOne<Blog>('blogs', { slug })
-  if (!blog) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy bài viết' })
-  await db().increment('blogs', blog.id, 'view_count', 1)
-  const { rows } = await db().find<Blog>('blogs', { where: { published: true }, order: { field: 'created_at', asc: false }, limit: 4 })
-  return { success: true, data: { blog, related: rows.filter((b) => b.id !== blog.id).slice(0, 3) } }
+  const db = useDriver()
+
+  const blog = await db.findOne<any>('blogs', { slug })
+  if (!blog || !blog.published) fail(404, 'Không tìm thấy bài viết')
+
+  await db.increment('blogs', blog.id, 'view_count')
+  const author = await db.findOne<any>('users', { id: blog.author_id })
+
+  const { rows: related } = await db.find<any>('blogs', {
+    where: { published: true },
+    whereNot: { id: blog.id },
+    order: { field: 'view_count' },
+    limit: 4
+  })
+
+  return {
+    blog: { ...blog, author: slimUser(author) },
+    related: related.map((b) => ({ ...b, content: undefined }))
+  }
 })

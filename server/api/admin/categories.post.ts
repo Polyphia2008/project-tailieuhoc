@@ -1,30 +1,52 @@
-import { db, cryptoId } from '~/server/utils/driver'
+import { useDriver, cryptoId } from '~/server/utils/driver'
 import { requireAdmin } from '~/server/utils/auth'
-import { sanitize, slugify } from '~/server/utils/helpers'
-import type { Category } from '~/types'
+import { assertBody, slugify, fail, str } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-  const b = await readBody(event)
-  const action = b.action || 'create'
+  const body = await readBody(event)
+  assertBody(body, ['action'])
 
-  if (action === 'delete') {
-    await db().remove('categories', b.id)
-    return { success: true, data: { id: b.id }, message: 'Đã xoá danh mục' }
-  }
+  const db = useDriver()
+  const action = String(body.action)
 
-  const name = sanitize(b.name, 60)
-  if (!name) throw createError({ statusCode: 400, statusMessage: 'Vui lòng nhập tên danh mục' })
-  const payload: any = {
-    name, slug: sanitize(b.slug, 40) || slugify(name),
-    icon: sanitize(b.icon, 40) || 'fa-book', color: sanitize(b.color, 20) || '#0b4a8f',
-    description: sanitize(b.description, 300)
+  if (action === 'create') {
+    assertBody(body, ['name'])
+    const slug = str(body.slug) || slugify(String(body.name))
+    if (await db.findOne('categories', { slug })) fail(409, 'Slug này đã tồn tại')
+    const cat = await db.insert('categories', {
+      id: 'c_' + cryptoId(),
+      name: String(body.name).trim(),
+      slug,
+      icon: str(body.icon) || 'solar:book-2-bold-duotone',
+      color: str(body.color) || '#3b82f6',
+      parent_id: str(body.parent_id) || null,
+      description: str(body.description) || '',
+      document_count: 0
+    })
+    return { category: cat }
   }
 
   if (action === 'update') {
-    const c = await db().update<Category>('categories', b.id, payload)
-    return { success: true, data: c, message: 'Đã cập nhật danh mục' }
+    assertBody(body, ['id'])
+    const patch: Record<string, any> = {}
+    if (str(body.name)) patch.name = String(body.name).trim()
+    if (str(body.icon)) patch.icon = str(body.icon)
+    if (str(body.color)) patch.color = str(body.color)
+    if (body.description !== undefined) patch.description = String(body.description)
+    const cat = await db.update('categories', String(body.id), patch)
+    return { category: cat }
   }
-  const c = await db().insert<Category>('categories', { id: cryptoId(), ...payload, created_at: new Date().toISOString() })
-  return { success: true, data: c, message: 'Đã thêm danh mục' }
+
+  if (action === 'delete') {
+    assertBody(body, ['id'])
+    const cat = await db.findOne<any>('categories', { id: String(body.id) })
+    if (!cat) fail(404, 'Không tìm thấy danh mục')
+    const used = await db.count('documents', { where: { subject: cat.slug } })
+    if (used > 0) fail(400, `Không thể xoá danh mục đang có ${used} tài liệu`)
+    await db.remove('categories', cat.id)
+    return { ok: true }
+  }
+
+  fail(400, 'Hành động không hợp lệ')
 })

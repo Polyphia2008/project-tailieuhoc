@@ -1,11 +1,19 @@
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 import { requireUser } from '~/server/utils/auth'
-import type { Notification } from '~/types'
+import { paginate, paged } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
-  const { rows } = await db().find<Notification>('notifications', {
-    where: { user_id: user.id }, order: { field: 'created_at', asc: false }, limit: 30
+  const q = getQuery(event)
+  const { page, limit, offset } = paginate(q, 20)
+  const db = useDriver()
+
+  const { rows, total } = await db.find<any>('notifications', {
+    where: { user_id: user.id },
+    order: { field: 'created_at' },
+    limit,
+    offset
   })
-  return { success: true, data: { items: rows, unread: rows.filter((n) => !n.read).length } }
+  const unread = await db.count('notifications', { where: { user_id: user.id, read: false } })
+  return { ...paged(rows, total, page, limit), unread }
 })

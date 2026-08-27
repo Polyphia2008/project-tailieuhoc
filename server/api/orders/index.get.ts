@@ -1,23 +1,27 @@
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 import { requireUser } from '~/server/utils/auth'
-import { paginate } from '~/server/utils/helpers'
-import type { Order, DocumentItem } from '~/types'
+import { paginate, paged, str } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
   const q = getQuery(event)
-  const page = Math.max(1, Number(q.page) || 1)
-  const limit = Math.min(50, Number(q.limit) || 12)
+  const { page, limit, offset } = paginate(q, 12)
+  const db = useDriver()
 
-  const { rows, total } = await db().find<Order>('orders', {
-    where: { buyer_id: user.id, status: 'paid' },
-    order: { field: 'created_at', asc: false },
-    limit, offset: (page - 1) * limit
+  const role = String(q.role || 'buyer')
+  const where: Record<string, any> = role === 'seller' ? { seller_id: user.id } : { buyer_id: user.id }
+  if (str(q.status)) where.status = str(q.status)
+
+  const { rows, total } = await db.find<any>('orders', {
+    where,
+    order: { field: 'created_at' },
+    limit,
+    offset
   })
 
-  const ids = [...new Set(rows.map((o) => o.document_id))]
-  const { rows: docs } = ids.length ? await db().find<DocumentItem>('documents', { whereIn: { id: ids } }) : { rows: [] as DocumentItem[] }
-  const map = new Map(docs.map((d) => [d.id, d]))
+  const docIds = [...new Set(rows.map((o) => o.document_id))]
+  const { rows: docs } = await db.find<any>('documents', { whereIn: { id: docIds } })
+  const dmap = new Map(docs.map((d) => [d.id, d]))
 
-  return { success: true, data: { items: rows.map((o) => ({ ...o, document: map.get(o.document_id) })), ...paginate(total, page, limit) } }
+  return paged(rows.map((o) => ({ ...o, document: dmap.get(o.document_id) || null })), total, page, limit)
 })

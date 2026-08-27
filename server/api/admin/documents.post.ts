@@ -1,32 +1,69 @@
-import { db } from '~/server/utils/driver'
+import { useDriver, cryptoId } from '~/server/utils/driver'
 import { requireAdmin } from '~/server/utils/auth'
-import { sanitize, notify } from '~/server/utils/helpers'
-import type { DocumentItem } from '~/types'
+import { assertBody, fail } from '~/server/utils/helpers'
+
+const ACTIONS = ['approve', 'reject', 'feature', 'unfeature', 'delete', 'pending']
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-  const { id, action, reason } = await readBody(event)
-  const doc = await db().findOne<DocumentItem>('documents', { id })
-  if (!doc) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy tài liệu' })
+  const body = await readBody(event)
+  assertBody(body, ['action'])
 
-  if (action === 'approve') {
-    const d = await db().update<DocumentItem>('documents', id, { status: 'approved', reject_reason: '', updated_at: new Date().toISOString() })
-    await notify(doc.seller_id, 'Tài liệu được duyệt', `"${doc.title}" đã được duyệt và hiển thị trên thư viện.`, 'document', `/tai-lieu/${doc.slug}`)
-    return { success: true, data: d, message: 'Đã duyệt tài liệu' }
+  const action = String(body.action)
+  if (!ACTIONS.includes(action)) fail(400, 'Hành động không hợp lệ')
+
+  const ids: string[] = Array.isArray(body.ids) ? body.ids.map(String) : body.id ? [String(body.id)] : []
+  if (!ids.length) fail(400, 'Vui lòng chọn ít nhất một tài liệu')
+
+  const db = useDriver()
+  const now = new Date().toISOString()
+  let affected = 0
+
+  for (const id of ids) {
+    const doc = await db.findOne<any>('documents', { id })
+    if (!doc) continue
+
+    if (action === 'delete') {
+      await db.remove('documents', id)
+      affected++
+      continue
+    }
+
+    const patch: Record<string, any> = { updated_at: now }
+    let notify: { title: string; body: string; type: string } | null = null
+
+    if (action === 'approve') {
+      patch.status = 'approved'
+      patch.reject_reason = undefined
+      notify = { title: 'Tài liệu đã được duyệt', body: `"${doc.title}" đã được duyệt và hiển thị công khai.`, type: 'success' }
+    } else if (action === 'reject') {
+      patch.status = 'rejected'
+      patch.reject_reason = String(body.reason || 'Không đạt yêu cầu kiểm duyệt')
+      notify = { title: 'Tài liệu bị từ chối', body: `"${doc.title}" không được duyệt. Lý do: ${patch.reject_reason}`, type: 'error' }
+    } else if (action === 'pending') {
+      patch.status = 'pending'
+    } else if (action === 'feature') {
+      patch.featured = true
+    } else if (action === 'unfeature') {
+      patch.featured = false
+    }
+
+    await db.update('documents', id, patch)
+    affected++
+
+    if (notify) {
+      await db.insert('notifications', {
+        id: 'n_' + cryptoId(),
+        user_id: doc.seller_id,
+        title: notify.title,
+        body: notify.body,
+        type: notify.type,
+        link: '/dashboard/dang-ban',
+        read: false,
+        created_at: now
+      })
+    }
   }
-  if (action === 'reject') {
-    const r = sanitize(reason, 300) || 'Không đạt yêu cầu chất lượng'
-    const d = await db().update<DocumentItem>('documents', id, { status: 'rejected', reject_reason: r, updated_at: new Date().toISOString() })
-    await notify(doc.seller_id, 'Tài liệu bị từ chối', `"${doc.title}" bị từ chối. Lý do: ${r}`, 'document', '/dashboard/tai-lieu')
-    return { success: true, data: d, message: 'Đã từ chối tài liệu' }
-  }
-  if (action === 'feature') {
-    const d = await db().update<DocumentItem>('documents', id, { featured: !doc.featured })
-    return { success: true, data: d, message: d.featured ? 'Đã đặt làm nổi bật' : 'Đã bỏ nổi bật' }
-  }
-  if (action === 'delete') {
-    await db().remove('documents', id)
-    return { success: true, data: { id }, message: 'Đã xoá tài liệu' }
-  }
-  throw createError({ statusCode: 400, statusMessage: 'Hành động không hợp lệ' })
+
+  return { ok: true, affected, action }
 })

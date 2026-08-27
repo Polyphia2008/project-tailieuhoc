@@ -1,37 +1,38 @@
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 import { requireUser } from '~/server/utils/auth'
-import { paginate } from '~/server/utils/helpers'
-import type { Transaction } from '~/types'
+import { paginate, paged, str, seriesFrom, num } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
   const q = getQuery(event)
-  const page = Math.max(1, Number(q.page) || 1)
-  const limit = Math.min(50, Number(q.limit) || 15)
-  const where: any = { user_id: user.id }
-  if (q.type && q.type !== 'all') where.type = String(q.type)
+  const { page, limit, offset } = paginate(q, 20)
+  const db = useDriver()
 
-  const { rows, total } = await db().find<Transaction>('transactions', {
-    where, order: { field: 'created_at', asc: false }, limit, offset: (page - 1) * limit
+  const where: Record<string, any> = { user_id: user.id }
+  if (str(q.type)) where.type = str(q.type)
+
+  const { rows, total } = await db.find<any>('transactions', {
+    where,
+    order: { field: 'created_at' },
+    limit,
+    offset
   })
 
-  const { rows: all } = await db().find<Transaction>('transactions', { where: { user_id: user.id } })
-  const summary = {
-    balance: user.balance || 0,
-    total_revenue: user.total_revenue || 0,
-    income: all.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0),
-    outcome: all.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0)
-  }
+  const { rows: all } = await db.find<any>('transactions', { where: { user_id: user.id } })
+  const income = all.filter((t) => t.amount > 0 && t.status === 'success').reduce((s, t) => s + t.amount, 0)
+  const outcome = all.filter((t) => t.amount < 0 && t.status === 'success').reduce((s, t) => s + Math.abs(t.amount), 0)
+  const pendingWithdraw = all.filter((t) => t.type === 'withdraw' && t.status === 'pending').reduce((s, t) => s + Math.abs(t.amount), 0)
 
-  // Doanh thu 6 tháng gần nhất
-  const chart: { label: string; value: number }[] = []
-  const now = new Date()
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    const value = all.filter((t) => t.type === 'sale' && String(t.created_at).startsWith(key)).reduce((s, t) => s + t.amount, 0)
-    chart.push({ label: `T${d.getMonth() + 1}`, value })
-  }
+  const days = num(q.days) ?? 30
+  const income$ = seriesFrom(all.filter((t) => t.amount > 0), days, 'created_at', 'amount')
+  const outcome$ = seriesFrom(
+    all.filter((t) => t.amount < 0).map((t) => ({ ...t, abs: Math.abs(t.amount) })),
+    days, 'created_at', 'abs'
+  )
 
-  return { success: true, data: { items: rows, summary, chart, ...paginate(total, page, limit) } }
+  return {
+    ...paged(rows, total, page, limit),
+    summary: { balance: user.balance, income, outcome, pending_withdraw: pendingWithdraw },
+    chart: { labels: income$.labels, income: income$.data, outcome: outcome$.data }
+  }
 })

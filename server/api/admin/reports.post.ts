@@ -1,19 +1,44 @@
-import { db } from '~/server/utils/driver'
+import { useDriver, cryptoId } from '~/server/utils/driver'
 import { requireAdmin } from '~/server/utils/auth'
-import { sanitize, notify } from '~/server/utils/helpers'
+import { assertBody, fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-  const { id, status, note } = await readBody(event)
-  const r = await db().findOne<any>('reports', { id })
-  if (!r) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy khiếu nại' })
-  if (!['open', 'resolved', 'rejected'].includes(status))
-    throw createError({ statusCode: 400, statusMessage: 'Trạng thái không hợp lệ' })
+  const body = await readBody(event)
+  assertBody(body, ['id', 'action'])
 
-  const updated = await db().update('reports', id, {
-    status, admin_note: sanitize(note, 500), resolved_at: new Date().toISOString()
+  const action = String(body.action)
+  if (!['resolve', 'dismiss', 'reopen'].includes(action)) fail(400, 'Hành động không hợp lệ')
+
+  const db = useDriver()
+  const report = await db.findOne<any>('reports', { id: String(body.id) })
+  if (!report) fail(404, 'Không tìm thấy khiếu nại')
+
+  const status = action === 'resolve' ? 'resolved' : action === 'dismiss' ? 'dismissed' : 'open'
+  const updated = await db.update('reports', report.id, {
+    status,
+    admin_note: String(body.note || report.admin_note || '')
   })
-  if (r.user_id)
-    await notify(r.user_id, 'Khiếu nại đã được xử lý', `Khiếu nại về "${r.document_title}" đã được ${status === 'resolved' ? 'giải quyết' : 'từ chối'}.`, 'system')
-  return { success: true, data: updated, message: 'Đã cập nhật khiếu nại' }
+
+  if (action === 'resolve' && body.reject_document) {
+    await db.update('documents', report.document_id, {
+      status: 'rejected',
+      reject_reason: `Bị khiếu nại: ${report.reason}`
+    })
+  }
+
+  if (action !== 'reopen') {
+    await db.insert('notifications', {
+      id: 'n_' + cryptoId(),
+      user_id: report.user_id,
+      title: action === 'resolve' ? 'Khiếu nại đã được xử lý' : 'Khiếu nại đã được xem xét',
+      body: String(body.note || 'Cảm ơn bạn đã báo cáo. Chúng tôi đã xem xét và xử lý.'),
+      type: action === 'resolve' ? 'success' : 'info',
+      link: '/tai-lieu',
+      read: false,
+      created_at: new Date().toISOString()
+    })
+  }
+
+  return { report: updated }
 })

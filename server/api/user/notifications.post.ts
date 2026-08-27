@@ -1,17 +1,22 @@
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 import { requireUser } from '~/server/utils/auth'
-import type { Notification } from '~/types'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
-  const { id, action = 'read' } = await readBody(event)
-  if (action === 'read_all') {
-    const { rows } = await db().find<Notification>('notifications', { where: { user_id: user.id, read: false } })
-    for (const n of rows) await db().update('notifications', n.id, { read: true })
-    return { success: true, data: { count: rows.length }, message: 'Đã đánh dấu tất cả là đã đọc' }
+  const body = await readBody(event)
+  const db = useDriver()
+
+  if (body.all) {
+    const { rows } = await db.find<any>('notifications', { where: { user_id: user.id, read: false } })
+    for (const n of rows) await db.update('notifications', n.id, { read: true })
+    return { ok: true, updated: rows.length, unread: 0 }
   }
-  const n = await db().findOne<Notification>('notifications', { id, user_id: user.id })
-  if (!n) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy thông báo' })
-  const updated = await db().update('notifications', n.id, { read: true })
-  return { success: true, data: updated }
+
+  if (body.id) {
+    const n = await db.findOne<any>('notifications', { id: String(body.id), user_id: user.id })
+    if (n) await db.update('notifications', n.id, { read: true })
+  }
+
+  const unread = await db.count('notifications', { where: { user_id: user.id, read: false } })
+  return { ok: true, unread }
 })

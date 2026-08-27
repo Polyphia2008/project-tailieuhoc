@@ -1,18 +1,42 @@
-import { db, cryptoId } from '~/server/utils/driver'
-import { requireUser } from '~/server/utils/auth'
+import { useDriver, cryptoId } from '~/server/utils/driver'
+import { requireUser, publicUser } from '~/server/utils/auth'
+import { assertBody, fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
-  const amount = Math.floor(Number((await readBody(event))?.amount) || 0)
-  if (amount < 10000) throw createError({ statusCode: 400, statusMessage: 'Số tiền nạp tối thiểu là 10.000đ' })
-  if (amount > 50000000) throw createError({ statusCode: 400, statusMessage: 'Số tiền nạp tối đa là 50.000.000đ' })
+  const body = await readBody(event)
+  assertBody(body, ['amount'])
 
-  const bal = (user.balance || 0) + amount
-  await db().update('users', user.id, { balance: bal })
-  const tx = await db().insert('transactions', {
-    id: cryptoId(), user_id: user.id, type: 'topup', amount, balance_after: bal,
-    note: 'Nạp tiền vào ví (demo)', ref: 'TU' + Date.now().toString(36).toUpperCase(),
-    status: 'success', created_at: new Date().toISOString()
+  const amount = Math.round(Number(body.amount))
+  if (!Number.isFinite(amount) || amount < 10000) fail(400, 'Số tiền nạp tối thiểu là 10.000đ')
+  if (amount > 50000000) fail(400, 'Số tiền nạp tối đa là 50.000.000đ')
+
+  const db = useDriver()
+  const after = Number(user.balance || 0) + amount
+  const updated = await db.update('users', user.id, { balance: after })
+
+  await db.insert('transactions', {
+    id: 't_' + cryptoId(),
+    user_id: user.id,
+    type: 'topup',
+    amount,
+    balance_after: after,
+    ref: 'TOPUP' + cryptoId().toUpperCase().slice(0, 8),
+    note: `Nạp tiền qua ${body.method === 'vnpay' ? 'VNPay' : 'cổng giả lập'}`,
+    status: 'success',
+    created_at: new Date().toISOString()
   })
-  return { success: true, data: { transaction: tx, balance: bal }, message: `Nạp thành công ${amount.toLocaleString('vi-VN')}đ` }
+
+  await db.insert('notifications', {
+    id: 'n_' + cryptoId(),
+    user_id: user.id,
+    title: 'Nạp tiền thành công',
+    body: `Ví của bạn đã được cộng ${amount.toLocaleString('vi-VN')}đ.`,
+    type: 'success',
+    link: '/dashboard/doanh-thu',
+    read: false,
+    created_at: new Date().toISOString()
+  })
+
+  return { user: publicUser(updated), amount, balance: after }
 })

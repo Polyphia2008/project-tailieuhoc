@@ -1,44 +1,86 @@
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 import { requireAdmin } from '~/server/utils/auth'
-import type { DocumentItem, Order, User } from '~/types'
+import { seriesFrom, num } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-  const [{ rows: users }, { rows: docs }, { rows: orders }, { rows: reports }] = await Promise.all([
-    db().find<User>('users', {}), db().find<DocumentItem>('documents', {}),
-    db().find<Order>('orders', {}), db().find<any>('reports', {})
+  const db = useDriver()
+  const days = num(getQuery(event).days) ?? 30
+
+  const [{ rows: users }, { rows: docs }, { rows: orders }, { rows: txs }, { rows: reports }, { rows: blogs }] = await Promise.all([
+    db.find<any>('users'),
+    db.find<any>('documents'),
+    db.find<any>('orders'),
+    db.find<any>('transactions'),
+    db.find<any>('reports'),
+    db.find<any>('blogs')
   ])
+
   const paid = orders.filter((o) => o.status === 'paid')
-  const gmv = paid.reduce((s, o) => s + o.amount, 0)
+  const gmv = paid.reduce((s, o) => s + Number(o.amount || 0), 0)
+  const commission = paid.reduce((s, o) => s + Number(o.commission || 0), 0)
 
-  const chart: { label: string; revenue: number; orders: number }[] = []
-  const now = new Date()
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    const m = paid.filter((o) => String(o.created_at).startsWith(key))
-    chart.push({ label: `T${d.getMonth() + 1}`, revenue: m.reduce((s, o) => s + (o.commission || 0), 0), orders: m.length })
-  }
+  const gmv$ = seriesFrom(paid, days, 'paid_at', 'amount')
+  const commission$ = seriesFrom(paid, days, 'paid_at', 'commission')
+  const orders$ = seriesFrom(paid, days, 'paid_at')
+  const users$ = seriesFrom(users, days, 'created_at')
+  const docs$ = seriesFrom(docs, days, 'created_at')
 
-  const top = [...docs].filter((d) => d.status === 'approved')
-    .sort((a, b) => (b.sold_count || 0) - (a.sold_count || 0)).slice(0, 8)
-    .map((d) => ({ id: d.id, title: d.title, slug: d.slug, subject: d.subject, sold_count: d.sold_count, price: d.price, revenue: (d.sold_count || 0) * d.price }))
+  const bySubject = Object.entries(
+    docs.filter((d) => d.status === 'approved').reduce((acc: Record<string, number>, d) => {
+      acc[d.subject] = (acc[d.subject] || 0) + 1
+      return acc
+    }, {})
+  ).map(([subject, count]) => ({ subject, count })).sort((a, b) => b.count - a.count)
+
+  const topSellers = Object.entries(
+    paid.reduce((acc: Record<string, number>, o) => {
+      acc[o.seller_id] = (acc[o.seller_id] || 0) + Number(o.seller_amount || 0)
+      return acc
+    }, {})
+  )
+    .map(([id, revenue]) => {
+      const u = users.find((x) => x.id === id)
+      return { id, name: u?.name || 'N/A', avatar: u?.avatar || '', revenue: revenue as number }
+    })
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5)
+
+  const topDocs = [...docs]
+    .filter((d) => d.status === 'approved')
+    .sort((a, b) => b.sold_count - a.sold_count)
+    .slice(0, 6)
+    .map((d) => ({ id: d.id, title: d.title, slug: d.slug, subject: d.subject, price: d.price, sold_count: d.sold_count, view_count: d.view_count, rating_avg: d.rating_avg }))
 
   return {
-    success: true,
-    data: {
+    cards: {
       users: users.length,
+      users_blocked: users.filter((u) => u.blocked).length,
       sellers: users.filter((u) => u.role === 'seller' || u.role === 'admin').length,
-      blocked: users.filter((u) => u.blocked).length,
       documents: docs.length,
-      approved: docs.filter((d) => d.status === 'approved').length,
-      pending: docs.filter((d) => d.status === 'pending').length,
-      rejected: docs.filter((d) => d.status === 'rejected').length,
+      documents_approved: docs.filter((d) => d.status === 'approved').length,
+      documents_pending: docs.filter((d) => d.status === 'pending').length,
+      documents_rejected: docs.filter((d) => d.status === 'rejected').length,
       orders: paid.length,
+      orders_pending: orders.filter((o) => o.status === 'pending').length,
       gmv,
-      commission: paid.reduce((s, o) => s + (o.commission || 0), 0),
+      commission,
       reports_open: reports.filter((r) => r.status === 'open').length,
-      chart, top
-    }
+      blogs: blogs.length,
+      withdraw_pending: txs.filter((t) => t.type === 'withdraw' && t.status === 'pending').length,
+      views: docs.reduce((s, d) => s + Number(d.view_count || 0), 0),
+      downloads: docs.reduce((s, d) => s + Number(d.download_count || 0), 0)
+    },
+    chart: {
+      labels: gmv$.labels,
+      gmv: gmv$.data,
+      commission: commission$.data,
+      orders: orders$.data,
+      users: users$.data,
+      documents: docs$.data
+    },
+    by_subject: bySubject,
+    top_sellers: topSellers,
+    top_documents: topDocs
   }
 })

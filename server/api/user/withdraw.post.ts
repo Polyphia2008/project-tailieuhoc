@@ -1,27 +1,48 @@
-import { db, cryptoId } from '~/server/utils/driver'
-import { requireUser } from '~/server/utils/auth'
-import { sanitize, notify } from '~/server/utils/helpers'
+import { useDriver, cryptoId } from '~/server/utils/driver'
+import { requireUser, publicUser } from '~/server/utils/auth'
+import { assertBody, fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
-  const b = await readBody(event)
-  const amount = Math.floor(Number(b?.amount) || 0)
-  const settings = await db().getSettings()
-  const min = Number(settings.min_withdraw) || 200000
+  const body = await readBody(event)
+  assertBody(body, ['amount'])
 
-  if (amount < min) throw createError({ statusCode: 400, statusMessage: `Số tiền rút tối thiểu là ${min.toLocaleString('vi-VN')}đ` })
-  if (amount > (user.balance || 0)) throw createError({ statusCode: 400, statusMessage: 'Số dư ví không đủ' })
-  const bank = sanitize(b?.bank_name || user.bank_name, 60)
-  const num = sanitize(b?.bank_number || user.bank_number, 30)
-  if (!bank || !num) throw createError({ statusCode: 400, statusMessage: 'Vui lòng nhập thông tin ngân hàng nhận tiền' })
+  const db = useDriver()
+  const settings = await db.getSettings()
+  const amount = Math.round(Number(body.amount))
+  const min = Number(settings.min_withdraw ?? 200000)
 
-  const bal = (user.balance || 0) - amount
-  await db().update('users', user.id, { balance: bal, bank_name: bank, bank_number: num })
-  const tx = await db().insert('transactions', {
-    id: cryptoId(), user_id: user.id, type: 'withdraw', amount: -amount, balance_after: bal,
-    note: `Rút tiền về ${bank} - ${num}`, ref: 'WD' + Date.now().toString(36).toUpperCase(),
-    status: 'pending', created_at: new Date().toISOString()
+  if (!Number.isFinite(amount) || amount < min) fail(400, `Số tiền rút tối thiểu là ${min.toLocaleString('vi-VN')}đ`)
+  if (amount > Number(user.balance || 0)) fail(400, 'Số dư không đủ để thực hiện yêu cầu')
+
+  const after = Number(user.balance) - amount
+  const updated = await db.update('users', user.id, { balance: after })
+
+  const bank = String(body.bank || 'Chưa cung cấp')
+  const account = String(body.account || '').replace(/\d(?=\d{4})/g, '*')
+
+  await db.insert('transactions', {
+    id: 't_' + cryptoId(),
+    user_id: user.id,
+    type: 'withdraw',
+    amount: -amount,
+    balance_after: after,
+    ref: 'WD' + cryptoId().toUpperCase().slice(0, 8),
+    note: `Rút về ${bank} ${account}`.trim(),
+    status: 'pending',
+    created_at: new Date().toISOString()
   })
-  await notify(user.id, 'Yêu cầu rút tiền', `Yêu cầu rút ${amount.toLocaleString('vi-VN')}đ đang được xử lý (1-3 ngày làm việc).`, 'wallet', '/dashboard/doanh-thu')
-  return { success: true, data: { transaction: tx, balance: bal }, message: 'Đã gửi yêu cầu rút tiền' }
+
+  await db.insert('notifications', {
+    id: 'n_' + cryptoId(),
+    user_id: user.id,
+    title: 'Yêu cầu rút tiền đã được ghi nhận',
+    body: `Yêu cầu rút ${amount.toLocaleString('vi-VN')}đ đang được xử lý, dự kiến hoàn tất trong 1-2 ngày làm việc.`,
+    type: 'warning',
+    link: '/dashboard/doanh-thu',
+    read: false,
+    created_at: new Date().toISOString()
+  })
+
+  return { user: publicUser(updated), amount, balance: after }
 })

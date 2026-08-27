@@ -1,19 +1,26 @@
-import { db, cryptoId } from '~/server/utils/driver'
+import { useDriver, cryptoId } from '~/server/utils/driver'
 import { requireUser } from '~/server/utils/auth'
+import { fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
   const id = getRouterParam(event, 'id')!
-  const doc = await db().findOne('documents', { id })
-  if (!doc) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy tài liệu' })
+  const db = useDriver()
 
-  const fav = await db().findOne<any>('favorites', { user_id: user.id, document_id: id })
-  if (fav) {
-    await db().remove('favorites', fav.id)
-    return { success: true, data: { favorited: false }, message: 'Đã bỏ khỏi yêu thích' }
+  const doc = await db.findOne('documents', { id })
+  if (!doc) fail(404, 'Không tìm thấy tài liệu')
+
+  const existing = await db.findOne<any>('favorites', { user_id: user.id, document_id: id })
+  if (existing) {
+    await db.remove('favorites', existing.id)
+    return { favorited: false }
   }
-  await db().insert('favorites', {
-    id: cryptoId(), user_id: user.id, document_id: id, created_at: new Date().toISOString()
+
+  await db.insert('favorites', {
+    id: 'f_' + cryptoId(),
+    user_id: user.id,
+    document_id: id,
+    created_at: new Date().toISOString()
   })
-  return { success: true, data: { favorited: true }, message: 'Đã thêm vào yêu thích' }
+  return { favorited: true }
 })

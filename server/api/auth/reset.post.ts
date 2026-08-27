@@ -1,23 +1,25 @@
-import type { User } from '~/types'
-import { db } from '~/server/utils/driver'
-import { verifyToken, hashPassword, signToken, setAuthCookie, safeUser } from '~/server/utils/auth'
+import { useDriver } from '~/server/utils/driver'
+import { readToken, hashPassword, signToken, setAuthCookie, publicUser } from '~/server/utils/auth'
+import { assertBody, fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const token = String(body?.token || '')
-  const password = String(body?.password || '')
+  assertBody(body, ['token', 'password'])
 
-  if (!token) throw createError({ statusCode: 400, statusMessage: 'Liên kết đặt lại mật khẩu không hợp lệ' })
-  if (password.length < 6) throw createError({ statusCode: 400, statusMessage: 'Mật khẩu phải có ít nhất 6 ký tự' })
+  const password = String(body.password)
+  if (password.length < 6) fail(400, 'Mật khẩu phải có ít nhất 6 ký tự')
 
-  const uid = await verifyToken(token)
-  if (!uid) throw createError({ statusCode: 400, statusMessage: 'Liên kết đã hết hạn. Vui lòng yêu cầu lại.' })
+  const payload = await readToken(String(body.token))
+  if (!payload?.sub || payload.kind !== 'reset') fail(400, 'Liên kết không hợp lệ hoặc đã hết hạn')
 
-  const user = await db().findOne<User>('users', { id: uid })
-  if (!user) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy tài khoản' })
+  const db = useDriver()
+  const user = await db.findOne<any>('users', { id: String(payload.sub) })
+  if (!user) fail(404, 'Không tìm thấy tài khoản')
 
-  const { hash, salt } = await hashPassword(password)
-  const updated = await db().update<User>('users', uid, { password: hash, salt })
-  setAuthCookie(event, await signToken(uid))
-  return { success: true, data: safeUser(updated), message: 'Đặt lại mật khẩu thành công' }
+  const updated = await db.update('users', user.id, {
+    password_hash: await hashPassword(password, user.salt || 'mapdocs')
+  })
+
+  setAuthCookie(event, await signToken({ sub: user.id, role: user.role }))
+  return { user: publicUser(updated) }
 })

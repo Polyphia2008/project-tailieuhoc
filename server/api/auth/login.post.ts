@@ -1,21 +1,21 @@
-import type { User } from '~/types'
-import { db } from '~/server/utils/driver'
-import { verifyPassword, signToken, setAuthCookie, safeUser } from '~/server/utils/auth'
-import { sanitize } from '~/server/utils/helpers'
+import { useDriver } from '~/server/utils/driver'
+import { verifyPassword, signToken, setAuthCookie, publicUser } from '~/server/utils/auth'
+import { assertBody, fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const email = sanitize(body?.email, 120).toLowerCase()
-  const password = String(body?.password || '')
+  assertBody(body, ['email', 'password'])
 
-  if (!email || !password) throw createError({ statusCode: 400, statusMessage: 'Vui lòng nhập email và mật khẩu' })
+  const email = String(body.email).trim().toLowerCase()
+  const db = useDriver()
+  const user = await db.findOne<any>('users', { email })
+  if (!user) fail(401, 'Email hoặc mật khẩu không đúng')
+  if (user.blocked) fail(403, 'Tài khoản của bạn đã bị tạm khoá')
+  if (!user.password_hash) fail(400, 'Tài khoản này đăng nhập bằng Google')
 
-  const user = await db().findOne<User>('users', { email })
-  if (!user || !(await verifyPassword(user, password))) {
-    throw createError({ statusCode: 401, statusMessage: 'Email hoặc mật khẩu không chính xác' })
-  }
-  if (user.blocked) throw createError({ statusCode: 403, statusMessage: 'Tài khoản của bạn đã bị khoá. Liên hệ hỗ trợ để biết thêm chi tiết.' })
+  const ok = await verifyPassword(String(body.password), user.password_hash, user.salt || 'mapdocs')
+  if (!ok) fail(401, 'Email hoặc mật khẩu không đúng')
 
-  setAuthCookie(event, await signToken(user.id))
-  return { success: true, data: safeUser(user), message: 'Đăng nhập thành công' }
+  setAuthCookie(event, await signToken({ sub: user.id, role: user.role }))
+  return { user: publicUser(user) }
 })

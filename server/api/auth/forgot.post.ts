@@ -1,17 +1,22 @@
-import type { User } from '~/types'
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 import { signToken } from '~/server/utils/auth'
-import { sanitize } from '~/server/utils/helpers'
+import { assertBody, isEmail, fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const email = sanitize(body?.email, 120).toLowerCase()
-  if (!email) throw createError({ statusCode: 400, statusMessage: 'Vui lòng nhập email' })
+  assertBody(body, ['email'])
 
-  const user = await db().findOne<User>('users', { email })
-  const message = 'Nếu email tồn tại trong hệ thống, chúng tôi đã gửi liên kết đặt lại mật khẩu tới hộp thư của bạn.'
-  if (!user) return { success: true, data: null, message }
+  const email = String(body.email).trim().toLowerCase()
+  if (!isEmail(email)) fail(400, 'Email không hợp lệ')
 
-  const token = await signToken(user.id)
-  return { success: true, data: null, message, devResetLink: `/auth/dat-lai-mat-khau?token=${token}` }
+  const user = await useDriver().findOne<any>('users', { email })
+  if (!user) return { ok: true, sent: true }
+
+  const token = await signToken({ sub: user.id, kind: 'reset' }, '30m')
+  return {
+    ok: true,
+    sent: true,
+    dev_token: token,
+    dev_link: `/auth/dat-lai-mat-khau?token=${token}`
+  }
 })

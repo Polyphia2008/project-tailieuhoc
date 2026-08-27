@@ -1,22 +1,34 @@
-import { db } from '~/server/utils/driver'
+import { useDriver, cryptoId } from '~/server/utils/driver'
 import { requireUser } from '~/server/utils/auth'
-import { hasPurchased } from '~/server/utils/helpers'
-import { cryptoId } from '~/server/utils/driver'
-import type { DocumentItem } from '~/types'
+import { useR2 } from '~/server/utils/r2'
+import { fail } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
   const id = getRouterParam(event, 'id')!
-  const doc = await db().findOne<DocumentItem>('documents', { id })
-  if (!doc) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy tài liệu' })
+  const db = useDriver()
 
-  const owned = doc.is_free || doc.seller_id === user.id || user.role === 'admin' || (await hasPurchased(user.id, doc.id))
-  if (!owned) throw createError({ statusCode: 403, statusMessage: 'Bạn cần mua tài liệu này trước khi tải' })
+  const doc = await db.findOne<any>('documents', { id })
+  if (!doc) fail(404, 'Không tìm thấy tài liệu')
 
-  await db().increment('documents', doc.id, 'download_count', 1)
-  await db().insert('downloads', {
-    id: cryptoId(), user_id: user.id, document_id: doc.id, created_at: new Date().toISOString()
+  const isOwner = doc.seller_id === user.id
+  const allowed = doc.is_free || isOwner || user.role === 'admin' ||
+    Boolean(await db.findOne('orders', { buyer_id: user.id, document_id: id, status: 'paid' }))
+  if (!allowed) fail(403, 'Bạn cần mua tài liệu này trước khi tải về')
+
+  await db.insert('downloads', {
+    id: 'dl_' + cryptoId(),
+    user_id: user.id,
+    document_id: id,
+    created_at: new Date().toISOString()
   })
+  await db.increment('documents', id, 'download_count')
 
-  return { success: true, data: { url: doc.file_url, filename: `${doc.slug}.${doc.file_type || 'pdf'}` }, message: 'Bắt đầu tải tài liệu' }
+  const r2 = useR2()
+  return {
+    ok: true,
+    url: r2.publicUrl(doc.file_url || `documents/${doc.slug}.pdf`),
+    filename: `${doc.slug}.${doc.file_type || 'pdf'}`,
+    storage: r2.kind
+  }
 })

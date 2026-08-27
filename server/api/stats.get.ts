@@ -1,20 +1,17 @@
-import type { DocumentItem, User, Order } from '~/types'
-import { db } from '~/server/utils/driver'
+import { useDriver } from '~/server/utils/driver'
 
 export default defineEventHandler(async () => {
-  const { rows: docs } = await db().find<DocumentItem>('documents', { where: { status: 'approved' } })
-  const { rows: users } = await db().find<User>('users')
-  const { rows: orders } = await db().find<Order>('orders', { where: { status: 'paid' } })
+  const db = useDriver()
+  const [documents, users, orders, freeDocs] = await Promise.all([
+    db.count('documents', { where: { status: 'approved' } }),
+    db.count('users'),
+    db.count('orders', { where: { status: 'paid' } }),
+    db.count('documents', { where: { status: 'approved', is_free: true } })
+  ])
 
-  return {
-    success: true,
-    data: {
-      documents: docs.length,
-      free_documents: docs.filter((d) => d.is_free).length,
-      users: users.filter((u) => !u.blocked).length,
-      sellers: users.filter((u) => u.role === 'seller' || u.role === 'admin').length,
-      downloads: docs.reduce((s, d) => s + (d.download_count || 0), 0),
-      orders: orders.length
-    }
-  }
+  const { rows: docs } = await db.find<any>('documents', { where: { status: 'approved' } })
+  const downloads = docs.reduce((s, d) => s + Number(d.download_count || 0), 0)
+  const views = docs.reduce((s, d) => s + Number(d.view_count || 0), 0)
+
+  return { documents, users, orders, free_documents: freeDocs, downloads, views }
 })
