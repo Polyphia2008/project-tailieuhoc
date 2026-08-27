@@ -1,230 +1,59 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 definePageMeta({ layout: 'admin', middleware: 'admin' })
-useSeoMeta({ title: 'Quản lý khiếu nại — MapDocs Admin' })
-
-const ui = useUiStore()
-const { dateTime, timeAgo, number } = useFormat()
-
-const page = ref(1)
-const status = ref('all')
-
-const TABS = [
-  { key: 'all', label: 'Tất cả', icon: 'fa-list' },
-  { key: 'open', label: 'Chờ xử lý', icon: 'fa-clock' },
-  { key: 'resolved', label: 'Đã giải quyết', icon: 'fa-circle-check' },
-  { key: 'rejected', label: 'Đã từ chối', icon: 'fa-circle-xmark' }
-]
-
-const { data, pending, refresh } = await useAsyncData(
-  'admin-reports',
-  () => $fetch<any>('/api/admin/reports', { query: { page: page.value, limit: 15, status: status.value } }),
-  { watch: [page, status] }
-)
-
-const items = computed<any[]>(() => data.value?.data?.items || [])
-const totalPages = computed(() => data.value?.data?.totalPages || 1)
-const total = computed(() => data.value?.data?.total || 0)
-const openCount = computed(() => items.value.filter((r) => r.status === 'open').length)
-
-watch(status, () => { page.value = 1 })
-
-const STATUS_MAP: Record<string, { label: string; cls: string; icon: string }> = {
-  open: { label: 'Chờ xử lý', cls: 'bg-amber-50 text-amber-700 border-amber-200', icon: 'fa-clock' },
-  resolved: { label: 'Đã giải quyết', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: 'fa-circle-check' },
-  rejected: { label: 'Đã từ chối', cls: 'bg-red-50 text-red-700 border-red-200', icon: 'fa-circle-xmark' },
-  dismissed: { label: 'Đã bỏ qua', cls: 'bg-slate-100 text-slate-600 border-slate-200', icon: 'fa-ban' }
+const { money, num, ago, dateTime } = useFormat()
+const { get, statusPill, orderPill, txLabel } = useSubjects()
+const page = ref(1); const q = ref(''); const filter = ref('')
+const { data, pending, refresh } = await useFetch<any>('/api/admin/reports', { query: computed(() => ({ page: page.value, limit: 15, q: q.value || undefined, status: filter || undefined })) })
+const sel = ref<string[]>([])
+function toggle(id: string) { sel.value = sel.value.includes(id) ? sel.value.filter(x => x !== id) : [...sel.value, id] }
+async function act(action: string, extra: any = {}) {
+  if (!sel.value.length && !extra.id) return toast.error('Vui lòng chọn ít nhất một dòng')
+  try { const r = await $fetch<any>('/api/admin/reports', { method: 'POST', body: { action, ids: sel.value, ...extra } }); sel.value = []; await refresh(); toast.success(`Đã xử lý ${r.affected ?? 1} bản ghi`) }
+  catch (e: any) { toast.error(e?.data?.statusMessage || 'Lỗi') }
 }
-const st = (s: string) => STATUS_MAP[s] || { label: s, cls: 'bg-slate-100 text-slate-600 border-slate-200', icon: 'fa-flag' }
-
-// Action modal
-const showAction = ref(false)
-const target = ref<any>(null)
-const nextStatus = ref<'resolved' | 'rejected'>('resolved')
-const note = ref('')
-const busy = ref(false)
-
-const PRESETS: Record<string, string[]> = {
-  resolved: [
-    'Đã kiểm tra và gỡ tài liệu vi phạm khỏi hệ thống.',
-    'Đã yêu cầu tác giả cập nhật lại nội dung tài liệu.',
-    'Đã hoàn tiền cho người mua theo chính sách.',
-    'Đã cảnh cáo người bán và ghi nhận vi phạm.'
-  ],
-  rejected: [
-    'Nội dung khiếu nại không đủ căn cứ để xử lý.',
-    'Tài liệu không vi phạm chính sách của MapDocs.',
-    'Khiếu nại trùng lặp với báo cáo đã được xử lý.',
-    'Thông tin cung cấp chưa đầy đủ, vui lòng gửi lại.'
-  ]
-}
-
-const openAction = (r: any, s: 'resolved' | 'rejected') => {
-  target.value = r
-  nextStatus.value = s
-  note.value = ''
-  showAction.value = true
-}
-
-const submit = async () => {
-  if (!target.value) return
-  if (!note.value.trim()) return ui.error('Vui lòng nhập ghi chú xử lý')
-  busy.value = true
-  try {
-    const res = await $fetch<any>('/api/admin/reports', {
-      method: 'POST',
-      body: { id: target.value.id, status: nextStatus.value, note: note.value.trim() }
-    })
-    ui.success(res.message || 'Đã cập nhật khiếu nại')
-    showAction.value = false
-    target.value = null
-    await refresh()
-  } catch (e: any) {
-    ui.error(e?.data?.statusMessage || 'Không thể cập nhật khiếu nại')
-  } finally {
-    busy.value = false
-  }
-}
-
-const reopen = async (r: any) => {
-  busy.value = true
-  try {
-    await $fetch<any>('/api/admin/reports', { method: 'POST', body: { id: r.id, status: 'open', note: 'Mở lại để xem xét thêm.' } })
-    ui.success('Đã mở lại khiếu nại')
-    await refresh()
-  } catch (e: any) {
-    ui.error(e?.data?.statusMessage || 'Không thể mở lại khiếu nại')
-  } finally {
-    busy.value = false
-  }
-}
+watch(filter, () => { page.value = 1 })
+useHead({ title: 'Khiếu nại - MapDocs Admin' })
 </script>
-
 <template>
-  <div class="space-y-5">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h2 class="text-xl font-bold text-slate-800">Quản lý khiếu nại</h2>
-        <p class="text-sm text-slate-500 mt-0.5">
-          Tổng {{ number(total) }} khiếu nại
-          <span v-if="openCount" class="text-amber-600 font-semibold">· {{ openCount }} đang chờ xử lý</span>
-        </p>
-      </div>
-      <button class="btn btn-outline btn-sm" :disabled="pending" @click="refresh()">
-        <AppIcon name="fa-rotate" :class="pending ? 'fa-spin' : ''" /> Làm mới
-      </button>
-    </div>
+  <div>
+    <nav class="flex items-center gap-1.5 text-[12px] text-mdk-mute"><NuxtLink to="/admin" class="hover:text-mdk-sub">Admin</NuxtLink> / <span class="text-mdk-sub">Khiếu nại</span></nav>
+    <h1 class="mt-3 text-[22px] font-bold text-mdk-text font-ui tracking-tight">Khiếu nại</h1>
+    <p class="mt-1 text-[13px] text-mdk-mute">Tổng {{ data?.total || 0 }} bản ghi</p>
 
-    <div class="card p-4 flex flex-wrap gap-2">
-      <button v-for="t in TABS" :key="t.key" class="tab" :class="status === t.key ? 'tab-on' : ''" @click="status = t.key">
-        <AppIcon :name="t.icon" /> {{ t.label }}
-      </button>
-    </div>
-
-    <div v-if="pending" class="card p-10 text-center text-slate-400">
-      <UiSpinner /> <span class="ml-2 text-sm">Đang tải khiếu nại…</span>
-    </div>
-
-    <UiEmpty v-else-if="!items.length" icon="fa-flag" title="Không có khiếu nại"
-      desc="Chưa có khiếu nại nào khớp với bộ lọc hiện tại." />
-
-    <div v-else class="space-y-3">
-      <article v-for="r in items" :key="r.id" class="card p-4 sm:p-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="badge border" :class="st(r.status).cls">
-                <AppIcon :name="st(r.status).icon" class="mr-1" />{{ st(r.status).label }}
-              </span>
-              <span class="badge bg-red-50 text-red-700 border border-red-200">
-                <AppIcon name="fa-triangle-exclamation" class="mr-1" />{{ r.reason }}
-              </span>
-              <span class="text-xs text-slate-400">{{ timeAgo(r.created_at) }}</span>
-            </div>
-
-            <h3 class="font-bold text-slate-800 mt-2">
-              <NuxtLink v-if="r.document_slug" :to="`/tai-lieu/${r.document_slug}`" class="link">
-                {{ r.document_title || 'Tài liệu #' + r.document_id }}
-              </NuxtLink>
-              <span v-else>{{ r.document_title || 'Tài liệu #' + r.document_id }}</span>
-            </h3>
-
-            <p class="text-sm text-slate-600 mt-1.5 leading-relaxed">{{ r.detail }}</p>
-
-            <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-500">
-              <span class="flex items-center gap-1.5">
-                <UiAvatar :name="r.user_name" :size="22" />
-                {{ r.user_name || 'Người dùng #' + r.user_id }}
-              </span>
-              <span><AppIcon name="fa-clock" class="mr-1" />{{ dateTime(r.created_at) }}</span>
-            </div>
-
-            <div v-if="r.admin_note" class="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-              <div class="text-xs font-semibold text-slate-500 mb-1">
-                <AppIcon name="fa-user-shield" class="mr-1" />Ghi chú của quản trị viên
-                <span v-if="r.resolved_at" class="font-normal text-slate-400">· {{ dateTime(r.resolved_at) }}</span>
-              </div>
-              <p class="text-sm text-slate-700">{{ r.admin_note }}</p>
-            </div>
-          </div>
-
-          <div class="flex sm:flex-col gap-2 shrink-0">
-            <template v-if="r.status === 'open'">
-              <button class="btn btn-primary btn-sm whitespace-nowrap" :disabled="busy" @click="openAction(r, 'resolved')">
-                <AppIcon name="fa-check" variant="bold" /> Giải quyết
-              </button>
-              <button class="btn btn-outline btn-sm whitespace-nowrap" :disabled="busy" @click="openAction(r, 'rejected')">
-                <AppIcon name="fa-xmark" /> Từ chối
-              </button>
-            </template>
-            <button v-else class="btn btn-ghost btn-sm whitespace-nowrap" :disabled="busy" @click="reopen(r)">
-              <AppIcon name="fa-rotate-left" /> Mở lại
-            </button>
-          </div>
+    <div class="mt-6 card overflow-hidden">
+      <div class="px-4 py-3 border-b border-mdk-line flex flex-wrap items-center gap-2">
+        <div class="relative flex-1 min-w-[180px] max-w-[280px]">
+          <AppIcon name="solar:magnifer-linear" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
+          <input v-model="q" type="search" placeholder="Tìm kiếm..." class="input h-9 pl-9 text-[13px]" @keyup.enter="refresh()" />
         </div>
-      </article>
-    </div>
-
-    <UiPagination :page="page" :total-pages="totalPages" @change="(p:number) => (page = p)" />
-
-    <!-- Action modal -->
-    <UiModal v-model="showAction" :title="nextStatus === 'resolved' ? 'Giải quyết khiếu nại' : 'Từ chối khiếu nại'">
-      <div v-if="target" class="space-y-4">
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <div class="text-xs text-slate-500">Khiếu nại về</div>
-          <div class="font-semibold text-slate-800 mt-0.5">{{ target.document_title || 'Tài liệu #' + target.document_id }}</div>
-          <div class="text-sm text-slate-600 mt-1">Lý do: <strong>{{ target.reason }}</strong></div>
-        </div>
-
-        <div>
-          <label class="label">Chọn nhanh ghi chú</label>
-          <div class="space-y-1.5">
-            <button v-for="p in PRESETS[nextStatus]" :key="p" type="button" class="ropt w-full text-left"
-              :class="note === p ? 'ropt-on' : ''" @click="note = p">
-              {{ p }}
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label class="label">Ghi chú xử lý <span class="text-red-500">*</span></label>
-          <textarea v-model="note" rows="3" class="input" maxlength="500"
-            placeholder="Nhập nội dung phản hồi gửi tới người khiếu nại…" />
-          <div class="text-xs text-slate-400 mt-1 text-right">{{ note.length }}/500</div>
+        <div v-if="sel.length" class="flex items-center gap-2 ml-auto">
+          <span class="text-[12px] text-mdk-sub">Đã chọn {{ sel.length }}</span>
+          <button class="btn-primary btn-sm" @click="act('approve')">Duyệt</button>
+          <button class="btn-outline btn-sm" @click="act('reject', { reason: 'Không đạt yêu cầu kiểm duyệt' })">Từ chối</button>
+          <button class="btn-danger btn-sm" @click="act('delete')">Xoá</button>
         </div>
       </div>
-
-      <template #footer>
-        <button class="btn btn-outline btn-sm" :disabled="busy" @click="showAction = false">Huỷ</button>
-        <button class="btn btn-sm" :class="nextStatus === 'resolved' ? 'btn-primary' : 'btn-danger'" :disabled="busy" @click="submit">
-          <AppIcon name="fa-spinner" v-if="busy" />
-          {{ nextStatus === 'resolved' ? 'Xác nhận giải quyết' : 'Xác nhận từ chối' }}
-        </button>
-      </template>
-    </UiModal>
+      <div class="overflow-x-auto"><table class="tbl">
+        <thead><tr><th class="w-9"></th><th>Nội dung</th><th>Thông tin</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+        <tbody><tr v-for="it in data?.items || []" :key="it.id">
+          <td><input type="checkbox" :checked="sel.includes(it.id)" class="rounded border-mdk-line2 bg-mdk-soft text-primary-600" @change="toggle(it.id)" /></td>
+          <td class="max-w-[340px] text-[13px] text-mdk-text"><span class="line-clamp-1">{{ it.title || it.name || it.document?.title || it.code || it.reason || it.note || it.id }}</span>
+            <span v-if="it.email || it.seller?.name || it.user?.name" class="block text-[11.5px] text-mdk-mute">{{ it.email || it.seller?.name || it.user?.name }}</span></td>
+          <td class="text-[13px] tabular-nums">{{ it.amount !== undefined ? money(it.amount) : it.price !== undefined ? (it.price ? money(it.price) : 'Miễn phí') : it.balance !== undefined ? money(it.balance) : it.document_count !== undefined ? num(it.document_count) + ' tài liệu' : '—' }}</td>
+          <td><span v-if="it.status" :class="statusPill(it.status).cls">{{ statusPill(it.status).label }}</span>
+            <span v-else-if="it.blocked !== undefined" :class="it.blocked ? 'pill-red' : 'pill-green'">{{ it.blocked ? 'Đã khoá' : 'Hoạt động' }}</span>
+            <span v-else-if="it.published !== undefined" :class="it.published ? 'pill-green' : 'pill-slate'">{{ it.published ? 'Đã xuất bản' : 'Bản nháp' }}</span>
+            <span v-else class="pill-slate">—</span></td>
+          <td class="text-[12.5px] text-mdk-mute whitespace-nowrap">{{ ago(it.created_at) }}</td>
+        </tr></tbody>
+      </table></div>
+      <UiEmpty v-if="!pending && !data?.items?.length" compact title="Chưa có dữ liệu" />
+    </div>
+    <div v-if="(data?.pages || 1) > 1" class="mt-6 flex items-center justify-center gap-2">
+      <button class="btn-outline btn-sm" :disabled="page <= 1" @click="page--">Trước</button>
+      <span class="text-[13px] text-mdk-sub px-2">{{ page }} / {{ data?.pages }}</span>
+      <button class="btn-outline btn-sm" :disabled="page >= (data?.pages || 1)" @click="page++">Sau</button>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.ropt { @apply px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-600 hover:border-primary-900 transition; }
-.ropt-on { @apply border-primary-900 bg-primary-50 text-primary-900 font-medium; }
-</style>

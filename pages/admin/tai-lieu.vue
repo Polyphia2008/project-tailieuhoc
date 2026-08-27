@@ -1,197 +1,59 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 definePageMeta({ layout: 'admin', middleware: 'admin' })
-useSeoMeta({ title: 'Quản lý tài liệu - MapDocs' })
-
-const ui = useUiStore()
-const { currency, number, date } = useFormat()
-const { meta, list } = useSubjects()
-
-const status = ref('all')
-const subject = ref('all')
-const q = ref('')
-const page = ref(1)
-const selected = ref<string[]>([])
-
-const { data, pending, refresh } = await useAsyncData('admin-docs',
-  () => $fetch<any>('/api/admin/documents', { query: { status: status.value, subject: subject.value, q: q.value, page: page.value, limit: 15 } }),
-  { watch: [status, subject, page] })
-
-watch([status, subject, q], () => { page.value = 1; selected.value = [] })
-let t: any
-watch(q, () => { clearTimeout(t); t = setTimeout(() => refresh(), 400) })
-
-const tabs = [
-  { key: 'all', label: 'Tất cả' }, { key: 'pending', label: 'Chờ duyệt' },
-  { key: 'approved', label: 'Đã duyệt' }, { key: 'rejected', label: 'Bị từ chối' }
-]
-const statusMeta: Record<string, { label: string; cls: string }> = {
-  approved: { label: 'Đã duyệt', cls: 'bg-green-50 text-green-700' },
-  pending: { label: 'Chờ duyệt', cls: 'bg-amber-50 text-amber-700' },
-  rejected: { label: 'Từ chối', cls: 'bg-red-50 text-red-700' }
+const { money, num, ago, dateTime } = useFormat()
+const { get, statusPill, orderPill, txLabel } = useSubjects()
+const page = ref(1); const q = ref(''); const filter = ref('')
+const { data, pending, refresh } = await useFetch<any>('/api/admin/documents', { query: computed(() => ({ page: page.value, limit: 15, q: q.value || undefined, status: filter || undefined })) })
+const sel = ref<string[]>([])
+function toggle(id: string) { sel.value = sel.value.includes(id) ? sel.value.filter(x => x !== id) : [...sel.value, id] }
+async function act(action: string, extra: any = {}) {
+  if (!sel.value.length && !extra.id) return toast.error('Vui lòng chọn ít nhất một dòng')
+  try { const r = await $fetch<any>('/api/admin/documents', { method: 'POST', body: { action, ids: sel.value, ...extra } }); sel.value = []; await refresh(); toast.success(`Đã xử lý ${r.affected ?? 1} bản ghi`) }
+  catch (e: any) { toast.error(e?.data?.statusMessage || 'Lỗi') }
 }
-
-const items = computed(() => data.value?.data?.items || [])
-const allChecked = computed(() => items.value.length > 0 && selected.value.length === items.value.length)
-function toggleAll() {
-  selected.value = allChecked.value ? [] : items.value.map((d: any) => d.id)
-}
-function toggle(id: string) {
-  const i = selected.value.indexOf(id)
-  i >= 0 ? selected.value.splice(i, 1) : selected.value.push(id)
-}
-
-const busy = ref(false)
-async function act(id: string, action: string, reason?: string) {
-  busy.value = true
-  try {
-    const res: any = await $fetch('/api/admin/documents', { method: 'POST', body: { id, action, reason } })
-    ui.success(res.message)
-    refresh()
-  } catch (e: any) {
-    ui.error(e?.data?.statusMessage || 'Thao tác thất bại')
-  } finally { busy.value = false }
-}
-
-async function bulkApprove() {
-  busy.value = true
-  try {
-    for (const id of selected.value) await $fetch('/api/admin/documents', { method: 'POST', body: { id, action: 'approve' } })
-    ui.success(`Đã duyệt ${selected.value.length} tài liệu`)
-    selected.value = []
-    refresh()
-  } catch (e: any) { ui.error(e?.data?.statusMessage || 'Thao tác thất bại') }
-  finally { busy.value = false }
-}
-
-// Modal từ chối
-const rejectOpen = ref(false)
-const rejectTarget = ref<any>(null)
-const rejectReason = ref('')
-const REASONS = ['Nội dung không đạt chất lượng', 'Vi phạm bản quyền', 'Sai môn học / lớp', 'Mô tả không khớp nội dung', 'Giá không hợp lý']
-function askReject(d: any) { rejectTarget.value = d; rejectReason.value = REASONS[0]; rejectOpen.value = true }
-async function confirmReject() {
-  if (!rejectReason.value.trim()) return ui.error('Vui lòng nhập lý do từ chối')
-  await act(rejectTarget.value.id, 'reject', rejectReason.value)
-  rejectOpen.value = false
-}
-
-// Modal xoá
-const delOpen = ref(false)
-const delTarget = ref<any>(null)
-function askDelete(d: any) { delTarget.value = d; delOpen.value = true }
-async function confirmDelete() { await act(delTarget.value.id, 'delete'); delOpen.value = false }
+watch(filter, () => { page.value = 1 })
+useHead({ title: 'Quản lý tài liệu - MapDocs Admin' })
 </script>
-
 <template>
-  <section id="admin-documents">
-    <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-file-lines" class="text-primary-900 mr-2" />Quản lý tài liệu</h1>
-      <p class="text-slate-500 text-sm mt-1">Duyệt, từ chối, đặt nổi bật hoặc xoá tài liệu trên hệ thống.</p>
-    </header>
+  <div>
+    <nav class="flex items-center gap-1.5 text-[12px] text-mdk-mute"><NuxtLink to="/admin" class="hover:text-mdk-sub">Admin</NuxtLink> / <span class="text-mdk-sub">Quản lý tài liệu</span></nav>
+    <h1 class="mt-3 text-[22px] font-bold text-mdk-text font-ui tracking-tight">Quản lý tài liệu</h1>
+    <p class="mt-1 text-[13px] text-mdk-mute">Tổng {{ data?.total || 0 }} bản ghi</p>
 
-    <div class="card p-4 mb-5 space-y-3">
-      <div class="flex flex-wrap gap-2">
-        <button v-for="tb in tabs" :key="tb.key" class="tab" :class="status === tb.key ? 'tab-on' : ''" @click="status = tb.key">{{ tb.label }}</button>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
-          <AppIcon name="fa-magnifying-glass" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
-          <input v-model="q" type="search" class="input pl-10" placeholder="Tìm theo tiêu đề, mô tả..." />
+    <div class="mt-6 card overflow-hidden">
+      <div class="px-4 py-3 border-b border-mdk-line flex flex-wrap items-center gap-2">
+        <div class="relative flex-1 min-w-[180px] max-w-[280px]">
+          <AppIcon name="solar:magnifer-linear" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
+          <input v-model="q" type="search" placeholder="Tìm kiếm..." class="input h-9 pl-9 text-[13px]" @keyup.enter="refresh()" />
         </div>
-        <select v-model="subject" class="input sm:w-52">
-          <option value="all">Tất cả môn học</option>
-          <option v-for="sj in list" :key="sj.key" :value="sj.key">{{ sj.label }}</option>
-        </select>
+        <div v-if="sel.length" class="flex items-center gap-2 ml-auto">
+          <span class="text-[12px] text-mdk-sub">Đã chọn {{ sel.length }}</span>
+          <button class="btn-primary btn-sm" @click="act('approve')">Duyệt</button>
+          <button class="btn-outline btn-sm" @click="act('reject', { reason: 'Không đạt yêu cầu kiểm duyệt' })">Từ chối</button>
+          <button class="btn-danger btn-sm" @click="act('delete')">Xoá</button>
+        </div>
       </div>
-      <div v-if="selected.length" class="flex items-center gap-3 pt-2 border-t border-slate-100">
-        <span class="text-sm text-slate-600">Đã chọn <strong>{{ selected.length }}</strong> tài liệu</span>
-        <button class="btn btn-primary btn-sm" :disabled="busy" @click="bulkApprove"><AppIcon name="fa-check" variant="bold" class="mr-2" />Duyệt hàng loạt</button>
-        <button class="btn btn-ghost btn-sm" @click="selected = []">Bỏ chọn</button>
-      </div>
+      <div class="overflow-x-auto"><table class="tbl">
+        <thead><tr><th class="w-9"></th><th>Nội dung</th><th>Thông tin</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+        <tbody><tr v-for="it in data?.items || []" :key="it.id">
+          <td><input type="checkbox" :checked="sel.includes(it.id)" class="rounded border-mdk-line2 bg-mdk-soft text-primary-600" @change="toggle(it.id)" /></td>
+          <td class="max-w-[340px] text-[13px] text-mdk-text"><span class="line-clamp-1">{{ it.title || it.name || it.document?.title || it.code || it.reason || it.note || it.id }}</span>
+            <span v-if="it.email || it.seller?.name || it.user?.name" class="block text-[11.5px] text-mdk-mute">{{ it.email || it.seller?.name || it.user?.name }}</span></td>
+          <td class="text-[13px] tabular-nums">{{ it.amount !== undefined ? money(it.amount) : it.price !== undefined ? (it.price ? money(it.price) : 'Miễn phí') : it.balance !== undefined ? money(it.balance) : it.document_count !== undefined ? num(it.document_count) + ' tài liệu' : '—' }}</td>
+          <td><span v-if="it.status" :class="statusPill(it.status).cls">{{ statusPill(it.status).label }}</span>
+            <span v-else-if="it.blocked !== undefined" :class="it.blocked ? 'pill-red' : 'pill-green'">{{ it.blocked ? 'Đã khoá' : 'Hoạt động' }}</span>
+            <span v-else-if="it.published !== undefined" :class="it.published ? 'pill-green' : 'pill-slate'">{{ it.published ? 'Đã xuất bản' : 'Bản nháp' }}</span>
+            <span v-else class="pill-slate">—</span></td>
+          <td class="text-[12.5px] text-mdk-mute whitespace-nowrap">{{ ago(it.created_at) }}</td>
+        </tr></tbody>
+      </table></div>
+      <UiEmpty v-if="!pending && !data?.items?.length" compact title="Chưa có dữ liệu" />
     </div>
-
-    <UiSpinner v-if="pending" :size="34" label="Đang tải tài liệu..." />
-
-    <template v-else-if="data?.data">
-      <UiEmpty v-if="!items.length" icon="fa-file-circle-question" title="Không tìm thấy tài liệu" desc="Thử đổi bộ lọc hoặc từ khoá tìm kiếm." />
-
-      <div v-else class="card overflow-x-auto">
-        <table class="w-full text-sm min-w-[900px]">
-          <thead><tr class="text-left border-b border-slate-100 bg-slate-50/60">
-            <th class="table-th w-10"><input type="checkbox" :checked="allChecked" @change="toggleAll" /></th>
-            <th class="table-th">Tài liệu</th><th class="table-th">Người bán</th><th class="table-th">Giá</th>
-            <th class="table-th">Bán</th><th class="table-th">Trạng thái</th><th class="table-th text-right">Thao tác</th>
-          </tr></thead>
-          <tbody>
-            <tr v-for="d in items" :key="d.id" class="table-row">
-              <td class="table-td"><input type="checkbox" :checked="selected.includes(d.id)" @change="toggle(d.id)" /></td>
-              <td class="table-td">
-                <div class="flex items-center gap-3">
-                  <span class="w-9 h-9 rounded-lg bg-gradient-to-br grid place-items-center text-white shrink-0" :class="meta(d.subject).gradient">
-                    <AppIcon :name="meta(d.subject).icon" class="text-xs" />
-                  </span>
-                  <div class="min-w-0 max-w-xs">
-                    <NuxtLink :to="`/tai-lieu/${d.slug}`" class="block font-medium text-slate-800 line-clamp-1 hover:text-primary-900">
-                      <AppIcon name="fa-fire" variant="bold" class="text-accent-500 mr-1" v-if="d.featured" />{{ d.title }}
-                    </NuxtLink>
-                    <span class="text-xs text-slate-400">{{ meta(d.subject).label }} · Lớp {{ d.grade }} · {{ date(d.created_at) }}</span>
-                  </div>
-                </div>
-              </td>
-              <td class="table-td">
-                <div class="flex items-center gap-2">
-                  <UiAvatar :name="d.seller?.name" :src="d.seller?.avatar" :size="24" />
-                  <span class="text-slate-600 truncate max-w-[120px]">{{ d.seller?.name || '—' }}</span>
-                </div>
-              </td>
-              <td class="table-td font-semibold" :class="d.is_free ? 'text-green-600' : 'text-accent-500'">{{ currency(d.price) }}</td>
-              <td class="table-td">{{ number(d.sold_count) }}</td>
-              <td class="table-td"><span class="badge" :class="statusMeta[d.status]?.cls">{{ statusMeta[d.status]?.label }}</span></td>
-              <td class="table-td">
-                <div class="flex items-center justify-end gap-1.5">
-                  <UiTooltip text="Duyệt">
-                    <button v-if="d.status !== 'approved'" class="act hover:!text-green-600 hover:!border-green-300" :disabled="busy" @click="act(d.id, 'approve')"><AppIcon name="fa-check" variant="bold" /></button>
-                  </UiTooltip>
-                  <UiTooltip text="Từ chối">
-                    <button v-if="d.status !== 'rejected'" class="act hover:!text-amber-600 hover:!border-amber-300" :disabled="busy" @click="askReject(d)"><AppIcon name="fa-xmark" /></button>
-                  </UiTooltip>
-                  <UiTooltip text="Nổi bật">
-                    <button class="act" :class="d.featured ? '!text-accent-500 !border-accent-300' : ''" :disabled="busy" @click="act(d.id, 'feature')"><AppIcon name="fa-fire" variant="bold" /></button>
-                  </UiTooltip>
-                  <UiTooltip text="Xoá">
-                    <button class="act hover:!text-red-600 hover:!border-red-300" :disabled="busy" @click="askDelete(d)"><AppIcon name="fa-trash" /></button>
-                  </UiTooltip>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <UiPagination :page="page" :total-pages="data.data.totalPages" @change="(p:number) => (page = p)" />
-    </template>
-
-    <UiModal v-model="rejectOpen" title="Từ chối tài liệu" width="max-w-md">
-      <p class="text-sm text-slate-600 mb-4">Tài liệu: <strong class="text-slate-800">{{ rejectTarget?.title }}</strong></p>
-      <label class="label">Lý do từ chối</label>
-      <div class="space-y-2 mb-3">
-        <label v-for="r in REASONS" :key="r" class="flex items-center gap-2 text-sm">
-          <input v-model="rejectReason" type="radio" :value="r" />{{ r }}
-        </label>
-      </div>
-      <textarea v-model="rejectReason" rows="3" class="input" maxlength="300" placeholder="Hoặc nhập lý do khác..." />
-      <template #footer>
-        <button class="btn btn-outline btn-sm" @click="rejectOpen = false">Huỷ</button>
-        <button class="btn btn-danger btn-sm" :disabled="busy" @click="confirmReject">Từ chối</button>
-      </template>
-    </UiModal>
-
-    <UiModal v-model="delOpen" title="Xác nhận xoá" width="max-w-md">
-      <p class="text-sm text-slate-600">Xoá vĩnh viễn tài liệu <strong class="text-slate-800">{{ delTarget?.title }}</strong>? Hành động này không thể hoàn tác.</p>
-      <template #footer>
-        <button class="btn btn-outline btn-sm" @click="delOpen = false">Huỷ</button>
-        <button class="btn btn-danger btn-sm" :disabled="busy" @click="confirmDelete">Xoá</button>
-      </template>
-    </UiModal>
-  </section>
+    <div v-if="(data?.pages || 1) > 1" class="mt-6 flex items-center justify-center gap-2">
+      <button class="btn-outline btn-sm" :disabled="page <= 1" @click="page--">Trước</button>
+      <span class="text-[13px] text-mdk-sub px-2">{{ page }} / {{ data?.pages }}</span>
+      <button class="btn-outline btn-sm" :disabled="page >= (data?.pages || 1)" @click="page++">Sau</button>
+    </div>
+  </div>
 </template>

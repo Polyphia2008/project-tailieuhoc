@@ -1,132 +1,81 @@
 <script setup lang="ts">
-import { Chart, BarController, BarElement, LineController, LineElement, PointElement, Filler, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
-
 definePageMeta({ layout: 'admin', middleware: 'admin' })
-useSeoMeta({ title: 'Tổng quan quản trị - MapDocs' })
+const { money, moneyShort, num, compact } = useFormat()
+const { get } = useSubjects()
+const { data } = await useFetch<any>('/api/admin/stats', { query: { days: 30 } })
+const c = computed(() => data.value?.cards || {})
+const ch = computed(() => data.value?.chart || { labels: [], gmv: [], commission: [], orders: [], users: [], documents: [] })
+const c1 = ref<HTMLCanvasElement | null>(null); const c2 = ref<HTMLCanvasElement | null>(null)
+let k1: any = null; let k2: any = null
 
-const { currency, number, compact } = useFormat()
-const { meta } = useSubjects()
-const { colors, hexAlpha, areaGradient, baseOptions } = useChartTheme()
-
-const { data, pending } = await useAsyncData('admin-stats', () => $fetch<any>('/api/admin/stats'))
-const s = computed(() => data.value?.data)
-
-const cards = computed(() => {
-  const d = s.value
-  if (!d) return []
-  return [
-    { label: 'Người dùng', value: number(d.users), sub: `${d.sellers} người bán · ${d.blocked} bị khoá`, icon: 'fa-users', tone: 'blue' as const },
-    { label: 'Tài liệu', value: number(d.documents), sub: `${d.approved} đã duyệt`, icon: 'fa-file-lines', tone: 'violet' as const },
-    { label: 'Chờ duyệt', value: number(d.pending), sub: `${d.rejected} bị từ chối`, icon: 'fa-hourglass-half', tone: 'amber' as const },
-    { label: 'Đơn hàng', value: number(d.orders), sub: 'Đã thanh toán', icon: 'fa-bag-shopping', tone: 'green' as const, series: (d.chart || []).map((r: any) => r.orders) },
-    { label: 'Tổng GMV', value: currency(d.gmv), sub: `Hoa hồng ${currency(d.commission)}`, icon: 'fa-sack-dollar', tone: 'cyan' as const, series: (d.chart || []).map((r: any) => r.revenue) },
-    { label: 'Khiếu nại mở', value: number(d.reports_open), sub: 'Cần xử lý', icon: 'fa-flag', tone: 'rose' as const }
-  ]
+onMounted(async () => {
+  const { Chart, registerables } = await import('chart.js')
+  Chart.register(...registerables)
+  const { baseOptions, lineDataset, barDataset, palette } = useChartTheme()
+  const lb = ch.value.labels.map((d: string) => d.slice(8) + '/' + d.slice(5, 7))
+  if (c1.value) k1 = new Chart(c1.value, { type: 'line', data: { labels: lb, datasets: [lineDataset('GMV', ch.value.gmv, palette.blue), lineDataset('Hoa hồng', ch.value.commission, palette.orange)] }, options: baseOptions() })
+  if (c2.value) k2 = new Chart(c2.value, { type: 'bar', data: { labels: lb, datasets: [barDataset('Đơn hàng', ch.value.orders, palette.green), barDataset('Người dùng mới', ch.value.users, palette.purple), barDataset('Tài liệu mới', ch.value.documents, palette.cyan)] }, options: baseOptions() })
 })
-
-const chartEl = ref<HTMLCanvasElement | null>(null)
-let chart: Chart | null = null
-
-function renderChart() {
-  if (!import.meta.client || !chartEl.value || !s.value) return
-  const rows = s.value.chart || []
-  chart?.destroy()
-  const ctx = chartEl.value.getContext('2d')!
-  const base = baseOptions({ tickFormat: (v: any) => compact(v) })
-  chart = new Chart(chartEl.value, {
-    data: {
-      labels: rows.map((r: any) => r.label),
-      datasets: [
-        {
-          type: 'bar', label: 'Hoa hồng (đ)', data: rows.map((r: any) => r.revenue),
-          backgroundColor: hexAlpha(colors.blue, 0.6), hoverBackgroundColor: colors.blue,
-          borderColor: colors.blue, borderWidth: 1, borderRadius: 8, maxBarThickness: 44, yAxisID: 'y'
-        },
-        {
-          type: 'line', label: 'Số đơn', data: rows.map((r: any) => r.orders),
-          borderColor: colors.amber,
-          backgroundColor: areaGradient(ctx, chartEl.value.clientHeight || 288, colors.amber, 0.22),
-          fill: true, tension: 0.4, borderWidth: 2.5,
-          pointRadius: 0, pointHoverRadius: 5,
-          pointHoverBackgroundColor: colors.amber, pointHoverBorderColor: '#09090b', pointHoverBorderWidth: 2,
-          yAxisID: 'y1'
-        }
-      ]
-    },
-    options: {
-      ...base,
-      scales: {
-        ...base.scales,
-        y: { ...base.scales.y, position: 'left' },
-        y1: {
-          beginAtZero: true, position: 'right',
-          border: { display: false },
-          grid: { display: false },
-          ticks: { color: colors.text, font: { size: 11 }, padding: 6 }
-        }
-      }
-    } as any
-  })
-}
-
-onMounted(() => {
-  Chart.register(BarController, BarElement, LineController, LineElement, PointElement, Filler, CategoryScale, LinearScale, Tooltip, Legend)
-  renderChart()
-})
-watch(s, () => nextTick(renderChart))
-onBeforeUnmount(() => chart?.destroy())
+onUnmounted(() => { k1?.destroy(); k2?.destroy() })
+useHead({ title: 'Bảng điều khiển - MapDocs Admin' })
 </script>
-
 <template>
-  <section id="admin-overview">
-    <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-white"><AppIcon name="fa-shield-halved" class="mr-2 text-blue-400" />Tổng quan hệ thống</h1>
-      <p class="text-slate-500 text-sm mt-1">Số liệu tổng hợp toàn nền tảng MapDocs.</p>
-    </header>
+  <div>
+    <nav class="flex items-center gap-1.5 text-[12px] text-mdk-mute"><span>Admin</span> / <span class="text-mdk-sub">Bảng điều khiển</span></nav>
+    <h1 class="mt-3 text-[22px] sm:text-[26px] font-bold text-mdk-text font-ui tracking-tight">Bảng điều khiển</h1>
+    <p class="mt-1 text-[13px] text-mdk-mute">Toàn cảnh hoạt động hệ thống MapDocs trong 30 ngày qua.</p>
 
-    <UiSpinner v-if="pending" :size="34" label="Đang tải số liệu..." />
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <DashboardStatCard label="Tổng GMV" :value="money(c.gmv)" icon="solar:dollar-minimalistic-bold-duotone" tone="blue" :spark="ch.gmv" :index="0" />
+      <DashboardStatCard label="Hoa hồng thu được" :value="money(c.commission)" icon="solar:percent-square-bold-duotone" tone="orange" :spark="ch.commission" :index="1" hint="15% mỗi giao dịch" />
+      <DashboardStatCard label="Người dùng" :value="num(c.users)" icon="solar:users-group-rounded-bold-duotone" tone="purple" :spark="ch.users" :index="2" :hint="`${c.sellers || 0} người bán`" to="/admin/nguoi-dung" />
+      <DashboardStatCard label="Tài liệu" :value="num(c.documents_approved)" icon="solar:documents-bold-duotone" tone="green" :spark="ch.documents" :index="3" :hint="`${c.documents_pending || 0} chờ duyệt`" to="/admin/tai-lieu" />
+    </div>
 
-    <template v-else-if="s">
-      <div id="admin-stat-cards" class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <div v-for="(c, i) in cards" :key="c.label"
-          v-motion :initial="{ opacity: 0, y: 14 }"
-          :visible-once="{ opacity: 1, y: 0, transition: { duration: 380, delay: Math.min(i * 55, 300) } }">
-          <DashboardStatCard :label="c.label" :value="c.value" :sub="c.sub" :icon="c.icon" :tone="c.tone" :series="c.series" />
-        </div>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <DashboardStatCard label="Đơn hàng thành công" :value="num(c.orders)" icon="solar:cart-check-bold-duotone" tone="cyan" :spark="ch.orders" :index="4" to="/admin/giao-dich" />
+      <DashboardStatCard label="Khiếu nại đang mở" :value="num(c.reports_open)" icon="solar:flag-bold-duotone" tone="rose" :index="5" to="/admin/khieu-nai" />
+      <DashboardStatCard label="Yêu cầu rút tiền" :value="num(c.withdraw_pending)" icon="solar:card-send-bold-duotone" tone="amber" :index="6" to="/admin/giao-dich" />
+      <DashboardStatCard label="Tổng lượt xem" :value="compact(c.views)" icon="solar:eye-bold-duotone" tone="blue" :index="7" :hint="`${compact(c.downloads)} lượt tải`" />
+    </div>
+
+    <div class="mt-5 grid gap-5 xl:grid-cols-2">
+      <div class="card p-5"><h2 class="text-[15px] font-bold text-mdk-text font-ui">Doanh thu & hoa hồng</h2><p class="mt-0.5 text-[12px] text-mdk-mute">Biến động theo ngày</p><div class="mt-4 h-[260px]"><canvas ref="c1" /></div></div>
+      <div class="card p-5"><h2 class="text-[15px] font-bold text-mdk-text font-ui">Tăng trưởng hệ thống</h2><p class="mt-0.5 text-[12px] text-mdk-mute">Đơn hàng, người dùng và tài liệu mới</p><div class="mt-4 h-[260px]"><canvas ref="c2" /></div></div>
+    </div>
+
+    <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px] items-start">
+      <div class="card overflow-hidden">
+        <div class="px-5 py-4 border-b border-mdk-line"><h2 class="text-[15px] font-bold text-mdk-text font-ui">Tài liệu bán chạy</h2></div>
+        <div class="overflow-x-auto"><table class="tbl"><thead><tr><th>Tài liệu</th><th>Môn</th><th>Giá</th><th>Đã bán</th><th>Đánh giá</th></tr></thead>
+        <tbody><tr v-for="d in data?.top_documents || []" :key="d.id">
+          <td class="max-w-[300px]"><NuxtLink :to="`/tai-lieu/${d.slug}`" class="text-[13px] font-medium text-mdk-text hover:text-primary-300 line-clamp-1">{{ d.title }}</NuxtLink></td>
+          <td><span class="pill-slate text-[11px]">{{ get(d.subject).name }}</span></td>
+          <td class="text-[13px] tabular-nums">{{ d.price ? money(d.price) : 'Miễn phí' }}</td>
+          <td class="text-[13px] tabular-nums">{{ num(d.sold_count) }}</td>
+          <td><UiRating :value="d.rating_avg" :size="12" /></td>
+        </tr></tbody></table></div>
       </div>
-
-      <div class="card p-5 mb-6">
-        <h2 class="font-bold text-slate-800 mb-4"><AppIcon name="fa-chart-line" class="text-accent-500 mr-2" />Doanh thu &amp; đơn hàng 6 tháng gần nhất</h2>
-        <div class="h-72"><canvas ref="chartEl" /></div>
-      </div>
-
       <div class="card p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-slate-800"><AppIcon name="fa-trophy" variant="bold" class="text-amber-500 mr-2" />Top 8 tài liệu bán chạy</h2>
-          <NuxtLink to="/admin/tai-lieu" class="link text-sm">Quản lý tài liệu</NuxtLink>
+        <h2 class="text-[15px] font-bold text-mdk-text font-ui">Top người bán</h2>
+        <div class="mt-4 space-y-3.5">
+          <div v-for="(s, i) in data?.top_sellers || []" :key="s.id" class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-md grid place-items-center text-[11px] font-bold" :class="i === 0 ? 'bg-amber-400 text-amber-950' : 'bg-mdk-line text-mdk-sub'">{{ i + 1 }}</span>
+            <UiAvatar :name="s.name" :size="32" />
+            <div class="min-w-0 flex-1"><p class="text-[13px] font-medium text-mdk-text truncate">{{ s.name }}</p><p class="text-[11.5px] text-mdk-mute tabular-nums">{{ money(s.revenue) }}</p></div>
+          </div>
         </div>
-        <UiEmpty v-if="!s.top?.length" icon="fa-chart-simple" title="Chưa có dữ liệu bán hàng" />
-        <div v-else class="overflow-x-auto -mx-5 px-5">
-          <table class="w-full text-sm min-w-[620px]">
-            <thead><tr class="text-left border-b border-slate-100 bg-slate-50/60">
-              <th class="table-th">#</th><th class="table-th">Tài liệu</th><th class="table-th">Môn</th>
-              <th class="table-th text-right">Giá</th><th class="table-th text-right">Lượt bán</th><th class="table-th text-right">Doanh thu</th>
-            </tr></thead>
-            <tbody>
-              <tr v-for="(d, i) in s.top" :key="d.id" class="table-row">
-                <td class="table-td font-bold text-slate-400">{{ i + 1 }}</td>
-                <td class="table-td">
-                  <NuxtLink :to="`/tai-lieu/${d.slug}`" class="font-medium text-slate-800 hover:text-primary-900 line-clamp-1 max-w-sm block">{{ d.title }}</NuxtLink>
-                </td>
-                <td class="table-td"><span class="badge" :class="[meta(d.subject).bg, meta(d.subject).text]">{{ meta(d.subject).label }}</span></td>
-                <td class="table-td text-right">{{ currency(d.price) }}</td>
-                <td class="table-td text-right font-semibold">{{ number(d.sold_count) }}</td>
-                <td class="table-td text-right font-bold text-primary-900">{{ currency(d.revenue) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="mt-5 pt-4 border-t border-mdk-line">
+          <p class="text-[12px] font-bold text-mdk-mute uppercase tracking-wider">Tài liệu theo môn</p>
+          <div class="mt-3 space-y-2">
+            <div v-for="b in data?.by_subject || []" :key="b.subject" class="flex items-center gap-2.5 text-[12px]">
+              <span class="w-16 text-mdk-sub truncate">{{ get(b.subject).name }}</span>
+              <div class="flex-1 h-1.5 rounded-full bg-mdk-line overflow-hidden"><div class="h-full rounded-full" :style="{ width: `${(b.count / Math.max(1, data.by_subject[0].count)) * 100}%`, background: get(b.subject).from }" /></div>
+              <span class="w-6 text-right text-mdk-mute tabular-nums">{{ b.count }}</span>
+            </div>
+          </div>
         </div>
       </div>
-    </template>
-  </section>
+    </div>
+  </div>
 </template>

@@ -1,31 +1,32 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-useSeoMeta({ title: 'Tài liệu yêu thích - MapDocs' })
-
-const { data, pending } = await useAsyncData('favorites', () => $fetch<any>('/api/user/favorites'))
+const { money, num, dateTime, ago } = useFormat()
+const { statusPill, orderPill, txLabel } = useSubjects()
+const page = ref(1)
+const { data, pending } = await useFetch<any>('/api/user/favorites', { query: computed(() => ({ page: page.value, limit: 12, sort: 'new' })) })
+useHead({ title: 'Yêu thích - MapDocs' })
 </script>
-
 <template>
-  <section id="favorites-page">
-    <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-heart" variant="bold" class="text-red-500 mr-2" />Tài liệu yêu thích</h1>
-      <p class="text-slate-500 text-sm mt-1">
-        {{ data?.data?.total || 0 }} tài liệu đã được bạn lưu lại để xem sau.
-      </p>
-    </header>
-
-    <div v-if="pending" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      <DocumentDocSkeleton :count="6" />
+  <div>
+    <nav class="flex items-center gap-1.5 text-[12px] text-mdk-mute"><NuxtLink to="/dashboard" class="hover:text-mdk-sub">Dashboard</NuxtLink> / <span class="text-mdk-sub">Yêu thích</span></nav>
+    <h1 class="mt-3 text-[22px] font-bold text-mdk-text font-ui tracking-tight">Yêu thích</h1>
+    <p class="mt-1 text-[13px] text-mdk-mute">Tổng {{ data?.total || 0 }} bản ghi</p>
+    <div class="mt-6 card overflow-hidden">
+      <slot />
+      <div class="overflow-x-auto"><table class="tbl"><thead><tr><th>Nội dung</th><th>Thông tin</th><th>Thời gian</th></tr></thead>
+      <tbody>
+        <tr v-for="it in data?.items || []" :key="it.id">
+          <td class="text-[13px] text-mdk-text max-w-[380px]"><span class="line-clamp-1">{{ it.title || it.document?.title || it.note || it.code || it.id }}</span></td>
+          <td class="text-[13px] tabular-nums">{{ it.amount !== undefined ? money(it.amount) : it.price !== undefined ? (it.price ? money(it.price) : 'Miễn phí') : '—' }}</td>
+          <td class="text-[12.5px] text-mdk-mute whitespace-nowrap">{{ ago(it.created_at) }}</td>
+        </tr>
+      </tbody></table></div>
+      <UiEmpty v-if="!pending && !data?.items?.length" compact title="Chưa có dữ liệu" description="Dữ liệu sẽ xuất hiện khi bạn bắt đầu sử dụng." />
     </div>
-
-    <template v-else-if="data?.data">
-      <UiEmpty v-if="!data.data.items.length" icon="fa-heart-crack" title="Chưa có tài liệu yêu thích"
-        desc="Nhấn biểu tượng trái tim ở trang chi tiết tài liệu để lưu lại cho lần sau.">
-        <NuxtLink to="/tai-lieu" class="btn btn-primary"><AppIcon name="fa-book-open" class="mr-2" />Khám phá thư viện</NuxtLink>
-      </UiEmpty>
-      <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <DocumentDocCard v-for="(d, i) in data.data.items" :key="d.id" :doc="d" :index="i" />
-      </div>
-    </template>
-  </section>
+    <div v-if="(data?.pages || 1) > 1" class="mt-6 flex items-center justify-center gap-2">
+      <button class="btn-outline btn-sm" :disabled="page <= 1" @click="page--">Trước</button>
+      <span class="text-[13px] text-mdk-sub px-2">{{ page }} / {{ data?.pages }}</span>
+      <button class="btn-outline btn-sm" :disabled="page >= (data?.pages || 1)" @click="page++">Sau</button>
+    </div>
+  </div>
 </template>

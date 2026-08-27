@@ -1,10 +1,17 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ size?: number; label?: string }>(), { size: 28, label: '' })
+withDefaults(defineProps<{ size?: number; class?: string }>(), { size: 20 })
 </script>
+
 <template>
-  <div class="flex flex-col items-center justify-center gap-2 py-6">
-    <span class="inline-block rounded-full border-[3px] border-slate-200 border-t-primary-900 animate-spin"
-      :style="{ width: size + 'px', height: size + 'px' }" />
-    <span v-if="label" class="text-sm text-slate-500">{{ label }}</span>
-  </div>
+  <svg
+    :width="size"
+    :height="size"
+    viewBox="0 0 24 24"
+    fill="none"
+    class="animate-spin"
+    :class="$props.class"
+  >
+    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.4" opacity=".2" />
+    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+  </svg>
 </template>

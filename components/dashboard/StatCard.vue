@@ -1,139 +1,108 @@
 <script setup lang="ts">
-/**
- * StatCard — the thong ke kieu thegioidev.com:
- * nen toi, icon goc phai, sparkline gradient o day the.
- */
 const props = withDefaults(
   defineProps<{
     label: string
     value: string | number
-    sub?: string
-    icon?: string
-    /** Tone mau: quyet dinh mau sparkline + icon */
-    tone?: 'blue' | 'green' | 'amber' | 'violet' | 'rose' | 'cyan'
-    /** Chuoi so de ve sparkline. Neu bo trong se sinh duong on dinh theo label */
-    series?: number[]
+    icon: string
+    tone?: 'blue' | 'green' | 'orange' | 'purple' | 'rose' | 'cyan' | 'amber'
+    spark?: number[]
+    hint?: string
+    delta?: number
+    to?: string
+    index?: number
   }>(),
-  { icon: 'fa-chart-simple', tone: 'blue', sub: '' }
+  { tone: 'blue', index: 0 }
 )
 
-const TONES = {
-  blue: { line: '#3b82f6', from: 'rgba(59,130,246,.35)', icon: 'from-blue-500 to-blue-700' },
-  green: { line: '#22c55e', from: 'rgba(34,197,94,.35)', icon: 'from-emerald-500 to-emerald-700' },
-  amber: { line: '#f59e0b', from: 'rgba(245,158,11,.35)', icon: 'from-amber-500 to-orange-600' },
-  violet: { line: '#a855f7', from: 'rgba(168,85,247,.35)', icon: 'from-violet-500 to-purple-700' },
-  rose: { line: '#f43f5e', from: 'rgba(244,63,94,.35)', icon: 'from-rose-500 to-rose-700' },
-  cyan: { line: '#06b6d4', from: 'rgba(6,182,212,.35)', icon: 'from-cyan-500 to-sky-700' }
-} as const
+const TONES: Record<string, { bg: string; fg: string; line: string }> = {
+  blue: { bg: 'rgba(59,130,246,.14)', fg: '#60a5fa', line: '#3b82f6' },
+  green: { bg: 'rgba(16,185,129,.14)', fg: '#34d399', line: '#10b981' },
+  orange: { bg: 'rgba(249,115,22,.14)', fg: '#fb923c', line: '#f97316' },
+  purple: { bg: 'rgba(139,92,246,.14)', fg: '#a78bfa', line: '#8b5cf6' },
+  rose: { bg: 'rgba(244,63,94,.14)', fg: '#fb7185', line: '#f43f5e' },
+  cyan: { bg: 'rgba(6,182,212,.14)', fg: '#22d3ee', line: '#06b6d4' },
+  amber: { bg: 'rgba(245,158,11,.14)', fg: '#fbbf24', line: '#f59e0b' }
+}
 
 const t = computed(() => TONES[props.tone] || TONES.blue)
+const uid = 'sp' + Math.random().toString(36).slice(2, 9)
 
-/** ID duy nhat cho gradient SVG (tranh trung khi co nhieu the) */
-const uid = Math.random().toString(36).slice(2, 9)
-
-/** Duong sparkline on dinh (hash tu label) khi khong truyen series */
-const points = computed<number[]>(() => {
-  if (props.series?.length) return props.series
-  let seed = 0
-  for (const c of props.label) seed = (seed * 31 + c.charCodeAt(0)) % 9973
-  const out: number[] = []
-  let v = 40 + (seed % 20)
-  for (let i = 0; i < 12; i++) {
-    seed = (seed * 1103515245 + 12345) % 2147483648
-    v = Math.max(12, Math.min(88, v + ((seed % 33) - 13)))
-    out.push(v)
-  }
-  return out
+const series = computed(() => {
+  const raw = props.spark?.length ? props.spark : []
+  if (raw.length >= 2) return raw
+  return Array.from({ length: 22 }, (_, i) => 40 + Math.sin(i * 0.72) * 18 + (i % 4) * 5)
 })
 
-const W = 260
-const H = 46
-
-/** SVG path smooth cho duong + vung fill */
-const paths = computed(() => {
-  const arr = points.value.length > 1 ? points.value : [30, 30]
-  const max = Math.max(...arr, 1)
-  const min = Math.min(...arr, 0)
+const path = computed(() => {
+  const d = series.value
+  const w = 100
+  const h = 30
+  const max = Math.max(...d, 1)
+  const min = Math.min(...d, 0)
   const span = max - min || 1
-  const step = W / Math.max(arr.length - 1, 1)
-  const xy = arr.map((p, i) => [i * step, H - 4 - ((p - min) / span) * (H - 10)] as [number, number])
+  const pts = d.map((v, i) => {
+    const x = (i / Math.max(1, d.length - 1)) * w
+    const y = h - ((v - min) / span) * (h - 4) - 2
+    return [x, y] as [number, number]
+  })
 
-  let d = `M ${xy[0][0]} ${xy[0][1]}`
-  for (let i = 1; i < xy.length; i++) {
-    const [px, py] = xy[i - 1]
-    const [cx, cy] = xy[i]
+  let line = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`
+  for (let i = 1; i < pts.length; i++) {
+    const [px, py] = pts[i - 1]
+    const [cx, cy] = pts[i]
     const mx = (px + cx) / 2
-    d += ` C ${mx} ${py}, ${mx} ${cy}, ${cx} ${cy}`
+    line += ` C ${mx.toFixed(2)} ${py.toFixed(2)} ${mx.toFixed(2)} ${cy.toFixed(2)} ${cx.toFixed(2)} ${cy.toFixed(2)}`
   }
-  return { line: d, area: `${d} L ${W} ${H} L 0 ${H} Z` }
+  return { line, area: `${line} L ${w} ${h} L 0 ${h} Z` }
 })
+
+const Tag = computed(() => (props.to ? resolveComponent('NuxtLink') : 'div'))
 </script>
 
 <template>
-  <div class="stat">
-    <div class="flex items-start gap-3">
-      <div class="min-w-0 flex-1">
-        <p class="text-xs font-medium text-[#a1a1aa]">{{ label }}</p>
-        <p class="mt-1 truncate text-xl font-extrabold tracking-tight text-white">{{ value }}</p>
-        <p v-if="sub" class="mt-0.5 truncate text-[11px] text-[#71717a]">{{ sub }}</p>
-      </div>
-      <span class="stat__icon bg-gradient-to-br" :class="t.icon">
-        <AppIcon :name="icon" />
+  <component
+    :is="Tag"
+    :to="to"
+    class="stat-card group block"
+    v-motion
+    :initial="{ opacity: 0, y: 14 }"
+    :enter="{ opacity: 1, y: 0, transition: { delay: 60 + index * 70, duration: 420 } }"
+  >
+    <div class="relative z-10 flex items-start justify-between gap-3">
+      <p class="text-[11.5px] font-medium text-mdk-mute leading-snug">{{ label }}</p>
+      <span
+        class="shrink-0 w-9 h-9 rounded-[10px] grid place-items-center transition-transform group-hover:scale-105"
+        :style="{ background: t.bg, color: t.fg }"
+      >
+        <AppIcon :name="icon" size="19" />
       </span>
     </div>
 
-    <!-- Sparkline gradient -->
-    <svg class="stat__spark" :viewBox="`0 0 ${W} ${H}`" preserveAspectRatio="none" aria-hidden="true">
+    <p class="relative z-10 mt-2.5 text-[26px] leading-none font-bold text-mdk-text font-ui tracking-tight tabular-nums">
+      {{ value }}
+    </p>
+
+    <div class="relative z-10 mt-2 flex items-center gap-2 min-h-[18px]">
+      <span
+        v-if="delta !== undefined"
+        class="inline-flex items-center gap-0.5 text-[11px] font-semibold"
+        :class="delta >= 0 ? 'text-emerald-400' : 'text-rose-400'"
+      >
+        <AppIcon :name="delta >= 0 ? 'solar:arrow-right-up-linear' : 'solar:arrow-right-down-linear'" size="13" />
+        {{ Math.abs(delta) }}%
+      </span>
+      <span v-if="hint" class="text-[11px] text-mdk-mute truncate">{{ hint }}</span>
+    </div>
+
+    <svg class="stat-spark" viewBox="0 0 100 30" preserveAspectRatio="none">
       <defs>
-        <linearGradient :id="`sp-${uid}`" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" :stop-color="t.from" />
-          <stop offset="100%" stop-color="rgba(0,0,0,0)" />
+        <linearGradient :id="uid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" :stop-color="t.line" stop-opacity=".28" />
+          <stop offset="100%" :stop-color="t.line" stop-opacity="0" />
         </linearGradient>
       </defs>
-      <path :d="paths.area" :fill="`url(#sp-${uid})`" />
-      <path :d="paths.line" fill="none" :stroke="t.line" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <path :d="path.area" :fill="`url(#${uid})`" />
+      <path :d="path.line" fill="none" :stroke="t.line" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity=".92" />
     </svg>
-  </div>
+  </component>
 </template>
-
-<style scoped>
-.stat {
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-  border: 1px solid #27272a;
-  background: #18181b;
-  padding: 1.125rem 1.125rem 2.75rem;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-}
-.stat:hover {
-  transform: translateY(-2px);
-  border-color: #3f3f46;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
-}
-.stat__icon {
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: 0.625rem;
-  color: #fff;
-  font-size: 0.95rem;
-  transition: transform 0.18s ease;
-}
-.stat:hover .stat__icon { transform: scale(1.08); }
-.stat__spark {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 46px;
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .stat:hover { transform: none; }
-  .stat:hover .stat__icon { transform: none; }
-}
-</style>

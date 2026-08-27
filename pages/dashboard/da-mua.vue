@@ -1,70 +1,32 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-useSeoMeta({ title: 'Tài liệu đã mua - MapDocs' })
-
-const ui = useUiStore()
-const { currency, dateTime, fileSize } = useFormat()
-const { meta } = useSubjects()
+const { money, num, dateTime, ago } = useFormat()
+const { statusPill, orderPill, txLabel } = useSubjects()
 const page = ref(1)
-
-const { data, pending, refresh } = await useAsyncData('orders',
-  () => $fetch<any>('/api/orders', { query: { page: page.value, limit: 10 } }),
-  { watch: [page] })
-
-const downloading = ref<string | null>(null)
-async function download(docId: string) {
-  downloading.value = docId
-  try {
-    const res: any = await $fetch(`/api/documents/${docId}/download`, { method: 'POST' })
-    ui.success(res.message || 'Bắt đầu tải tài liệu')
-    refresh()
-  } catch (e: any) {
-    ui.error(e?.data?.statusMessage || 'Không thể tải tài liệu')
-  } finally { downloading.value = null }
-}
+const { data, pending } = await useFetch<any>('/api/orders', { query: computed(() => ({ page: page.value, limit: 12, role: 'buyer', status: 'paid' })) })
+useHead({ title: 'Kho của tôi - MapDocs' })
 </script>
-
 <template>
-  <section id="purchased-page">
-    <header class="mb-6">
-      <h1 class="text-2xl font-extrabold text-slate-800"><AppIcon name="fa-bag-shopping" class="text-accent-500 mr-2" />Tài liệu đã mua</h1>
-      <p class="text-slate-500 text-sm mt-1">Danh sách tài liệu bạn đã thanh toán. Tải về không giới hạn số lần.</p>
-    </header>
-
-    <UiSpinner v-if="pending" :size="34" label="Đang tải đơn hàng..." />
-
-    <template v-else-if="data?.data">
-      <UiEmpty v-if="!data.data.items.length" icon="fa-cart-shopping" title="Bạn chưa mua tài liệu nào"
-        desc="Khám phá thư viện hơn 30.000 tài liệu chất lượng cao từ giáo viên trên cả nước.">
-        <NuxtLink to="/tai-lieu" class="btn btn-primary"><AppIcon name="fa-book-open" class="mr-2" />Khám phá thư viện</NuxtLink>
-      </UiEmpty>
-
-      <div v-else class="space-y-3">
-        <article v-for="o in data.data.items" :key="o.id" class="card p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-          <span class="w-14 h-14 rounded-xl bg-gradient-to-br grid place-items-center text-white shrink-0 text-xl" :class="meta(o.document?.subject).gradient">
-            <AppIcon :name="meta(o.document?.subject).icon" />
-          </span>
-          <div class="flex-1 min-w-0">
-            <NuxtLink :to="`/tai-lieu/${o.document?.slug}`" class="font-semibold text-slate-800 hover:text-primary-900 line-clamp-1">
-              {{ o.document?.title || 'Tài liệu đã bị gỡ' }}
-            </NuxtLink>
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-1.5">
-              <span><AppIcon name="fa-hashtag" class="mr-1" />{{ o.code }}</span>
-              <span><AppIcon name="fa-clock" class="mr-1" />{{ dateTime(o.created_at) }}</span>
-              <span><AppIcon name="fa-credit-card" class="mr-1" />{{ o.payment_method === 'wallet' ? 'Ví MapDocs' : o.payment_method?.toUpperCase() }}</span>
-              <span v-if="o.document?.file_size"><AppIcon name="fa-file" class="mr-1" />{{ o.document.file_type?.toUpperCase() }} · {{ fileSize(o.document.file_size) }}</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 sm:flex-col sm:items-end">
-            <span class="font-bold text-accent-500">{{ currency(o.amount) }}</span>
-            <button class="btn btn-primary btn-sm" :disabled="downloading === o.document_id || !o.document" @click="download(o.document_id)">
-              <AppIcon :name="downloading === o.document_id ? 'fa-spinner fa-spin' : 'fa-download'" class="mr-2" />Tải xuống
-            </button>
-          </div>
-        </article>
-
-        <UiPagination :page="page" :total-pages="data.data.totalPages" @change="(p:number) => (page = p)" />
-      </div>
-    </template>
-  </section>
+  <div>
+    <nav class="flex items-center gap-1.5 text-[12px] text-mdk-mute"><NuxtLink to="/dashboard" class="hover:text-mdk-sub">Dashboard</NuxtLink> / <span class="text-mdk-sub">Kho của tôi</span></nav>
+    <h1 class="mt-3 text-[22px] font-bold text-mdk-text font-ui tracking-tight">Kho của tôi</h1>
+    <p class="mt-1 text-[13px] text-mdk-mute">Tổng {{ data?.total || 0 }} bản ghi</p>
+    <div class="mt-6 card overflow-hidden">
+      <slot />
+      <div class="overflow-x-auto"><table class="tbl"><thead><tr><th>Nội dung</th><th>Thông tin</th><th>Thời gian</th></tr></thead>
+      <tbody>
+        <tr v-for="it in data?.items || []" :key="it.id">
+          <td class="text-[13px] text-mdk-text max-w-[380px]"><span class="line-clamp-1">{{ it.title || it.document?.title || it.note || it.code || it.id }}</span></td>
+          <td class="text-[13px] tabular-nums">{{ it.amount !== undefined ? money(it.amount) : it.price !== undefined ? (it.price ? money(it.price) : 'Miễn phí') : '—' }}</td>
+          <td class="text-[12.5px] text-mdk-mute whitespace-nowrap">{{ ago(it.created_at) }}</td>
+        </tr>
+      </tbody></table></div>
+      <UiEmpty v-if="!pending && !data?.items?.length" compact title="Chưa có dữ liệu" description="Dữ liệu sẽ xuất hiện khi bạn bắt đầu sử dụng." />
+    </div>
+    <div v-if="(data?.pages || 1) > 1" class="mt-6 flex items-center justify-center gap-2">
+      <button class="btn-outline btn-sm" :disabled="page <= 1" @click="page--">Trước</button>
+      <span class="text-[13px] text-mdk-sub px-2">{{ page }} / {{ data?.pages }}</span>
+      <button class="btn-outline btn-sm" :disabled="page >= (data?.pages || 1)" @click="page++">Sau</button>
+    </div>
+  </div>
 </template>

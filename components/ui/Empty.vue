@@ -1,13 +1,27 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ icon?: string; title?: string; desc?: string }>(), { icon: 'fa-inbox', title: 'Chưa có dữ liệu', desc: '' })
+withDefaults(
+  defineProps<{
+    icon?: string
+    title?: string
+    description?: string
+    compact?: boolean
+  }>(),
+  {
+    icon: 'solar:box-minimalistic-bold-duotone',
+    title: 'Chưa có dữ liệu'
+  }
+)
 </script>
+
 <template>
-  <div class="flex flex-col items-center justify-center text-center py-14 px-4">
-    <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-      <AppIcon :name="icon" class="text-3xl text-slate-400" />
+  <div class="flex flex-col items-center justify-center text-center" :class="compact ? 'py-10 px-4' : 'py-16 px-6'">
+    <div class="w-16 h-16 rounded-2xl grid place-items-center bg-mdk-line/60 text-mdk-mute mb-4">
+      <AppIcon :name="icon" size="30" />
     </div>
-    <h3 class="font-semibold text-slate-700 text-lg">{{ title }}</h3>
-    <p v-if="desc" class="text-sm text-slate-500 mt-1 max-w-md">{{ desc }}</p>
-    <div class="mt-5"><slot /></div>
+    <p class="text-[15px] font-semibold text-slate-800 font-ui">{{ title }}</p>
+    <p v-if="description" class="mt-1.5 text-[13px] text-slate-500 max-w-sm leading-relaxed">{{ description }}</p>
+    <div v-if="$slots.default" class="mt-5">
+      <slot />
+    </div>
   </div>
 </template>

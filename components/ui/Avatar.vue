@@ -1,14 +1,62 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ name?: string; src?: string; size?: number }>(), { name: '', size: 40 })
-const COLORS = ['#0b4a8f', '#ff8412', '#16a34a', '#7c3aed', '#dc2626', '#0891b2', '#db2777', '#b45309']
-const initials = computed(() => (props.name || '?').trim().split(/\s+/).slice(-2).map((w) => w[0]).join('').toUpperCase())
-const bg = computed(() => {
-  const s = (props.name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  return COLORS[s % COLORS.length]
+const props = withDefaults(
+  defineProps<{
+    name?: string
+    src?: string
+    size?: number
+    online?: boolean
+    ring?: boolean
+  }>(),
+  { size: 36 }
+)
+
+const { initials } = useFormat()
+
+const PALETTE = [
+  ['#3b82f6', '#1d4ed8'],
+  ['#8b5cf6', '#6d28d9'],
+  ['#10b981', '#047857'],
+  ['#f97316', '#c2410c'],
+  ['#f43f5e', '#be123c'],
+  ['#06b6d4', '#0e7490'],
+  ['#f59e0b', '#b45309'],
+  ['#22c55e', '#15803d']
+]
+
+const tone = computed(() => {
+  const s = String(props.name || '?')
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997
+  return PALETTE[h % PALETTE.length]
 })
+
+const fontSize = computed(() => Math.max(10, Math.round(props.size * 0.38)))
 </script>
+
 <template>
-  <img v-if="src" :src="src" :alt="name" class="rounded-full object-cover shrink-0" :style="{ width: size + 'px', height: size + 'px' }" />
-  <span v-else class="rounded-full flex items-center justify-center text-white font-semibold shrink-0 select-none"
-    :style="{ width: size + 'px', height: size + 'px', background: bg, fontSize: size * 0.4 + 'px' }">{{ initials }}</span>
+  <span class="relative inline-flex shrink-0" :style="{ width: `${size}px`, height: `${size}px` }">
+    <img
+      v-if="src"
+      :src="src"
+      :alt="name || 'avatar'"
+      class="w-full h-full rounded-full object-cover"
+      :class="ring ? 'ring-2 ring-white/15' : ''"
+    />
+    <span
+      v-else
+      class="w-full h-full rounded-full grid place-items-center font-semibold text-white select-none"
+      :class="ring ? 'ring-2 ring-white/15' : ''"
+      :style="{
+        background: `linear-gradient(135deg, ${tone[0]}, ${tone[1]})`,
+        fontSize: `${fontSize}px`
+      }"
+    >
+      {{ initials(name) }}
+    </span>
+    <span
+      v-if="online"
+      class="absolute bottom-0 right-0 rounded-full bg-emerald-500 border-2 border-mdk-bg"
+      :style="{ width: `${Math.max(8, size * 0.28)}px`, height: `${Math.max(8, size * 0.28)}px` }"
+    />
+  </span>
 </template>

@@ -1,134 +1,54 @@
 <script setup lang="ts">
-import {
-  DialogRoot,
-  DialogPortal,
-  DialogOverlay,
-  DialogContent,
-  DialogTitle,
-  DialogClose
-} from 'radix-vue'
+import { DialogRoot, DialogPortal, DialogOverlay, DialogContent, DialogTitle, DialogDescription, DialogClose } from 'radix-vue'
 
 const props = withDefaults(
   defineProps<{
-    modelValue: boolean
+    open: boolean
     title?: string
+    description?: string
     width?: string
-    /** false = khong cho dong bang ESC / click overlay */
-    dismissible?: boolean
+    dark?: boolean
   }>(),
-  { title: '', width: 'max-w-lg', dismissible: true }
+  { width: 'max-w-lg', dark: true }
 )
 
-const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
-
-const open = computed({
-  get: () => props.modelValue,
-  set: (v: boolean) => emit('update:modelValue', v)
-})
-
-const guard = (e: Event) => {
-  if (!props.dismissible) e.preventDefault()
-}
+const emit = defineEmits<{ 'update:open': [boolean] }>()
 </script>
 
 <template>
-  <DialogRoot v-model:open="open">
+  <DialogRoot :open="open" @update:open="emit('update:open', $event)">
     <DialogPortal>
-      <DialogOverlay class="ms-overlay" />
+      <DialogOverlay class="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm animate-fade-in" />
       <DialogContent
-        class="ms-dialog"
-        :class="width"
-        @escape-key-down="guard"
-        @pointer-down-outside="guard"
+        class="fixed left-1/2 top-1/2 z-[101] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border shadow-2xl animate-scale-in max-h-[88vh] overflow-y-auto"
+        :class="[
+          width,
+          dark ? 'bg-mdk-panel border-mdk-line text-mdk-text' : 'bg-white border-slate-200 text-slate-800'
+        ]"
       >
-        <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-line">
-          <DialogTitle class="font-bold text-ink text-base leading-6">
-            <slot name="title">{{ title }}</slot>
-          </DialogTitle>
+        <div class="flex items-start justify-between gap-4 px-5 pt-5 pb-3">
+          <div class="min-w-0">
+            <DialogTitle v-if="title" class="text-base font-semibold font-ui" :class="dark ? 'text-mdk-text' : 'text-slate-900'">
+              {{ title }}
+            </DialogTitle>
+            <DialogDescription v-if="description" class="mt-1 text-[13px] leading-relaxed" :class="dark ? 'text-mdk-sub' : 'text-slate-500'">
+              {{ description }}
+            </DialogDescription>
+          </div>
           <DialogClose
-            class="w-8 h-8 shrink-0 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100 hover:text-ink transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-900/30"
-            aria-label="Đóng"
+            class="shrink-0 w-8 h-8 grid place-items-center rounded-lg transition"
+            :class="dark ? 'text-mdk-mute hover:text-mdk-text hover:bg-mdk-line' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'"
           >
-            <AppIcon name="fa-xmark" />
+            <AppIcon name="solar:close-circle-linear" size="19" />
           </DialogClose>
         </div>
-
-        <div class="px-5 py-4 overflow-y-auto">
+        <div class="px-5 pb-5">
           <slot />
         </div>
-
-        <div
-          v-if="$slots.footer"
-          class="px-5 py-4 border-t border-line flex flex-wrap justify-end gap-2 bg-surface rounded-b-2xl"
-        >
+        <div v-if="$slots.footer" class="px-5 py-4 border-t" :class="dark ? 'border-mdk-line bg-mdk-soft/40' : 'border-slate-200 bg-slate-50/60'">
           <slot name="footer" />
         </div>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
 </template>
-
-<style>
-/* Overlay: mo + blur nhe */
-.ms-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.ms-overlay[data-state='open'] {
-  animation: ms-fade-in 0.18s ease-out;
-}
-.ms-overlay[data-state='closed'] {
-  animation: ms-fade-out 0.15s ease-in;
-}
-
-/* Content: scale + fade */
-.ms-dialog {
-  position: fixed;
-  z-index: 95;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 2rem);
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
-  outline: none;
-}
-.ms-dialog[data-state='open'] {
-  animation: ms-dialog-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.ms-dialog[data-state='closed'] {
-  animation: ms-dialog-out 0.15s ease-in;
-}
-
-@keyframes ms-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes ms-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-@keyframes ms-dialog-in {
-  from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-@keyframes ms-dialog-out {
-  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  to { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ms-overlay[data-state],
-  .ms-dialog[data-state] {
-    animation: none !important;
-  }
-}
-</style>

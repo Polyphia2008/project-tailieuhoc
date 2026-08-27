@@ -1,110 +1,63 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 definePageMeta({ layout: 'auth' })
 const auth = useAuthStore()
-const ui = useUiStore()
 const route = useRoute()
-const form = reactive({ email: '', password: '' })
-const showPw = ref(false)
+const router = useRouter()
+const email = ref('')
+const password = ref('')
+const show = ref(false)
 const busy = ref(false)
 
-onMounted(() => { if (route.query.error) ui.error(String(route.query.error)) })
-
 async function submit() {
-  if (!form.email || !form.password) return ui.error('Vui lòng nhập đầy đủ email và mật khẩu')
   busy.value = true
   try {
-    const res = await auth.login(form.email, form.password)
-    ui.success(res?.message || 'Đăng nhập thành công')
-    await navigateTo(String(route.query.redirect || '/'))
-  } catch (e: any) {
-    ui.error(e?.data?.statusMessage || 'Đăng nhập thất bại')
-  } finally { busy.value = false }
+    const u = await auth.login(email.value, password.value)
+    toast.success(`Chào mừng trở lại, ${u.name}!`)
+    await router.push(String(route.query.next || (u.role === 'admin' ? '/admin' : '/dashboard')))
+  } catch (e: any) { toast.error(e?.data?.statusMessage || 'Đăng nhập thất bại') } finally { busy.value = false }
 }
-const fill = (email: string) => { form.email = email; form.password = '123456' }
-const demoAccounts = ['admin@mapdocs.vn', 'seller@mapdocs.vn', 'user@mapdocs.vn']
-useSeoMeta({ title: 'Đăng nhập - MapDocs' })
+function demo(e: string) { email.value = e; password.value = '123456' }
+useHead({ title: 'Đăng nhập - MapDocs' })
 </script>
-
 <template>
-  <div id="login-page">
-    <h1 class="auth-title">Đăng nhập</h1>
-    <p class="auth-sub">Chào mừng bạn quay lại MapDocs!</p>
-
-    <form class="space-y-4" @submit.prevent="submit">
+  <div>
+    <h1 class="text-[26px] font-extrabold text-white font-ui tracking-tight">Đăng nhập</h1>
+    <p class="mt-2 text-[13.5px] text-zinc-500">Chưa có tài khoản? <NuxtLink to="/auth/dang-ky" class="text-primary-400 hover:text-primary-300 font-medium">Đăng ký miễn phí</NuxtLink></p>
+    <form class="mt-7 space-y-4" @submit.prevent="submit">
       <div>
-        <label class="label" for="login-email">Email</label>
-        <div class="auth-field">
-          <AppIcon name="fa-envelope" class="auth-field__icon" />
-          <input id="login-email" v-model="form.email" type="email" autocomplete="email"
-            class="input pl-11" placeholder="email@example.com" />
+        <label class="label">Email</label>
+        <div class="relative">
+          <AppIcon name="solar:letter-linear" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
+          <input v-model="email" type="email" required placeholder="ban@email.com" class="input pl-10" />
         </div>
       </div>
       <div>
-        <label class="label" for="login-password">Mật khẩu</label>
-        <div class="auth-field">
-          <AppIcon name="fa-lock" class="auth-field__icon" />
-          <input id="login-password" v-model="form.password" :type="showPw ? 'text' : 'password'"
-            autocomplete="current-password" class="input pl-11 pr-11" placeholder="••••••••" />
-          <button type="button" class="auth-field__toggle"
-            :aria-label="showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" @click="showPw = !showPw">
-            <AppIcon :name="showPw ? 'fa-eye-slash' : 'fa-eye'" />
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="label mb-0">Mật khẩu</label>
+          <NuxtLink to="/auth/quen-mat-khau" class="text-[12px] text-primary-400 hover:text-primary-300">Quên mật khẩu?</NuxtLink>
+        </div>
+        <div class="relative">
+          <AppIcon name="solar:lock-password-linear" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
+          <input v-model="password" :type="show ? 'text' : 'password'" required placeholder="••••••••" class="input pl-10 pr-10" />
+          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-mdk-mute hover:text-mdk-text" @click="show = !show">
+            <AppIcon :name="show ? 'solar:eye-closed-linear' : 'solar:eye-linear'" size="16" />
           </button>
         </div>
       </div>
-      <div class="flex justify-end">
-        <NuxtLink to="/auth/quen-mat-khau" class="link text-sm">Quên mật khẩu?</NuxtLink>
-      </div>
-      <button type="submit" class="btn btn-primary w-full h-11" :disabled="busy">
-        <AppIcon v-if="busy" name="fa-spinner" class="mr-2 animate-spin" />
-        <AppIcon v-else name="fa-right-to-bracket" class="mr-2" />Đăng nhập
+      <button type="submit" class="btn-primary w-full btn-lg" :disabled="busy">
+        <UiSpinner v-if="busy" :size="17" /> Đăng nhập
       </button>
     </form>
-
-    <div class="auth-divider"><span>HOẶC</span></div>
-
-    <a href="/api/auth/google" class="btn btn-google w-full h-11">
-      <AppIcon name="fa-google-brand" class="mr-2 text-base" />Đăng nhập bằng Google
-    </a>
-
-    <p class="text-center text-sm text-ink-soft mt-6">
-      Chưa có tài khoản? <NuxtLink to="/auth/dang-ky" class="link font-semibold">Đăng ký ngay</NuxtLink>
-    </p>
-
-    <div class="demo-box">
-      <p class="font-semibold mb-2 text-primary-900">
-        <AppIcon name="fa-circle-info" class="mr-1" />Tài khoản demo (mật khẩu: 123456)
-      </p>
-      <div class="flex flex-wrap gap-2">
-        <button v-for="e in demoAccounts" :key="e" type="button" class="demo-chip" @click="fill(e)">{{ e }}</button>
+    <div class="my-6 flex items-center gap-3">
+      <span class="flex-1 h-px bg-mdk-line" /><span class="text-[11.5px] text-mdk-mute font-medium">HOẶC</span><span class="flex-1 h-px bg-mdk-line" />
+    </div>
+    <a href="/api/auth/google" class="btn-outline w-full btn-lg"><AppIcon name="simple-icons:google" size="16" /> Tiếp tục với Google</a>
+    <div class="mt-7 rounded-xl border border-mdk-line bg-mdk-soft p-3.5">
+      <p class="text-[11px] font-bold text-mdk-mute uppercase tracking-wider">Tài khoản demo (mật khẩu 123456)</p>
+      <div class="mt-2.5 flex flex-wrap gap-2">
+        <button v-for="d in [['admin@mapdocs.vn','Admin'],['seller@mapdocs.vn','Người bán'],['user@mapdocs.vn','Học sinh']]" :key="d[0]" class="pill bg-mdk-line text-mdk-sub hover:text-mdk-text text-[11.5px]" @click="demo(d[0])">{{ d[1] }}</button>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.auth-title { @apply text-2xl font-extrabold text-ink; }
-.auth-sub { @apply text-ink-soft mt-1 mb-6 text-sm; }
-
-/* Input co icon ben trai */
-.auth-field { @apply relative; }
-.auth-field__icon { @apply absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none; }
-.auth-field__toggle {
-  @apply absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 grid place-items-center rounded-md
-         text-slate-400 hover:text-primary-900 hover:bg-primary-50 transition-colors;
-}
-
-/* Duong ke "HOAC" */
-.auth-divider { @apply relative my-5 text-center; }
-.auth-divider::before { content: ''; @apply absolute left-0 right-0 top-1/2 h-px bg-line; }
-.auth-divider span { @apply relative bg-surface px-3 text-xs font-medium text-slate-400; }
-
-.btn-google {
-  @apply border border-line bg-white text-ink hover:border-slate-300 hover:bg-slate-50 hover:shadow-soft;
-}
-
-.demo-box { @apply mt-6 rounded-xl2 border border-primary-100 bg-primary-50 p-4 text-xs text-ink-soft; }
-.demo-chip {
-  @apply rounded-full border border-primary-200 bg-white px-2.5 py-1 text-xs font-medium text-primary-900
-         hover:bg-primary-900 hover:text-white hover:border-primary-900 transition-colors;
-}
-</style>

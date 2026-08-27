@@ -1,180 +1,46 @@
 <script setup lang="ts">
 const route = useRoute()
-const ui = useUiStore()
-const { number, date, timeAgo } = useFormat()
+const { date, compact } = useFormat()
+const { data } = await useFetch<any>(() => `/api/blogs/${route.params.slug}`)
+if (!data.value?.blog) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy bài viết' })
+const b = computed(() => data.value.blog)
 
-const slug = computed(() => String(route.params.slug))
-
-const { data, pending, error } = await useAsyncData(
-  () => `blog-${slug.value}`,
-  () => $fetch<any>(`/api/blogs/${slug.value}`),
-  { watch: [slug] }
-)
-
-if (error.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy bài viết', fatal: true })
-}
-
-const blog = computed<any>(() => data.value?.data?.blog || null)
-const related = computed<any[]>(() => data.value?.data?.related || [])
-
-const readMinutes = computed(() => {
-  const text = String(blog.value?.content || '').replace(/<[^>]+>/g, ' ')
-  return Math.max(1, Math.round(text.trim().split(/\s+/).length / 200))
+const html = computed(() => {
+  let s = String(b.value.content || '')
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>').replace(/^## (.+)$/gm, '<h2>$1</h2>')
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  s = s.split(/\n{2,}/).map((p) => (/^<h[23]>/.test(p.trim()) || p.trim().startsWith('|') || p.trim().startsWith('-') || /^\d\./.test(p.trim()) ? p : `<p>${p.replace(/\n/g, '<br>')}</p>`)).join('\n')
+  return s
 })
-
-useSeoMeta({
-  title: () => (blog.value ? `${blog.value.title} | Blog MapDocs` : 'Bài viết | MapDocs'),
-  description: () => blog.value?.excerpt || '',
-  ogTitle: () => blog.value?.title || '',
-  ogDescription: () => blog.value?.excerpt || '',
-  ogImage: () => blog.value?.thumbnail || blog.value?.cover || '',
-  ogType: 'article'
-})
-
-const shareUrl = computed(() => (import.meta.client ? window.location.href : `https://mapdocs.vn/blog/${slug.value}`))
-
-const copyLink = async () => {
-  try {
-    await navigator.clipboard.writeText(shareUrl.value)
-    ui.success('Đã sao chép liên kết bài viết')
-  } catch {
-    ui.error('Không thể sao chép liên kết')
-  }
-}
-
-const shareFb = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank', 'width=600,height=500')
+useHead(() => ({ title: `${b.value?.title} - MapDocs Blog` }))
 </script>
-
 <template>
-  <div class="bg-slate-50 min-h-screen">
-    <!-- Loading -->
-    <div v-if="pending" class="max-w-3xl mx-auto px-4 py-12 animate-pulse space-y-4">
-      <div class="h-4 bg-slate-200 rounded w-40" />
-      <div class="h-8 bg-slate-200 rounded w-5/6" />
-      <div class="h-8 bg-slate-200 rounded w-2/3" />
-      <div class="h-56 bg-slate-200 rounded-2xl" />
-      <div class="h-3 bg-slate-100 rounded" />
-      <div class="h-3 bg-slate-100 rounded w-11/12" />
-      <div class="h-3 bg-slate-100 rounded w-4/5" />
-    </div>
-
-    <template v-else-if="blog">
-      <!-- Header -->
-      <header class="bg-gradient-to-br from-primary-900 to-primary-950 text-white">
-        <div class="max-w-3xl mx-auto px-4 py-10 md:py-14">
-          <nav class="text-sm text-white/70 flex items-center gap-2 flex-wrap mb-4">
-            <NuxtLink to="/" class="hover:text-white">Trang chủ</NuxtLink>
-            <AppIcon name="fa-chevron-right" class="text-[10px]" />
-            <NuxtLink to="/blog" class="hover:text-white">Blog</NuxtLink>
-            <AppIcon name="fa-chevron-right" class="text-[10px]" />
-            <span class="text-white/50 line-clamp-1">{{ blog.title }}</span>
-          </nav>
-
-          <div v-if="blog.tags?.length" class="flex flex-wrap gap-1.5 mb-3">
-            <span v-for="t in blog.tags" :key="t" class="badge bg-white/15 text-white">#{{ t }}</span>
-          </div>
-
-          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">{{ blog.title }}</h1>
-          <p v-if="blog.excerpt" class="text-white/80 mt-3 leading-relaxed">{{ blog.excerpt }}</p>
-
-          <div class="flex flex-wrap items-center gap-4 text-sm text-white/70 mt-5">
-            <span class="flex items-center gap-2">
-              <UiAvatar :name="blog.author_name || 'MapDocs'" :src="blog.author?.avatar" :size="32" />
-              <span class="text-white font-medium">{{ blog.author_name || blog.author?.name || 'MapDocs' }}</span>
-            </span>
-            <span><AppIcon name="fa-calendar" class="mr-1.5" />{{ date(blog.created_at) }}</span>
-            <span><AppIcon name="fa-clock" class="mr-1.5" />{{ readMinutes }} phút đọc</span>
-            <span><AppIcon name="fa-eye" class="mr-1.5" />{{ number(blog.view_count || 0) }} lượt xem</span>
-          </div>
+  <div class="bg-slate-50 min-h-screen pb-14">
+    <div class="bg-[#09090b] py-12">
+      <div class="container-x max-w-[780px]">
+        <nav class="flex items-center gap-1.5 text-[12.5px] text-zinc-500"><NuxtLink to="/" class="hover:text-zinc-300">Trang chủ</NuxtLink> / <NuxtLink to="/blog" class="hover:text-zinc-300">Blog</NuxtLink></nav>
+        <div class="mt-4 flex flex-wrap gap-2"><span v-for="t in b.tags || []" :key="t" class="pill bg-white/[.08] text-zinc-300 text-[11px] border border-white/[.1]">{{ t }}</span></div>
+        <h1 class="mt-4 text-[28px] sm:text-[38px] font-extrabold text-white font-ui tracking-tight leading-tight">{{ b.title }}</h1>
+        <div class="mt-5 flex items-center gap-3 text-[13px] text-zinc-500">
+          <UiAvatar :name="b.author?.name" :size="34" />
+          <span class="text-zinc-300 font-medium">{{ b.author?.name }}</span> ·
+          <span>{{ date(b.published_at || b.created_at) }}</span> ·
+          <span>{{ compact(b.view_count) }} lượt xem</span>
         </div>
-      </header>
-
-      <div class="max-w-3xl mx-auto px-4 py-8">
-        <!-- Cover -->
-        <img v-if="blog.thumbnail || blog.cover" :src="blog.thumbnail || blog.cover" :alt="blog.title"
-          class="w-full rounded-2xl shadow-card mb-8 object-cover max-h-[420px]" >
-
-        <!-- Content -->
-        <article class="card p-6 md:p-8">
-          <div class="prose-mapdocs" v-html="blog.content" />
-
-          <!-- Share -->
-          <div class="mt-8 pt-6 border-t border-slate-100 flex flex-wrap items-center gap-3">
-            <span class="text-sm font-semibold text-slate-700">Chia sẻ bài viết:</span>
-            <button class="sbtn" title="Chia sẻ Facebook" @click="shareFb">
-              <AppIcon name="fa-facebook-f" /> Facebook
-            </button>
-            <button class="sbtn" title="Sao chép liên kết" @click="copyLink">
-              <AppIcon name="fa-link" /> Sao chép liên kết
-            </button>
-          </div>
-        </article>
-
-        <!-- CTA -->
-        <section class="mt-8 rounded-2xl bg-gradient-to-br from-accent-500 to-orange-600 text-white p-6 md:p-8 text-center shadow-card">
-          <h3 class="text-xl font-extrabold">Sẵn sàng ôn tập cùng tài liệu chất lượng?</h3>
-          <p class="text-white/85 mt-2 text-sm">Hơn 30 tài liệu được biên soạn bởi giáo viên giàu kinh nghiệm, có cả tài liệu miễn phí.</p>
-          <div class="flex flex-wrap justify-center gap-2 mt-5">
-            <NuxtLink to="/tai-lieu" class="btn bg-white text-accent-500 hover:bg-slate-100">
-              <AppIcon name="fa-book-open" /> Khám phá tài liệu
-            </NuxtLink>
-            <NuxtLink to="/auth/dang-ky" class="btn border border-white/60 text-white hover:bg-white/10">
-              <AppIcon name="fa-user-plus" /> Đăng ký miễn phí
-            </NuxtLink>
-          </div>
-        </section>
-
-        <!-- Related -->
-        <section v-if="related.length" class="mt-10">
-          <h2 class="section-title mb-4">Bài viết liên quan</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <NuxtLink v-for="r in related" :key="r.id" :to="`/blog/${r.slug}`"
-              class="card overflow-hidden flex flex-col group hover:shadow-hover transition">
-              <div class="h-32 bg-gradient-to-br from-primary-900 to-primary-950 overflow-hidden shrink-0">
-                <img v-if="r.thumbnail || r.cover" :src="r.thumbnail || r.cover" :alt="r.title"
-                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500" >
-                <div v-else class="w-full h-full grid place-items-center text-white/25 text-4xl"><AppIcon name="fa-newspaper" /></div>
-              </div>
-              <div class="p-4 flex-1 flex flex-col">
-                <h3 class="font-bold text-sm text-slate-800 line-clamp-2 leading-snug group-hover:text-primary-900 transition">
-                  {{ r.title }}
-                </h3>
-                <div class="text-xs text-slate-400 mt-auto pt-3">
-                  <AppIcon name="fa-clock" class="mr-1" />{{ timeAgo(r.created_at) }}
-                </div>
-              </div>
-            </NuxtLink>
-          </div>
-        </section>
-
-        <div class="mt-8 text-center">
-          <NuxtLink to="/blog" class="btn btn-outline btn-sm">
-            <AppIcon name="fa-arrow-left" /> Quay lại danh sách bài viết
+      </div>
+    </div>
+    <div class="container-x max-w-[780px] mt-8">
+      <article class="card p-6 sm:p-8 prose prose-slate max-w-none prose-headings:font-ui prose-h2:text-[22px] prose-h3:text-[18px] prose-p:text-[15px] prose-p:leading-relaxed prose-table:text-[14px]" v-html="html" />
+      <div v-if="data.related?.length" class="mt-8">
+        <h2 class="text-[19px] font-bold text-slate-900 font-ui">Bài viết liên quan</h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <NuxtLink v-for="r in data.related" :key="r.id" :to="`/blog/${r.slug}`" class="card p-4 hover:shadow-lift transition group">
+            <h3 class="text-[14px] font-semibold text-slate-800 font-ui leading-snug line-clamp-2 group-hover:text-primary-600">{{ r.title }}</h3>
+            <p class="mt-1.5 text-[12.5px] text-slate-500 line-clamp-2">{{ r.excerpt }}</p>
           </NuxtLink>
         </div>
       </div>
-    </template>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.sbtn { @apply inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:border-primary-900 hover:text-primary-900 transition; }
-
-.prose-mapdocs { @apply text-slate-700 leading-relaxed; }
-.prose-mapdocs :deep(h2) { @apply text-xl font-extrabold text-slate-800 mt-7 mb-3; }
-.prose-mapdocs :deep(h3) { @apply text-lg font-bold text-slate-800 mt-5 mb-2; }
-.prose-mapdocs :deep(p) { @apply my-3.5; }
-.prose-mapdocs :deep(ul) { @apply list-disc pl-6 my-3.5 space-y-1.5; }
-.prose-mapdocs :deep(ol) { @apply list-decimal pl-6 my-3.5 space-y-1.5; }
-.prose-mapdocs :deep(li) { @apply leading-relaxed; }
-.prose-mapdocs :deep(strong) { @apply font-semibold text-slate-900; }
-.prose-mapdocs :deep(a) { @apply text-primary-900 underline hover:text-accent-500; }
-.prose-mapdocs :deep(blockquote) { @apply border-l-4 border-accent-500 bg-amber-50 px-4 py-3 my-4 rounded-r-lg italic text-slate-700; }
-.prose-mapdocs :deep(img) { @apply rounded-xl my-5 w-full; }
-.prose-mapdocs :deep(table) { @apply w-full text-sm my-5 border border-slate-200 rounded-lg overflow-hidden; }
-.prose-mapdocs :deep(th) { @apply bg-slate-50 text-left px-3 py-2 font-semibold text-slate-700 border-b border-slate-200; }
-.prose-mapdocs :deep(td) { @apply px-3 py-2 border-b border-slate-100; }
-.prose-mapdocs :deep(code) { @apply bg-slate-100 px-1.5 py-0.5 rounded text-sm font-mono text-primary-900; }
-.prose-mapdocs :deep(hr) { @apply my-6 border-slate-200; }
-</style>

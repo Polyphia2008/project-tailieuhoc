@@ -1,18 +1,47 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ value?: number; count?: number; size?: string; showCount?: boolean }>(), { value: 0, count: 0, size: 'text-xs', showCount: true })
+const props = withDefaults(
+  defineProps<{
+    value?: number
+    count?: number
+    size?: number
+    editable?: boolean
+    showValue?: boolean
+  }>(),
+  { value: 0, size: 15 }
+)
+
+const emit = defineEmits<{ 'update:value': [number] }>()
+
+const hover = ref(0)
+const shown = computed(() => (hover.value || props.value || 0))
+
+function pick(n: number) {
+  if (!props.editable) return
+  emit('update:value', n)
+}
 </script>
+
 <template>
-  <div class="flex items-center gap-1" :class="size">
-    <span class="flex items-center gap-px leading-none">
-      <AppIcon
-        v-for="i in 5"
-        :key="i"
-        name="fa-star"
-        :variant="i <= Math.round(value) ? 'bold' : 'linear'"
-        :class="i <= Math.round(value) ? 'text-warn' : 'text-slate-300'"
-      />
-    </span>
-    <span class="font-semibold text-slate-700">{{ (value || 0).toFixed(1) }}</span>
-    <span v-if="showCount" class="text-slate-400">({{ count || 0 }})</span>
+  <div class="inline-flex items-center gap-1.5">
+    <div class="inline-flex items-center gap-0.5" @mouseleave="hover = 0">
+      <button
+        v-for="n in 5"
+        :key="n"
+        type="button"
+        :disabled="!editable"
+        class="transition-transform"
+        :class="editable ? 'hover:scale-115 cursor-pointer' : 'cursor-default'"
+        @mouseenter="editable && (hover = n)"
+        @click="pick(n)"
+      >
+        <AppIcon
+          :name="shown >= n - 0.25 ? 'solar:star-bold' : 'solar:star-linear'"
+          :size="String(size)"
+          :class="shown >= n - 0.25 ? 'text-amber-400' : 'text-slate-300'"
+        />
+      </button>
+    </div>
+    <span v-if="showValue && value" class="text-[13px] font-semibold text-slate-700 font-ui">{{ value.toFixed(1) }}</span>
+    <span v-if="count !== undefined" class="text-xs text-slate-400">({{ count }})</span>
   </div>
 </template>
