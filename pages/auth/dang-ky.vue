@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-definePageMeta({ layout: 'auth' })
+
+definePageMeta({ layout: false })
+
 const auth = useAuthStore()
 const router = useRouter()
-const name = ref(''); const email = ref(''); const password = ref('')
-const show = ref(false); const busy = ref(false); const agree = ref(true)
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const show = ref(false)
+const busy = ref(false)
+const agree = ref(true)
 
 const strength = computed(() => {
   const p = password.value
@@ -16,12 +22,13 @@ const strength = computed(() => {
   if (/[^A-Za-z0-9]/.test(p)) s++
   return Math.min(4, s)
 })
+
 const STRENGTH = [
   { label: 'Rất yếu', cls: 'bg-rose-500' },
   { label: 'Yếu', cls: 'bg-orange-500' },
   { label: 'Trung bình', cls: 'bg-amber-500' },
   { label: 'Mạnh', cls: 'bg-emerald-500' },
-  { label: 'Rất mạnh', cls: 'bg-emerald-400' }
+  { label: 'Rất mạnh', cls: 'bg-cmstdev' }
 ]
 
 async function submit() {
@@ -31,56 +38,84 @@ async function submit() {
     const r = await auth.register(name.value, email.value, password.value)
     if (import.meta.client) localStorage.setItem('mapdocs:isFirstRegister', '1')
     await router.push(`/auth/chuc-mung?name=${encodeURIComponent(r.user.name)}`)
-  } catch (e: any) { toast.error(e?.data?.statusMessage || 'Đăng ký thất bại') } finally { busy.value = false }
+  } catch (e: any) {
+    toast.error(e?.data?.statusMessage || 'Đăng ký thất bại')
+  } finally {
+    busy.value = false
+  }
 }
+
 useHead({ title: 'Đăng ký - MapDocs' })
 </script>
+
 <template>
-  <div>
-    <h1 class="text-[26px] font-extrabold text-white font-ui tracking-tight">Tạo tài khoản</h1>
-    <p class="mt-2 text-[13.5px] text-zinc-500">Đã có tài khoản? <NuxtLink to="/auth/dang-nhap" class="text-primary-400 hover:text-primary-300 font-medium">Đăng nhập</NuxtLink></p>
-    <form class="mt-7 space-y-4" @submit.prevent="submit">
-      <div>
-        <label class="label">Họ và tên</label>
-        <div class="relative">
-          <AppIcon name="solar:user-linear" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
-          <input v-model="name" required placeholder="Nguyễn Văn A" class="input pl-10" />
-        </div>
-      </div>
-      <div>
-        <label class="label">Email</label>
-        <div class="relative">
-          <AppIcon name="solar:letter-linear" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
-          <input v-model="email" type="email" required placeholder="ban@email.com" class="input pl-10" />
-        </div>
-      </div>
-      <div>
-        <label class="label">Mật khẩu</label>
-        <div class="relative">
-          <AppIcon name="solar:lock-password-linear" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
-          <input v-model="password" :type="show ? 'text' : 'password'" required placeholder="Ít nhất 6 ký tự" class="input pl-10 pr-10" />
-          <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-mdk-mute hover:text-mdk-text" @click="show = !show">
-            <AppIcon :name="show ? 'solar:eye-closed-linear' : 'solar:eye-linear'" size="16" />
-          </button>
-        </div>
-        <div v-if="password" class="mt-2 flex items-center gap-2">
-          <div class="flex-1 flex gap-1">
-            <span v-for="i in 4" :key="i" class="flex-1 h-1 rounded-full transition-colors" :class="i <= strength ? STRENGTH[strength].cls : 'bg-mdk-line'" />
+  <AuthShell
+    icon="solar:user-plus-bold"
+    title="Tạo tài khoản mới"
+    subtitle="Vui lòng nhập thông tin đăng ký."
+  >
+    <form class="space-y-4" @submit.prevent="submit">
+      <AuthField label="Họ và tên" icon="solar:user-linear" required>
+        <input v-model="name" required placeholder="Nguyễn Văn A..." class="input-dv" />
+      </AuthField>
+
+      <AuthField label="Email liên lạc" icon="solar:letter-linear" required>
+        <input v-model="email" type="email" required placeholder="Địa chỉ hộp thư..." class="input-dv" />
+      </AuthField>
+
+      <AuthField label="Mật khẩu" icon="solar:lock-password-linear" required>
+        <input v-model="password" :type="show ? 'text' : 'password'" required placeholder="Ít nhất 6 ký tự..." class="input-dv pr-9" />
+        <button
+          type="button"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-cmstdev transition-colors"
+          @click="show = !show"
+        >
+          <AppIcon :name="show ? 'solar:eye-closed-linear' : 'solar:eye-linear'" size="16" />
+        </button>
+        <template #below>
+          <div v-if="password" class="flex items-center gap-2 pt-0.5">
+            <div class="flex flex-1 gap-1">
+              <span
+                v-for="i in 4"
+                :key="i"
+                class="h-1 flex-1 rounded-full transition-colors"
+                :class="i <= strength ? STRENGTH[strength].cls : 'bg-border'"
+              />
+            </div>
+            <span class="text-[11px] text-muted-foreground">{{ STRENGTH[strength].label }}</span>
           </div>
-          <span class="text-[11px] text-mdk-mute">{{ STRENGTH[strength].label }}</span>
-        </div>
-      </div>
-      <label class="flex items-start gap-2.5 cursor-pointer">
-        <input v-model="agree" type="checkbox" class="mt-0.5 rounded border-mdk-line2 bg-mdk-soft text-primary-600 focus:ring-primary-500/30" />
-        <span class="text-[12.5px] text-mdk-sub leading-relaxed">Tôi đồng ý với <span class="text-primary-400">Điều khoản sử dụng</span> và <span class="text-primary-400">Chính sách bảo mật</span> của MapDocs</span>
+        </template>
+      </AuthField>
+
+      <label class="flex cursor-pointer items-start gap-2.5">
+        <input
+          v-model="agree"
+          type="checkbox"
+          class="mt-0.5 rounded border-input bg-transparent text-cmstdev focus:ring-cmstdev/40"
+        />
+        <span class="text-[12.5px] leading-relaxed text-muted-foreground">
+          Tôi đồng ý với
+          <span class="font-medium text-cmstdev">Điều khoản sử dụng</span>
+          và
+          <span class="font-medium text-cmstdev">Chính sách bảo mật</span>
+          của MapDocs
+        </span>
       </label>
-      <button type="submit" class="btn-primary w-full btn-lg" :disabled="busy">
-        <UiSpinner v-if="busy" :size="17" /> Tạo tài khoản
+
+      <button type="submit" class="btn-cmstdev-solid w-full h-10 text-[13.5px] font-bold" :disabled="busy">
+        <UiSpinner v-if="busy" :size="16" />
+        Tạo tài khoản
       </button>
+
+      <a href="/api/auth/google" class="btn-cmstdev w-full h-10 text-[13.5px] font-semibold">
+        <AppIcon name="simple-icons:google" size="15" />
+        Đăng ký với Google
+      </a>
     </form>
-    <div class="my-6 flex items-center gap-3">
-      <span class="flex-1 h-px bg-mdk-line" /><span class="text-[11.5px] text-mdk-mute font-medium">HOẶC</span><span class="flex-1 h-px bg-mdk-line" />
-    </div>
-    <a href="/api/auth/google" class="btn-outline w-full btn-lg"><AppIcon name="simple-icons:google" size="16" /> Đăng ký với Google</a>
-  </div>
+
+    <p class="mt-6 text-center text-[13px] text-muted-foreground">
+      Đã có tài khoản?
+      <NuxtLink to="/auth/dang-nhap" class="font-semibold text-cmstdev hover:underline">Đăng nhập ngay</NuxtLink>
+    </p>
+  </AuthShell>
 </template>

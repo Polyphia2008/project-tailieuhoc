@@ -1,39 +1,66 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-definePageMeta({ layout: 'auth' })
-const email = ref(''); const busy = ref(false); const sent = ref(false); const link = ref('')
+
+definePageMeta({ layout: false })
+
+const email = ref('')
+const busy = ref(false)
+const sent = ref(false)
+const link = ref('')
+
 async function submit() {
   busy.value = true
   try {
     const r = await $fetch<any>('/api/auth/forgot', { method: 'POST', body: { email: email.value } })
-    sent.value = true; link.value = r.dev_link || ''
-    toast.success('Đã gửi hướng dẫn đặt lại mật khẩu')
-  } catch (e: any) { toast.error(e?.data?.statusMessage || 'Lỗi') } finally { busy.value = false }
+    sent.value = true
+    link.value = r.dev_link || ''
+    toast.success('Đã gửi hướng dẫn đặt lại mật khẩu', { description: 'Vui lòng kiểm tra hộp thư của bạn.', duration: 4000 })
+  } catch (e: any) {
+    toast.error(e?.data?.statusMessage || 'Lỗi')
+  } finally {
+    busy.value = false
+  }
 }
+
 useHead({ title: 'Quên mật khẩu - MapDocs' })
 </script>
+
 <template>
-  <div>
-    <h1 class="text-[26px] font-extrabold text-white font-ui tracking-tight">Quên mật khẩu</h1>
-    <p class="mt-2 text-[13.5px] text-zinc-500">Nhập email đã đăng ký, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.</p>
-    <form v-if="!sent" class="mt-7 space-y-4" @submit.prevent="submit">
-      <div>
-        <label class="label">Email</label>
-        <div class="relative">
-          <AppIcon name="solar:letter-linear" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
-          <input v-model="email" type="email" required placeholder="ban@email.com" class="input pl-10" />
-        </div>
-      </div>
-      <button type="submit" class="btn-primary w-full btn-lg" :disabled="busy"><UiSpinner v-if="busy" :size="17" /> Gửi liên kết</button>
+  <AuthShell
+    icon="solar:key-minimalistic-square-bold"
+    title="Quên mật khẩu"
+    subtitle="Nhập email đã đăng ký để nhận liên kết đặt lại."
+  >
+    <form v-if="!sent" class="space-y-4" @submit.prevent="submit">
+      <AuthField label="Email đã đăng ký" icon="solar:letter-linear" required>
+        <input v-model="email" type="email" required placeholder="Địa chỉ hộp thư..." class="input-dv" />
+      </AuthField>
+
+      <button type="submit" class="btn-cmstdev-solid w-full h-10 text-[13.5px] font-bold" :disabled="busy">
+        <UiSpinner v-if="busy" :size="16" />
+        Gửi liên kết đặt lại
+      </button>
     </form>
-    <div v-else class="mt-7 rounded-xl border border-emerald-500/25 bg-emerald-500/[.07] p-5">
-      <AppIcon name="solar:check-circle-bold" size="30" class="text-emerald-400" />
-      <p class="mt-3 text-[14.5px] font-semibold text-white font-ui">Đã gửi thành công</p>
-      <p class="mt-1.5 text-[13px] text-zinc-400 leading-relaxed">Vui lòng kiểm tra hộp thư của bạn. Ở chế độ demo, bạn có thể dùng liên kết bên dưới.</p>
-      <NuxtLink v-if="link" :to="link" class="btn-primary btn-sm mt-3.5">Đặt lại mật khẩu ngay</NuxtLink>
+
+    <div v-else class="rounded-xl border border-cmstdev/25 bg-cmstdev/[.07] p-5 text-center">
+      <span class="mx-auto grid size-11 place-items-center rounded-xl bg-cmstdev/15 text-cmstdev">
+        <AppIcon name="solar:check-circle-bold" size="24" />
+      </span>
+      <p class="mt-3 text-[14.5px] font-bold text-foreground">Đã gửi thành công</p>
+      <p class="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+        Vui lòng kiểm tra hộp thư của bạn. Ở chế độ demo, bạn có thể dùng liên kết bên dưới.
+      </p>
+      <NuxtLink v-if="link" :to="link" class="btn-cmstdev-solid mt-4 h-9 px-4 text-[13px] font-bold">
+        Đặt lại mật khẩu ngay
+      </NuxtLink>
     </div>
-    <NuxtLink to="/auth/dang-nhap" class="mt-6 inline-flex items-center gap-1.5 text-[13px] text-zinc-500 hover:text-white transition">
-      <AppIcon name="solar:arrow-left-linear" size="15" /> Về trang đăng nhập
+
+    <NuxtLink
+      to="/auth/dang-nhap"
+      class="mt-6 inline-flex w-full items-center justify-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-cmstdev"
+    >
+      <AppIcon name="solar:arrow-left-linear" size="15" />
+      Về trang đăng nhập
     </NuxtLink>
-  </div>
+  </AuthShell>
 </template>
