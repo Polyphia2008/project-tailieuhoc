@@ -10,7 +10,7 @@ const { isDark, toggle } = useTheme()
     aria-label="Đổi giao diện sáng tối"
     :aria-pressed="isDark"
     :title="isDark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'"
-    class="group/button inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent transition-colors hover:bg-cmstdev/10 hover:text-cmstdev focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cmstdev/30"
+    class="group/button inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent transition-colors hover:bg-cmstdev/10 hover:text-cmstdev focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-cmstdev/30"
     :class="light ? 'text-mdk-sub' : 'text-muted-foreground'"
     @click="toggle"
   >
