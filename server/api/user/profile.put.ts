@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
   if (body.bio !== undefined) patch.bio = String(body.bio).slice(0, 500)
   if (body.phone !== undefined) patch.phone = String(body.phone).slice(0, 20)
   if (body.avatar !== undefined) patch.avatar = String(body.avatar).slice(0, 500)
+  if (body.bank_name !== undefined) patch.bank_name = String(body.bank_name).slice(0, 120)
+  if (body.bank_account !== undefined) patch.bank_account = String(body.bank_account).slice(0, 40)
 
   if (body.new_password) {
     const np = String(body.new_password)
