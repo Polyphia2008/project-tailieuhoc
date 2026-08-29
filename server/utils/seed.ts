@@ -588,7 +588,11 @@ export const SETTINGS: Record<string, any> = {
   hotline: '1900 6868',
   email: 'hotro@mapdocs.vn',
   address: 'Tầng 12, Toà nhà Sunrise, 90 Nguyễn Chí Thanh, Đống Đa, Hà Nội',
-  facebook: 'https://facebook.com/mapdocs.vn'
+  facebook: 'https://facebook.com/mapdocs.vn',
+  maintenance: false,
+  maintenance_note: 'Hệ thống đang được nâng cấp, vui lòng quay lại sau 30 phút.',
+  banner_enabled: true,
+  banner_text: 'Giảm 20% cho đơn đầu tiên khi nạp ví từ 200.000đ — áp dụng đến hết tháng.'
 }
 
 for (const c of CATEGORIES) {

@@ -23,6 +23,14 @@ export default defineEventHandler(async (event) => {
     if (body[k] !== undefined) patch[k] = String(body[k]).slice(0, 300)
   }
 
+  for (const k of ['maintenance', 'banner_enabled']) {
+    if (body[k] !== undefined) patch[k] = Boolean(body[k])
+  }
+
+  for (const k of ['maintenance_note', 'banner_text']) {
+    if (body[k] !== undefined) patch[k] = String(body[k]).slice(0, 600)
+  }
+
   const settings = await useDriver().setSettings(patch)
   return { settings }
 })

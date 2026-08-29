@@ -14,6 +14,8 @@ export default defineEventHandler(async (event) => {
   if (num(q.grade)) where.grade = num(q.grade)
   const free = bool(q.free)
   if (free !== undefined) where.is_free = free
+  const featured = bool(q.featured)
+  if (featured !== undefined) where.featured = featured
 
   const { rows, total } = await db.find<any>('documents', {
     where,
@@ -32,7 +34,8 @@ export default defineEventHandler(async (event) => {
     all: all.length,
     approved: all.filter((d) => d.status === 'approved').length,
     pending: all.filter((d) => d.status === 'pending').length,
-    rejected: all.filter((d) => d.status === 'rejected').length
+    rejected: all.filter((d) => d.status === 'rejected').length,
+    featured: all.filter((d) => d.featured).length
   }
 
   return {
