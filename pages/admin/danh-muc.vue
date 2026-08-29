@@ -23,7 +23,7 @@ const ICONS = [
   'solar:cpu-bolt-bold-duotone'
 ]
 
-const PRESETS = ['#7c3aed', '#3b82f6', '#06b6d4', '#10b981', '#22c55e', '#f59e0b', '#f97316', '#f43f5e']
+const PRESETS = ['#0ea5e9', '#3b82f6', '#06b6d4', '#10b981', '#22c55e', '#f59e0b', '#f97316', '#f43f5e']
 
 const open = ref(false)
 const editing = ref<any>(null)

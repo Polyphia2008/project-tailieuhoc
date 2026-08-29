@@ -23,7 +23,7 @@ const emit = defineEmits<{ 'update:open': [boolean] }>()
         class="fixed left-1/2 top-1/2 z-[101] w-[calc(100vw-2rem)] rounded-2xl border shadow-2xl animate-dialog-in max-h-[88vh] overflow-y-auto"
         :class="[
           width,
-          dark ? 'bg-mdk-panel border-mdk-line text-mdk-text' : 'bg-white border-slate-200 text-slate-800'
+          dark ? 'bg-mdk-panel border-mdk-line text-mdk-text' : 'bg-white border-slate-200 text-slate-900 dark:text-zinc-100'
         ]"
       >
         <div class="flex items-start justify-between gap-4 px-5 pt-5 pb-3">

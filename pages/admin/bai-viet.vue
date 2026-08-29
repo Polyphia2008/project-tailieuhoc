@@ -28,7 +28,7 @@ const TABS = [
 ]
 
 const COVERS = [
-  'linear-gradient(140deg,#7c3aed,#2563eb)',
+  'linear-gradient(140deg,#0ea5e9,#2563eb)',
   'linear-gradient(140deg,#0ea5e9,#06b6d4)',
   'linear-gradient(140deg,#10b981,#047857)',
   'linear-gradient(140deg,#f97316,#c2410c)',

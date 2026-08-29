@@ -51,8 +51,8 @@ watch(() => route.fullPath, () => { mobileOpen.value = false })
 
 <template>
   <header
-    class="sticky top-0 z-40 transition-all duration-300 border-b"
-    :class="scrolled ? 'bg-[#09090b]/92 backdrop-blur-xl border-mdk-line' : 'bg-[#09090b] border-transparent'"
+    class="hdr sticky top-0 z-40 transition-all duration-300 border-b"
+    :class="scrolled ? 'hdr-scrolled backdrop-blur-xl' : 'border-transparent'"
   >
     <div class="container-x h-[62px] flex items-center gap-4">
       <NuxtLink to="/" class="flex items-center gap-2.5 shrink-0 group">
@@ -151,7 +151,7 @@ watch(() => route.fullPath, () => { mobileOpen.value = false })
       </div>
     </div>
 
-    <div v-if="mobileOpen" class="lg:hidden border-t border-mdk-line bg-[#09090b] px-4 py-3 space-y-1">
+    <div v-if="mobileOpen" class="hdr-mobile lg:hidden border-t px-4 py-3 space-y-1">
       <form class="relative mb-3" @submit.prevent="search">
         <AppIcon name="solar:magnifer-linear" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
         <input v-model="term" type="search" placeholder="Tìm tài liệu..." class="w-full h-10 pl-9 pr-3 rounded-lg bg-white/[.06] border border-white/[.08] text-[13px] text-white placeholder:text-zinc-500 focus:outline-none" />

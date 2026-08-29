@@ -30,7 +30,7 @@ const ITEMS = [
           <div class="mt-5 pt-4 border-t border-slate-100 flex items-center gap-2.5">
             <UiAvatar :name="t.name" :size="36" />
             <div>
-              <p class="text-[13.5px] font-semibold text-slate-800 font-ui">{{ t.name }}</p>
+              <p class="text-[13.5px] font-semibold text-slate-900 dark:text-zinc-100 font-ui">{{ t.name }}</p>
               <p class="text-[11.5px] text-slate-400">{{ t.role }}</p>
             </div>
           </div>

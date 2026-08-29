@@ -80,7 +80,7 @@ const subject = computed(() => get(props.doc.subject))
     <div class="p-3.5">
       <h3
         class="text-[13.5px] font-semibold leading-snug line-clamp-2 min-h-[38px] transition-colors font-ui"
-        :class="dark ? 'text-mdk-text group-hover:text-primary-300' : 'text-slate-800 group-hover:text-primary-600'"
+        :class="dark ? 'text-mdk-text group-hover:text-primary-300' : 'text-slate-900 dark:text-zinc-100 group-hover:text-primary-600'"
       >
         {{ doc.title }}
       </h3>

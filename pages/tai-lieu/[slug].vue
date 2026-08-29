@@ -133,7 +133,7 @@ useHead(() => ({ title: `${doc.value?.title || 'Tài liệu'} - MapDocs` }))
               <UiAvatar :name="r.user?.name" :size="36" />
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2.5">
-                  <p class="text-[13.5px] font-semibold text-slate-800 font-ui">{{ r.user?.name || 'Người dùng' }}</p>
+                  <p class="text-[13.5px] font-semibold text-slate-900 dark:text-zinc-100 font-ui">{{ r.user?.name || 'Người dùng' }}</p>
                   <UiRating :value="r.rating" :size="12" />
                   <span class="text-[11.5px] text-slate-400">{{ ago(r.created_at) }}</span>
                 </div>
@@ -163,11 +163,11 @@ useHead(() => ({ title: `${doc.value?.title || 'Tài liệu'} - MapDocs` }))
             </button>
           </div>
           <dl class="mt-5 pt-5 border-t border-slate-100 space-y-2.5 text-[13px]">
-            <div class="flex justify-between"><dt class="text-slate-500">Định dạng</dt><dd class="font-medium text-slate-800 uppercase">{{ doc.file_type }}</dd></div>
-            <div class="flex justify-between"><dt class="text-slate-500">Số trang</dt><dd class="font-medium text-slate-800">{{ doc.pages }} trang</dd></div>
-            <div class="flex justify-between"><dt class="text-slate-500">Kích thước</dt><dd class="font-medium text-slate-800">{{ size(doc.file_size) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-slate-500">Đã bán</dt><dd class="font-medium text-slate-800">{{ num(doc.sold_count) }}</dd></div>
-            <div class="flex justify-between"><dt class="text-slate-500">Cập nhật</dt><dd class="font-medium text-slate-800">{{ dateTime(doc.updated_at || doc.created_at) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Định dạng</dt><dd class="font-medium text-slate-900 dark:text-zinc-100 uppercase">{{ doc.file_type }}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Số trang</dt><dd class="font-medium text-slate-900 dark:text-zinc-100">{{ doc.pages }} trang</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Kích thước</dt><dd class="font-medium text-slate-900 dark:text-zinc-100">{{ size(doc.file_size) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Đã bán</dt><dd class="font-medium text-slate-900 dark:text-zinc-100">{{ num(doc.sold_count) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Cập nhật</dt><dd class="font-medium text-slate-900 dark:text-zinc-100">{{ dateTime(doc.updated_at || doc.created_at) }}</dd></div>
           </dl>
         </div>
 
@@ -176,7 +176,7 @@ useHead(() => ({ title: `${doc.value?.title || 'Tài liệu'} - MapDocs` }))
           <div class="mt-3 flex items-center gap-3">
             <UiAvatar :name="doc.seller?.name" :src="doc.seller?.avatar" :size="44" />
             <div class="min-w-0">
-              <p class="text-[14px] font-semibold text-slate-800 font-ui truncate">{{ doc.seller?.name }}</p>
+              <p class="text-[14px] font-semibold text-slate-900 dark:text-zinc-100 font-ui truncate">{{ doc.seller?.name }}</p>
               <p class="text-[12px] text-slate-400">{{ data.seller_stats?.documents || 0 }} tài liệu</p>
             </div>
           </div>

@@ -14,7 +14,7 @@ const TONES: Record<string, string> = {
   blue: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
   cyan: 'linear-gradient(135deg, #06b6d4, #0369a1)',
   orange: 'linear-gradient(135deg, #fb923c, #ea580c)',
-  purple: 'linear-gradient(135deg, #a78bfa, #7c3aed)',
+  purple: 'linear-gradient(135deg, #38bdf8, #0369a1)',
   green: 'linear-gradient(135deg, #34d399, #059669)',
   rose: 'linear-gradient(135deg, #fb7185, #e11d48)',
   amber: 'linear-gradient(135deg, #fbbf24, #d97706)',

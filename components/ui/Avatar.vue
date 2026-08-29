@@ -15,7 +15,7 @@ const props = withDefaults(
 const { avatarUrl } = useAvatar()
 
 const PALETTE = [
-  ['#a855f7', '#7e22ce'],
+  ['#0ea5e9', '#0369a1'],
   ['#3b82f6', '#1d4ed8'],
   ['#8b5cf6', '#6d28d9'],
   ['#10b981', '#047857'],

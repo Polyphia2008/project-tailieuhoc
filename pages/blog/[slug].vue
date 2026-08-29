@@ -36,7 +36,7 @@ useHead(() => ({ title: `${b.value?.title} - MapDocs Blog` }))
         <h2 class="text-[19px] font-bold text-slate-900 font-ui">Bài viết liên quan</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           <NuxtLink v-for="r in data.related" :key="r.id" :to="`/blog/${r.slug}`" class="card p-4 hover:shadow-lift transition group">
-            <h3 class="text-[14px] font-semibold text-slate-800 font-ui leading-snug line-clamp-2 group-hover:text-primary-600">{{ r.title }}</h3>
+            <h3 class="text-[14px] font-semibold text-slate-900 dark:text-zinc-100 font-ui leading-snug line-clamp-2 group-hover:text-primary-600">{{ r.title }}</h3>
             <p class="mt-1.5 text-[12.5px] text-slate-500 line-clamp-2">{{ r.excerpt }}</p>
           </NuxtLink>
         </div>

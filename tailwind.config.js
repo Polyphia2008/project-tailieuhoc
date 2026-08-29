@@ -38,28 +38,28 @@ module.exports = {
           900: '#7c2d12'
         },
         mdk: {
-          bg: '#09090b',
-          panel: '#18181b',
-          soft: '#1c1c1f',
-          line: '#27272a',
-          line2: '#3f3f46',
-          text: '#fafafa',
-          sub: '#a1a1aa',
-          mute: '#71717a'
+          bg: 'rgb(var(--mdk-bg-rgb) / <alpha-value>)',
+          panel: 'rgb(var(--mdk-panel-rgb) / <alpha-value>)',
+          soft: 'rgb(var(--mdk-soft-rgb) / <alpha-value>)',
+          line: 'rgb(var(--mdk-line-rgb) / <alpha-value>)',
+          line2: 'rgb(var(--mdk-line2-rgb) / <alpha-value>)',
+          text: 'rgb(var(--mdk-text-rgb) / <alpha-value>)',
+          sub: 'rgb(var(--mdk-sub-rgb) / <alpha-value>)',
+          mute: 'rgb(var(--mdk-mute-rgb) / <alpha-value>)'
         },
         cmstdev: {
-          DEFAULT: '#a855f7',
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7e22ce',
-          800: '#6b21a8',
-          900: '#581c87',
-          950: '#3b0764'
+          DEFAULT: '#0ea5e9',
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+          950: '#082f49'
         },
         background: 'rgb(var(--background) / <alpha-value>)',
         foreground: 'rgb(var(--foreground) / <alpha-value>)',
@@ -82,7 +82,9 @@ module.exports = {
       boxShadow: {
         card: '0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04)',
         lift: '0 12px 32px -8px rgba(16,24,40,.16)',
-        dark: '0 1px 0 rgba(255,255,255,.02) inset, 0 8px 24px -12px rgba(0,0,0,.8)'
+        dark: '0 1px 0 rgba(255,255,255,.02) inset, 0 8px 24px -12px rgba(0,0,0,.8)',
+        brand: '0 8px 24px -8px rgba(14,165,233,.5)',
+        'brand-lg': '0 14px 38px -10px rgba(14,165,233,.55)'
       },
       keyframes: {
         'fade-up': {

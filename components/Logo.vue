@@ -17,7 +17,7 @@ const subClass = computed(() => (props.light ? 'text-zinc-400' : 'text-muted-for
   <span class="inline-flex items-center gap-2.5 select-none">
     <span
       class="shrink-0 grid place-items-center rounded-xl text-white shadow-lg shadow-cmstdev/25"
-      :style="{ width: markSize + 'px', height: markSize + 'px', background: 'linear-gradient(135deg, #c084fc, #7e22ce)' }"
+      :style="{ width: markSize + 'px', height: markSize + 'px', background: 'linear-gradient(135deg, #38bdf8, #0369a1)' }"
     >
       <AppIcon name="solar:book-bookmark-bold" :size="Math.round(markSize * 0.52)" />
     </span>
