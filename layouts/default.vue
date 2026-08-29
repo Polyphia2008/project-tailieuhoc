@@ -6,7 +6,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50">
+  <div class="min-h-screen flex flex-col bg-background">
     <LayoutDefaultHeader />
     <main class="flex-1">
       <slot />

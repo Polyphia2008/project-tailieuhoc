@@ -95,6 +95,7 @@ watch(() => route.fullPath, () => { mobileOpen.value = false })
       </form>
 
       <div class="flex items-center gap-2 md:ml-0 ml-auto">
+        <UiThemeToggle light />
         <template v-if="auth.ready && auth.loggedIn">
           <span class="hidden xl:inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/[.06] border border-white/[.08] text-[12px] text-zinc-300">
             <AppIcon name="solar:wallet-bold" size="13" class="text-primary-400" />

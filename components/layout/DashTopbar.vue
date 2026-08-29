@@ -81,6 +81,8 @@ const TYPE_TONE: Record<string, string> = {
       </span>
     </div>
 
+    <UiThemeToggle light />
+
     <NuxtLink to="/" class="w-9 h-9 grid place-items-center rounded-lg text-mdk-sub hover:bg-mdk-line transition" title="Về trang chủ">
       <AppIcon name="solar:home-2-linear" size="18" />
     </NuxtLink>
