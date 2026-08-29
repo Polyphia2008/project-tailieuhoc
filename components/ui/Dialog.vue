@@ -18,12 +18,12 @@ const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
   <DialogRoot :open="props.modelValue" @update:open="emit('update:modelValue', $event)">
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" />
-      <DialogContent class="dialog-content" :class="props.width">
+      <DialogContent class="dialog-content relative" :class="props.width">
+        <DialogClose class="dialog-close" aria-label="Đóng">
+          <AppIcon name="solar:close-circle-linear" size="18" />
+        </DialogClose>
         <DialogTitle class="dialog-title">{{ props.title }}</DialogTitle>
         <DialogDescription v-if="props.description" class="dialog-desc">{{ props.description }}</DialogDescription>
-        <DialogClose class="dialog-close">
-          <AppIcon name="solar:close-circle-linear" size="19" />
-        </DialogClose>
         <div class="dialog-body">
           <slot />
         </div>

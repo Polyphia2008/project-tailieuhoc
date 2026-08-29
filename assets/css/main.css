@@ -1,3 +1,30 @@
+@font-face {
+  font-family: 'Signika';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/signika-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-family: 'Signika';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/signika-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Signika';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/signika-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +32,27 @@
 @layer base {
   :root {
     --ring: 59 130 246;
+    --background: 248 250 252;
+    --foreground: 51 65 85;
+    --card: 255 255 255;
+    --muted: 241 245 249;
+    --muted-foreground: 113 113 122;
+    --border: 228 228 231;
+    --input: 228 228 231;
+    --destructive: 239 68 68;
+    --cmstdev: 168 85 247;
+  }
+
+  html.dark {
+    --background: 9 9 11;
+    --foreground: 250 250 250;
+    --card: 24 24 27;
+    --muted: 28 28 31;
+    --muted-foreground: 161 161 170;
+    --border: 39 39 42;
+    --input: 39 39 42;
+    --destructive: 248 113 113;
+    --cmstdev: 168 85 247;
   }
 
   html {
@@ -13,7 +61,9 @@
   }
 
   body {
-    @apply font-sans text-slate-700 bg-slate-50 antialiased;
+    @apply font-sans antialiased;
+    background: rgb(var(--background));
+    color: rgb(var(--foreground));
   }
 
   ::selection {
@@ -83,6 +133,42 @@
 
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700;
+  }
+
+  .btn-cmstdev {
+    @apply btn inline-flex items-center justify-center rounded-lg border border-cmstdev/25;
+    background: rgba(168, 85, 247, .15);
+    color: #a855f7;
+    transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .btn-cmstdev:hover {
+    background: rgba(168, 85, 247, .2);
+    border-color: rgba(168, 85, 247, .45);
+    box-shadow: 0 8px 24px -8px rgba(168, 85, 247, .5);
+  }
+
+  .btn-cmstdev-solid {
+    @apply btn inline-flex items-center justify-center rounded-lg text-white;
+    background: linear-gradient(135deg, #a855f7, #7e22ce);
+    transition: box-shadow .2s ease, filter .2s ease;
+  }
+
+  .btn-cmstdev-solid:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 10px 28px -8px rgba(168, 85, 247, .65);
+  }
+
+  .input-dv {
+    @apply h-9 w-full min-w-0 rounded-lg border border-input bg-transparent pl-9 pr-2.5 py-1 text-sm outline-none;
+    @apply focus-visible:border-cmstdev focus-visible:ring-3 focus-visible:ring-cmstdev/50;
+    @apply placeholder:text-muted-foreground transition-colors;
+    color: rgb(var(--foreground));
+  }
+
+  .label-dv {
+    @apply font-semibold text-[13px];
+    color: rgb(var(--foreground));
   }
 
   .btn-sm {
@@ -598,40 +684,71 @@
   box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
   max-height: 88vh;
   overflow-y: auto;
-  animation: scale-in .22s cubic-bezier(.22, 1, .36, 1) both;
+  animation: dialog-in .22s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.animate-dialog-in {
+  animation: dialog-in .22s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 .dialog-title {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Signika', 'Inter', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
-  padding: 20px 20px 0;
+  padding: 20px 56px 0 20px;
   color: var(--mdk-text, #fafafa);
 }
 
 .dialog-desc {
-  padding: 6px 20px 0;
+  padding: 6px 56px 0 20px;
   font-size: 13px;
   line-height: 1.6;
   color: var(--mdk-sub, #a1a1aa);
 }
 
 .dialog-close {
-  position: absolute;
-  right: 14px;
-  top: 16px;
-  width: 32px;
-  height: 32px;
+  position: absolute !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 99 !important;
+  width: 2rem;
+  height: 2rem;
   display: grid;
   place-items: center;
-  border-radius: 9px;
-  color: var(--mdk-mute, #71717a);
-  transition: all .18s ease;
+  border-radius: .5rem;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .1);
+  color: currentColor;
+  transition: background-color .18s ease, color .18s ease;
 }
 
 .dialog-close:hover {
-  background: var(--mdk-line, #27272a);
-  color: var(--mdk-text, #fafafa);
+  background: rgba(255, 255, 255, .2);
+}
+
+.mdk .dialog-close,
+.dark .dialog-close {
+  background: rgba(255, 255, 255, .08);
+  color: #fafafa;
+}
+
+.mdk .dialog-close:hover,
+.dark .dialog-close:hover {
+  background: rgba(255, 255, 255, .2);
 }
 
 .dialog-body {
