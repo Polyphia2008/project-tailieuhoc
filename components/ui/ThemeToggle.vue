@@ -1,18 +1,20 @@
 <script setup lang="ts">
 withDefaults(defineProps<{ light?: boolean }>(), { light: false })
 
-const { toggle } = useTheme()
+const { isDark, toggle } = useTheme()
 </script>
 
 <template>
   <button
     type="button"
     aria-label="Đổi giao diện sáng tối"
-    class="grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-cmstdev/10 hover:text-cmstdev"
-    :class="light ? 'text-zinc-400' : 'text-muted-foreground'"
-    @click="toggle()"
+    :aria-pressed="isDark"
+    :title="isDark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'"
+    class="group/button inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent transition-colors hover:bg-cmstdev/10 hover:text-cmstdev focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cmstdev/30"
+    :class="light ? 'text-mdk-sub' : 'text-muted-foreground'"
+    @click="toggle"
   >
-    <AppIcon name="solar:sun-2-bold" size="17" class="dark:hidden" />
-    <AppIcon name="solar:moon-bold" size="17" class="hidden dark:block" />
+    <AppIcon name="solar:sun-2-linear" size="16" class="dark:hidden" />
+    <AppIcon name="solar:moon-stars-bold" size="16" class="hidden dark:block" />
   </button>
 </template>

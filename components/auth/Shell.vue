@@ -10,7 +10,7 @@ withDefaults(
 
 const FEATURES = [
   { icon: 'solar:shield-check-bold', title: 'Bảo mật & An toàn', desc: 'Hệ thống bảo mật đa lớp, an toàn dữ liệu tuyệt đối.' },
-  { icon: 'solar:rocket-bold', title: 'Tốc độ nhanh chóng', desc: 'Xử lý giao dịch và kích hoạt tài liệu tự động tức thì.' },
+  { icon: 'solar:rocket-2-bold', title: 'Tốc độ nhanh chóng', desc: 'Xử lý giao dịch và kích hoạt tài liệu tự động tức thì.' },
   { icon: 'solar:server-square-bold', title: 'Hạ tầng mạnh mẽ', desc: 'Đảm bảo tính ổn định cao nhất cho mọi dịch vụ.' },
   { icon: 'solar:headphones-round-bold', title: 'Hỗ trợ 24/7', desc: 'Đội ngũ chuyên nghiệp luôn sẵn sàng hỗ trợ bạn.' }
 ]
@@ -31,7 +31,7 @@ const BADGES = ['Thanh toán tự động', 'Bảo mật đa lớp', 'Hỗ trợ
         <div class="absolute -top-32 -right-32 h-[400px] w-[400px] rounded-full bg-cmstdev/10 blur-[100px]" />
       </div>
 
-      <div class="relative z-10">
+      <div class="relative z-10 flex items-center justify-between gap-4">
         <NuxtLink to="/" class="flex items-center h-10 w-fit">
           <Logo variant="full" :light="true" />
         </NuxtLink>
@@ -55,9 +55,9 @@ const BADGES = ['Thanh toán tự động', 'Bảo mật đa lớp', 'Hỗ trợ
             v-motion
             :initial="{ opacity: 0, y: 16 }"
             :enter="{ opacity: 1, y: 0, transition: { delay: 180 + i * 90 } }"
-            class="rounded-xl border border-white/[.08] bg-white/[.03] p-4 transition-colors hover:border-cmstdev/40 hover:bg-white/[.05]"
+            class="auth-feature group"
           >
-            <span class="grid size-9 place-items-center rounded-lg bg-cmstdev/15 text-cmstdev border border-cmstdev/20">
+            <span class="grid size-9 shrink-0 place-items-center rounded-lg border border-cmstdev/20 bg-cmstdev/15 text-cmstdev transition-colors group-hover:bg-cmstdev/25">
               <AppIcon :name="f.icon" size="17" />
             </span>
             <p class="mt-3 text-[13px] font-bold text-white">{{ f.title }}</p>
@@ -92,6 +92,10 @@ const BADGES = ['Thanh toán tự động', 'Bảo mật đa lớp', 'Hỗ trợ
       </svg>
       <div class="pointer-events-none absolute inset-0 z-0">
         <div class="absolute left-1/2 top-1/2 hidden md:block h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cmstdev/5 blur-[120px]" />
+      </div>
+
+      <div class="absolute right-5 top-5 z-20">
+        <UiThemeToggle />
       </div>
 
       <div class="relative z-10 mb-8 flex w-full max-w-md justify-center lg:hidden">

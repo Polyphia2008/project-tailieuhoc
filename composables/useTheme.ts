@@ -1,37 +1,58 @@
 export type Theme = 'light' | 'dark' | 'auto'
 
-const STORAGE_KEY = 'mapdocs:theme'
+export const THEME_KEY = 'mapdocs:theme'
+
+export function useThemeCookie() {
+  return useCookie<Theme>(THEME_KEY, {
+    default: () => 'light',
+    maxAge: 60 * 60 * 24 * 365,
+    path: '/',
+    sameSite: 'lax',
+    watch: false
+  })
+}
 
 export function useTheme() {
-  const theme = useState<Theme>('theme', () => 'light')
+  const cookie = useThemeCookie()
+  const initial: Theme = cookie.value === 'dark' || cookie.value === 'auto' ? cookie.value : 'light'
+  const theme = useState<Theme>('theme', () => initial)
 
   function resolve(t: Theme): boolean {
-    if (t === 'auto') return window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (t === 'auto') {
+      if (!import.meta.client) return false
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
     return t === 'dark'
   }
 
+  const isDark = computed(() => resolve(theme.value))
+
   function apply(t: Theme) {
+    theme.value = t
+    cookie.value = t
     if (!import.meta.client) return
     const root = document.documentElement
-    const isDark = resolve(t)
-    root.classList.toggle('dark', isDark)
-    root.style.colorScheme = isDark ? 'dark' : 'light'
-    localStorage.setItem(STORAGE_KEY, t)
-    document.cookie = `${STORAGE_KEY}=${t}; path=/; max-age=31536000; samesite=lax`
-    theme.value = t
+    const dark = resolve(t)
+    root.classList.toggle('dark', dark)
+    root.style.colorScheme = dark ? 'dark' : 'light'
+    try {
+      localStorage.setItem(THEME_KEY, t)
+    } catch {}
   }
 
   function init() {
     if (!import.meta.client) return
-    const saved = localStorage.getItem(STORAGE_KEY) as Theme | null
-    apply(saved || 'light')
+    let saved: Theme | null = null
+    try {
+      saved = localStorage.getItem(THEME_KEY) as Theme | null
+    } catch {}
+    const next: Theme = saved === 'light' || saved === 'dark' || saved === 'auto' ? saved : theme.value
+    apply(next)
   }
 
   function toggle() {
     apply(resolve(theme.value) ? 'light' : 'dark')
   }
 
-  const isDark = computed(() => theme.value === 'dark')
-
-  return { theme, isDark, apply, init, toggle }
+  return { theme, isDark, apply, init, toggle, resolve }
 }

@@ -348,6 +348,81 @@
   }
 }
 
+.auth-feature {
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, .03);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.auth-feature:hover {
+  border-color: rgba(14, 165, 233, .4);
+  background: rgba(255, 255, 255, .05);
+}
+
+.support-card {
+  border: 1px solid rgba(228, 228, 231, .5);
+  background: linear-gradient(135deg, rgb(var(--card)), rgb(var(--background)));
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  transition: border-color .3s ease, box-shadow .3s ease, transform .3s ease;
+}
+
+.support-card:hover {
+  border-color: rgba(14, 165, 233, .3);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, .08);
+  transform: translateY(-2px);
+}
+
+html.dark .support-card {
+  border-color: rgba(255, 255, 255, .05);
+  background: linear-gradient(135deg, #1a1a1a, #131313);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+
+html.dark .support-card:hover {
+  border-color: rgba(56, 189, 248, .3);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, .12);
+}
+
+.panel-dv {
+  border: 1px solid rgb(var(--border) / .5);
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+
+.panel-dv:hover {
+  border-color: rgba(14, 165, 233, .3);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, .07);
+}
+
+html.dark .panel-dv {
+  border-color: rgba(255, 255, 255, .04);
+  background: linear-gradient(135deg, #1a1a1a, #131313);
+  box-shadow: none;
+}
+
+html.dark .panel-dv:hover {
+  border-color: rgba(56, 189, 248, .28);
+}
+
+.stat-card-flat,
+.mdk .stat-card-flat {
+  background-color: transparent;
+  background-image: linear-gradient(to bottom right, rgb(var(--muted) / .35), rgb(var(--background)));
+  border-color: rgb(var(--border) / .5);
+}
+
+html.dark .stat-card-flat,
+html.dark .mdk .stat-card-flat {
+  background-image: linear-gradient(to bottom right, #1a1a1a, #131313);
+  border-color: rgba(255, 255, 255, .03);
+}
+
 .mdk {
   --mdk-bg: #fafafa;
   --mdk-panel: #ffffff;
