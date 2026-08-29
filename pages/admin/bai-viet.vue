@@ -33,7 +33,7 @@ const COVERS = [
   'linear-gradient(140deg,#10b981,#047857)',
   'linear-gradient(140deg,#f97316,#c2410c)',
   'linear-gradient(140deg,#f43f5e,#be123c)',
-  'linear-gradient(140deg,#8b5cf6,#4c1d95)'
+  'linear-gradient(140deg,#0284c7,#075985)'
 ]
 
 function coverBg(b: any, i: number) {

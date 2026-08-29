@@ -41,6 +41,7 @@ async function doLogout() {
 }
 
 const { ago } = useFormat()
+const { avatarUrl, seedOf } = useAvatar()
 
 const TYPE_TONE: Record<string, string> = {
   success: 'text-emerald-400',
@@ -48,6 +49,26 @@ const TYPE_TONE: Record<string, string> = {
   warning: 'text-amber-400',
   error: 'text-rose-400'
 }
+
+const QUICK: { label: string; to: string; icon: string }[] = [
+  { label: 'Cộng đồng', to: '/tai-lieu', icon: 'solar:users-group-rounded-linear' },
+  { label: 'Bảng tin', to: '/blog', icon: 'solar:notes-linear' },
+  { label: 'Xếp hạng', to: '/tai-lieu?sort=rating', icon: 'solar:cup-star-linear' },
+  { label: 'Tài khoản', to: '/dashboard/ho-so', icon: 'solar:user-circle-linear' },
+  { label: 'Giao dịch', to: '/dashboard/doanh-thu', icon: 'solar:bill-list-linear' },
+  { label: 'Bảo mật', to: '/dashboard/ho-so#security', icon: 'solar:shield-keyhole-linear' },
+  { label: 'Nạp tiền', to: '/dashboard/doanh-thu', icon: 'solar:card-transfer-linear' },
+  { label: 'Hỗ trợ', to: '/ho-tro', icon: 'solar:chat-round-line-linear' },
+  { label: 'Bài viết', to: '/blog', icon: 'solar:document-add-linear' }
+]
+
+const roleLabel = computed(() =>
+  auth.user?.role === 'admin' ? 'Quản trị viên' : auth.user?.role === 'seller' ? 'Người bán' : 'Thành viên'
+)
+
+const dropdownAvatar = computed(
+  () => auth.user?.avatar || avatarUrl(seedOf(auth.user?.name || auth.user?.email || 'mapdocs'))
+)
 </script>
 
 <template>
@@ -142,7 +163,10 @@ const TYPE_TONE: Record<string, string> = {
     </DropdownMenuRoot>
 
     <DropdownMenuRoot>
-      <DropdownMenuTrigger class="flex items-center gap-2 h-9 pl-1 pr-2.5 rounded-full border border-mdk-line bg-mdk-panel hover:border-mdk-line2 transition">
+      <DropdownMenuTrigger
+        data-testid="user-menu-trigger"
+        class="flex items-center gap-2 h-9 pl-1 pr-2.5 rounded-full border border-mdk-line bg-mdk-panel transition hover:border-cmstdev/40"
+      >
         <UiAvatar :name="auth.user?.name" :src="auth.user?.avatar" :size="28" online />
         <span class="hidden md:block max-w-[110px] truncate text-[12.5px] font-medium text-mdk-text">
           {{ auth.user?.name || 'Tài khoản' }}
@@ -151,44 +175,91 @@ const TYPE_TONE: Record<string, string> = {
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
         <DropdownMenuContent
+          side="bottom"
           align="end"
           :side-offset="8"
-          class="z-[60] w-[236px] rounded-xl border border-mdk-line bg-mdk-panel shadow-2xl overflow-hidden p-1.5 animate-scale-in"
+          data-testid="user-menu-content"
+          class="z-[100] w-[340px] rounded-2xl border border-border/80 bg-popover p-1.5 text-popover-foreground shadow-2xl"
         >
-          <div class="px-2.5 py-2.5 mb-1">
-            <p class="text-[13px] font-semibold text-mdk-text truncate font-ui">{{ auth.user?.name }}</p>
-            <p class="text-[11.5px] text-mdk-mute truncate">{{ auth.user?.email }}</p>
-            <span class="mt-1.5 inline-flex pill-blue text-[10.5px]">
-              {{ auth.user?.role === 'admin' ? 'Quản trị viên' : auth.user?.role === 'seller' ? 'Người bán' : 'Thành viên' }}
+          <div class="flex items-center gap-3 rounded-xl border border-cmstdev/15 bg-gradient-to-br from-cmstdev/15 via-cmstdev/5 to-transparent p-3">
+            <span class="relative shrink-0">
+              <img
+                :src="dropdownAvatar"
+                alt=""
+                width="48"
+                height="48"
+                class="size-12 rounded-full bg-background object-cover ring-2 ring-cmstdev/30"
+              >
+              <span class="absolute bottom-0 right-0 size-3 rounded-full border-2 border-popover bg-emerald-500" />
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-center gap-1">
+                <span class="truncate text-[13.5px] font-semibold text-foreground">{{ auth.user?.name || 'Tài khoản' }}</span>
+                <AppIcon name="solar:verified-check-bold" size="15" class="shrink-0 text-cmstdev" />
+              </span>
+              <span class="block truncate text-[11.5px] text-muted-foreground">{{ auth.user?.email }}</span>
+              <span class="mt-1 inline-flex items-center rounded-md bg-cmstdev/10 px-1.5 py-0.5 text-[10px] font-medium text-cmstdev">
+                {{ roleLabel }}
+              </span>
             </span>
           </div>
-          <DropdownMenuSeparator class="h-px bg-mdk-line my-1" />
-          <DropdownMenuItem as-child>
-            <NuxtLink to="/dashboard" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] text-mdk-sub hover:bg-mdk-line hover:text-mdk-text outline-none cursor-pointer">
-              <AppIcon name="solar:widget-5-linear" size="16" /> Tổng quan
-            </NuxtLink>
-          </DropdownMenuItem>
-          <DropdownMenuItem as-child>
-            <NuxtLink to="/dashboard/ho-so" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] text-mdk-sub hover:bg-mdk-line hover:text-mdk-text outline-none cursor-pointer">
-              <AppIcon name="solar:user-circle-linear" size="16" /> Hồ sơ cá nhân
-            </NuxtLink>
-          </DropdownMenuItem>
-          <DropdownMenuItem as-child>
-            <NuxtLink to="/dashboard/doanh-thu" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] text-mdk-sub hover:bg-mdk-line hover:text-mdk-text outline-none cursor-pointer">
-              <AppIcon name="solar:wallet-linear" size="16" /> Ví của tôi
-            </NuxtLink>
-          </DropdownMenuItem>
+
+          <div class="group/wallet relative mt-1.5 overflow-hidden rounded-xl bg-gradient-to-br from-cmstdev to-cmstdev-600 p-3.5">
+            <span class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/wallet:translate-x-full" />
+            <AppIcon
+              name="solar:wallet-money-linear"
+              size="84"
+              class="pointer-events-none absolute -bottom-4 -right-3 text-white/10"
+            />
+            <div class="relative flex items-start justify-between gap-2">
+              <span class="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-white/85">
+                <AppIcon name="solar:wallet-linear" size="14" />
+                Số dư ví
+              </span>
+              <DropdownMenuItem as-child>
+                <NuxtLink
+                  to="/dashboard/doanh-thu"
+                  class="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-white/20 px-2 py-1 text-[10.5px] font-semibold text-white outline-none transition hover:bg-white/30"
+                >
+                  <AppIcon name="solar:card-transfer-linear" size="13" />
+                  Nạp tiền
+                </NuxtLink>
+              </DropdownMenuItem>
+            </div>
+            <p class="relative mt-1 text-[21px] font-bold tabular-nums text-white">{{ money(auth.balance) }}</p>
+          </div>
+
+          <div class="mt-2 grid grid-cols-3 gap-y-3 px-1 py-2">
+            <DropdownMenuItem v-for="q in QUICK" :key="q.label" as-child>
+              <NuxtLink :to="q.to" class="group flex cursor-pointer flex-col items-center gap-1.5 outline-none">
+                <span class="rounded-xl bg-cmstdev/5 p-2 text-cmstdev transition-all duration-300 group-hover:bg-cmstdev group-hover:text-white">
+                  <AppIcon :name="q.icon" size="20" />
+                </span>
+                <span class="text-[10px] font-medium text-muted-foreground group-hover:text-cmstdev">{{ q.label }}</span>
+              </NuxtLink>
+            </DropdownMenuItem>
+          </div>
+
+          <DropdownMenuSeparator class="my-1 h-px bg-border" />
+
           <DropdownMenuItem v-if="auth.isAdmin" as-child>
-            <NuxtLink :to="admin ? '/dashboard' : '/admin'" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] text-amber-400 hover:bg-mdk-line outline-none cursor-pointer">
-              <AppIcon name="solar:shield-user-linear" size="16" /> {{ admin ? 'Về dashboard' : 'Trang quản trị' }}
+            <NuxtLink
+              :to="admin ? '/dashboard' : '/admin'"
+              class="mb-1 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-amber-500/10 px-2.5 py-2 text-xs font-medium text-amber-600 outline-none transition hover:bg-amber-500/20 dark:text-amber-400"
+            >
+              <AppIcon name="solar:shield-user-linear" size="16" />
+              {{ admin ? 'Về dashboard' : 'Trang quản trị' }}
             </NuxtLink>
           </DropdownMenuItem>
-          <DropdownMenuSeparator class="h-px bg-mdk-line my-1" />
-          <DropdownMenuItem
-            class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12.5px] text-rose-400 hover:bg-rose-500/10 outline-none cursor-pointer"
-            @select="doLogout()"
-          >
-            <AppIcon name="solar:logout-3-linear" size="16" /> Đăng xuất
+
+          <DropdownMenuItem as-child @select="doLogout()">
+            <button
+              type="button"
+              class="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-red-500/10 px-2.5 py-2 text-xs font-medium text-red-600 outline-none transition hover:bg-red-500/20 dark:text-red-400"
+            >
+              <AppIcon name="solar:logout-2-linear" size="16" />
+              Đăng xuất
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenuPortal>

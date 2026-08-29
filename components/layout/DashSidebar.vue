@@ -41,7 +41,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'OTHERS',
     items: [
       { label: 'Blog', to: '/blog', icon: 'solar:notes-bold-duotone' },
-      { label: 'Trợ giúp', to: '/blog/huong-dan-dang-ban-tai-lieu-tren-mapdocs', icon: 'solar:question-circle-bold-duotone' },
+      { label: 'Hỗ trợ', to: '/ho-tro', icon: 'solar:chat-round-line-linear' },
       { label: 'Cài đặt', to: '/dashboard/ho-so', icon: 'solar:settings-bold-duotone' }
     ]
   }
@@ -155,17 +155,8 @@ function toggle(item: NavItem) {
       </div>
     </nav>
 
-    <div class="shrink-0 p-3 border-t border-mdk-line">
-      <div class="rounded-xl p-3.5 relative overflow-hidden" style="background: linear-gradient(135deg, #1e3a8a, #172554)">
-        <div class="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-primary-500/25 blur-xl animate-glow-pulse" />
-        <p class="relative text-[10.5px] font-semibold text-primary-200 uppercase tracking-wider">Số dư ví</p>
-        <p class="relative mt-1 text-[19px] font-bold text-white font-ui tabular-nums">
-          {{ Number(auth.balance).toLocaleString('vi-VN') }}đ
-        </p>
-        <NuxtLink to="/dashboard/doanh-thu" class="relative mt-2.5 inline-flex items-center gap-1 text-[11.5px] font-medium text-primary-200 hover:text-white transition-colors">
-          Nạp tiền ngay <AppIcon name="solar:arrow-right-linear" size="13" />
-        </NuxtLink>
-      </div>
+    <div class="shrink-0 border-t border-mdk-line px-4 py-3">
+      <p class="text-[10.5px] leading-tight text-mdk-mute">MapDocs · Kho tài liệu học tập</p>
     </div>
   </aside>
 </template>

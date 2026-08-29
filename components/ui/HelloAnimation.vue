@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{ name?: string; confetti?: number }>(), { confetti: 26 })
 
-const COLORS = ['#3b82f6', '#f97316', '#10b981', '#f43f5e', '#8b5cf6', '#f59e0b', '#06b6d4']
+const COLORS = ['#3b82f6', '#f97316', '#10b981', '#f43f5e', '#0ea5e9', '#f59e0b', '#06b6d4']
 
 const bits = computed(() =>
   Array.from({ length: props.confetti }, (_, i) => {

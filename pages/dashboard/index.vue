@@ -51,7 +51,26 @@ useHead({ title: 'Tổng quan - MapDocs' })
     <p class="mt-1 text-[13px] text-mdk-mute">Quản lý tài liệu, doanh thu và hoạt động học tập của bạn.</p>
 
     <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <DashboardStatCard label="Số dư khả dụng" :value="money(c.balance)" icon="solar:wallet-money-bold-duotone" tone="cyan" :spark="ch.revenue" :index="0" to="/dashboard/doanh-thu" />
+      <NuxtLink
+        to="/dashboard/doanh-thu"
+        data-testid="wallet-stat-card"
+        class="stat-card stat-card-flat group relative flex min-h-[132px] flex-col gap-6 overflow-hidden rounded-xl border border-border/50 bg-gradient-to-br from-muted/30 to-background p-5 text-card-foreground shadow-[inset_0_1px_1px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.1),inset_0_-1px_1px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-lg dark:border-white/[0.03] dark:from-[#1a1a1a] dark:to-[#131313] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_3px_rgba(0,0,0,0.3),inset_0_-1px_1px_rgba(0,0,0,0.2)]"
+      >
+        <div class="relative z-10 flex items-center gap-x-4">
+          <span class="grid size-12 shrink-0 place-items-center rounded-xl border border-border/50 bg-muted/40">
+            <AppIcon name="solar:wallet-money-linear" size="24" class="text-cmstdev" />
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-xl font-semibold tabular-nums text-foreground">{{ money(c.balance) }}</span>
+            <span class="block truncate text-sm text-muted-foreground">Số dư hiện tại</span>
+          </span>
+        </div>
+        <AppIcon
+          name="solar:wallet-money-linear"
+          size="96"
+          class="pointer-events-none absolute -bottom-5 -right-4 text-muted-foreground/5 transition-transform duration-500 group-hover:scale-110"
+        />
+      </NuxtLink>
       <DashboardStatCard label="Tổng doanh thu" :value="money(c.revenue)" icon="solar:hand-money-bold-duotone" tone="green" :spark="ch.revenue" :index="1" hint="Đã trừ hoa hồng 15%" to="/dashboard/doanh-thu" />
       <DashboardStatCard label="Tài liệu đang bán" :value="num(c.documents_approved)" icon="solar:documents-bold-duotone" tone="orange" :spark="ch.orders" :index="2" :hint="`${c.documents_pending || 0} chờ duyệt`" to="/dashboard/dang-ban" />
       <DashboardStatCard label="Tài liệu đã mua" :value="num(c.bought)" icon="solar:cart-large-4-bold-duotone" tone="purple" :spark="ch.downloads" :index="3" :hint="`${c.downloads || 0} lượt tải`" to="/dashboard/da-mua" />

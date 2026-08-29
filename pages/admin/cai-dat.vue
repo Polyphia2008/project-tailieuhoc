@@ -202,7 +202,7 @@ useHead({ title: 'Cài đặt - MapDocs Admin' })
         <label class="label">Nội dung banner</label>
         <textarea v-model="f.banner_text" rows="2" class="textarea" placeholder="Giảm 20% cho đơn đầu tiên..." />
       </div>
-      <div v-if="f.banner_enabled && f.banner_text" class="mt-3 rounded-xl px-4 py-3 text-[13px] font-medium text-white" style="background: linear-gradient(120deg,#6d28d9,#2563eb 60%,#06b6d4)">
+      <div v-if="f.banner_enabled && f.banner_text" class="mt-3 rounded-xl px-4 py-3 text-[13px] font-medium text-white" style="background: linear-gradient(120deg,#0369a1,#0ea5e9 60%,#38bdf8)">
         {{ f.banner_text }}
       </div>
     </section>

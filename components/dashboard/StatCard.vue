@@ -18,7 +18,7 @@ const TONES: Record<string, { bg: string; fg: string; line: string }> = {
   blue: { bg: 'rgba(59,130,246,.14)', fg: '#60a5fa', line: '#3b82f6' },
   green: { bg: 'rgba(16,185,129,.14)', fg: '#34d399', line: '#10b981' },
   orange: { bg: 'rgba(249,115,22,.14)', fg: '#fb923c', line: '#f97316' },
-  purple: { bg: 'rgba(139,92,246,.14)', fg: '#a78bfa', line: '#8b5cf6' },
+  purple: { bg: 'rgba(2,132,199,.14)', fg: '#38bdf8', line: '#0284c7' },
   rose: { bg: 'rgba(244,63,94,.14)', fg: '#fb7185', line: '#f43f5e' },
   cyan: { bg: 'rgba(6,182,212,.14)', fg: '#22d3ee', line: '#06b6d4' },
   amber: { bg: 'rgba(245,158,11,.14)', fg: '#fbbf24', line: '#f59e0b' }
