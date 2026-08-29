@@ -36,7 +36,7 @@ useHead({ title: 'Quên mật khẩu - MapDocs' })
         <input v-model="email" type="email" required placeholder="Địa chỉ hộp thư..." class="input-dv" />
       </AuthField>
 
-      <button type="submit" class="btn-cmstdev-solid w-full h-10 text-[13.5px] font-bold" :disabled="busy">
+      <button type="submit" class="btn-cmstdev w-full h-10 text-[13.5px] font-bold" :disabled="busy">
         <UiSpinner v-if="busy" :size="16" />
         Gửi liên kết đặt lại
       </button>

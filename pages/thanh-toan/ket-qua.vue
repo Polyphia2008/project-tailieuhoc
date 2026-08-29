@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: 'auth', authTitle: 'Kết quả thanh toán', authSubtitle: 'Thông tin giao dịch vừa thực hiện.', authIcon: 'solar:bill-check-bold' })
 const route = useRoute()
 const ok = computed(() => String(route.query.status || 'success') === 'success')
 useHead({ title: 'Kết quả thanh toán - MapDocs' })

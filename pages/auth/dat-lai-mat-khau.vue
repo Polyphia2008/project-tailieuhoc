@@ -56,7 +56,7 @@ useHead({ title: 'Đặt lại mật khẩu - MapDocs' })
         </template>
       </AuthField>
 
-      <button type="submit" class="btn-cmstdev-solid w-full h-10 text-[13.5px] font-bold" :disabled="busy || mismatch">
+      <button type="submit" class="btn-cmstdev w-full h-10 text-[13.5px] font-bold" :disabled="busy || mismatch">
         <UiSpinner v-if="busy" :size="16" />
         Cập nhật mật khẩu
       </button>

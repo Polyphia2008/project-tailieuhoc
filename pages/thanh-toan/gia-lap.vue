@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
-definePageMeta({ layout: 'auth', middleware: 'auth' })
+definePageMeta({ layout: 'auth', middleware: 'auth', authTitle: 'Cổng thanh toán', authSubtitle: 'Xác nhận giao dịch nạp tiền của bạn.', authIcon: 'solar:card-transfer-bold' })
 const route = useRoute(); const router = useRouter(); const auth = useAuthStore()
 const busy = ref(false)
 const code = computed(() => String(route.query.code || ''))

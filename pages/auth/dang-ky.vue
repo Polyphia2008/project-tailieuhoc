@@ -102,12 +102,12 @@ useHead({ title: 'Đăng ký - MapDocs' })
         </span>
       </label>
 
-      <button type="submit" class="btn-cmstdev-solid w-full h-10 text-[13.5px] font-bold" :disabled="busy">
+      <button type="submit" class="btn-cmstdev w-full h-10 text-[13.5px] font-bold" :disabled="busy">
         <UiSpinner v-if="busy" :size="16" />
         Tạo tài khoản
       </button>
 
-      <a href="/api/auth/google" class="btn-cmstdev w-full h-10 text-[13.5px] font-semibold">
+      <a href="/api/auth/google" class="btn-google h-10 text-[13.5px] font-semibold">
         <AppIcon name="simple-icons:google" size="15" />
         Đăng ký với Google
       </a>
