@@ -92,7 +92,7 @@ function toggle(item: NavItem) {
           </span>
         </span>
       </NuxtLink>
-      <UiThemeToggle light class="ml-auto shrink-0" />
+      <UiThemeToggle class="ml-auto shrink-0" />
       <button class="lg:hidden w-8 h-8 grid place-items-center rounded-lg text-mdk-mute hover:bg-mdk-line" @click="ui.closeSidebar()">
         <AppIcon name="solar:close-circle-linear" size="18" />
       </button>
