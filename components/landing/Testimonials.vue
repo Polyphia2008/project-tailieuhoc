@@ -1,40 +1,51 @@
 <script setup lang="ts">
 const ITEMS = [
-  { name: 'Nguyễn Minh Hoàng', role: 'Giáo viên Toán', text: 'Mình đăng bán bộ đề thi thử và thu về hơn 15 triệu trong 3 tháng. Nền tảng minh bạch, rút tiền nhanh.', rating: 5 },
-  { name: 'Lê Thu Hà', role: 'Học sinh lớp 12', text: 'Tài liệu chất lượng hơn hẳn những gì mình tải trên mạng. Lời giải chi tiết giúp mình tự học rất hiệu quả.', rating: 5 },
-  { name: 'Vũ Thị Kim Ngân', role: 'Giáo viên Ngữ văn', text: 'Bộ NLXH của mình được hơn 300 học sinh mua. Cảm ơn MapDocs đã tạo kênh phân phối tốt cho giáo viên.', rating: 5 }
+  {
+    name: 'Ngọc Anh',
+    role: 'Học sinh lớp 12',
+    text: 'Đề cương trên MapDocs được sắp xếp rất gọn, mình ôn thi nhanh hơn hẳn so với tự tổng hợp tài liệu rời rạc.'
+  },
+  {
+    name: 'Minh Quân',
+    role: 'Sinh viên năm 2',
+    text: 'Mình đăng bán bộ chuyên đề tự soạn và nhận doanh thu đều mỗi tháng. Quy trình đối soát rõ ràng, không phải làm thủ công.'
+  },
+  {
+    name: 'Cô Thu Hà',
+    role: 'Giáo viên Ngữ văn',
+    text: 'Tài liệu được kiểm duyệt kỹ nên mình yên tâm giới thiệu cho học sinh. Giao diện dùng cũng rất dễ với cả phụ huynh.'
+  }
 ]
 </script>
 
 <template>
-  <section class="bg-white py-16 lg:py-20 border-t border-slate-200">
+  <section id="testimonials" class="bg-muted/40 py-16 lg:py-20">
     <div class="container-x">
-      <div class="text-center max-w-[560px] mx-auto">
-        <p class="text-[12px] font-bold text-accent-600 uppercase tracking-wider">Cộng đồng nói gì</p>
-        <h2 class="mt-2.5 text-[28px] sm:text-[36px] font-extrabold text-slate-900 font-ui tracking-tight leading-tight">
-          Được tin dùng bởi giáo viên và học sinh
-        </h2>
+      <div class="mx-auto max-w-[620px] text-center">
+        <p class="section-eyebrow">Cộng đồng nói gì</p>
+        <h2 class="section-title">Được tin dùng mỗi ngày</h2>
+        <p class="section-sub">Hàng nghìn học sinh, sinh viên và giáo viên đang học tập cùng MapDocs.</p>
       </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        <div
+      <div class="mt-11 grid gap-4 md:grid-cols-3">
+        <figure
           v-for="(t, i) in ITEMS"
           :key="t.name"
-          class="card p-6 flex flex-col"
           v-motion
-          :initial="{ opacity: 0, y: 18 }"
-          :visible-once="{ opacity: 1, y: 0, transition: { delay: i * 110, duration: 460 } }"
+          :initial="{ opacity: 0, y: 26 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { duration: 520, delay: 70 + i * 90 } }"
+          class="feature-v3"
         >
-          <UiRating :value="t.rating" :size="15" />
-          <p class="mt-3.5 flex-1 text-[13.5px] text-slate-600 leading-relaxed">“{{ t.text }}”</p>
-          <div class="mt-5 pt-4 border-t border-slate-100 flex items-center gap-2.5">
-            <UiAvatar :name="t.name" :size="36" />
+          <AppIcon name="solar:chat-square-2-bold-duotone" size="26" class="text-cmstdev-500/70" />
+          <blockquote class="mt-3.5 text-[13.5px] leading-relaxed text-foreground/70">{{ t.text }}</blockquote>
+          <figcaption class="mt-5 flex items-center gap-2.5 border-t border-border pt-4">
+            <UiAvatar :name="t.name" :size="34" />
             <div>
-              <p class="text-[13.5px] font-semibold text-slate-900 dark:text-zinc-100 font-ui">{{ t.name }}</p>
-              <p class="text-[11.5px] text-slate-400">{{ t.role }}</p>
+              <p class="font-ui text-[13.5px] font-bold text-foreground">{{ t.name }}</p>
+              <p class="text-[11.5px] text-foreground/50">{{ t.role }}</p>
             </div>
-          </div>
-        </div>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>

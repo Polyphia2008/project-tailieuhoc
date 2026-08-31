@@ -1,39 +1,64 @@
 <script setup lang="ts">
-const FEATURES = [
-  { icon: 'solar:gift-bold-duotone', title: 'Chia sẻ miễn phí', desc: 'Hàng nghìn tài liệu miễn phí, tải về không giới hạn và không cần trả phí.', tone: 'from-emerald-500 to-emerald-700' },
-  { icon: 'solar:shield-check-bold-duotone', title: 'Mua bán an toàn', desc: 'Thanh toán qua VNPay hoặc ví MapDocs, hoàn tiền nếu tài liệu không đúng mô tả.', tone: 'from-primary-500 to-primary-700' },
-  { icon: 'solar:hand-money-bold-duotone', title: 'Đăng bán nhận 85%', desc: 'Ai cũng có thể đăng bán. Bạn giữ 85% doanh thu, rút tiền về ngân hàng dễ dàng.', tone: 'from-accent-400 to-accent-600' }
+const ITEMS = [
+  {
+    icon: 'solar:lock-keyhole-minimalistic-bold-duotone',
+    title: 'Bảo mật tuyệt đối',
+    desc: 'Mọi tài liệu được lưu trữ mã hoá, link tải có thời hạn và chống chia sẻ trái phép.'
+  },
+  {
+    icon: 'solar:rocket-2-bold-duotone',
+    title: 'Tốc độ vượt trội',
+    desc: 'Tải xuống tức thì nhờ hạ tầng phân phối nội dung tối ưu cho người học Việt Nam.'
+  },
+  {
+    icon: 'solar:server-square-cloud-bold-duotone',
+    title: 'Kho tài liệu lớn',
+    desc: 'Hàng nghìn đề cương, đề thi thử và chuyên đề của 8 môn học được phân loại rõ ràng.'
+  },
+  {
+    icon: 'solar:wallet-money-bold-duotone',
+    title: 'Đăng bán nhận doanh thu',
+    desc: 'Chia sẻ tài liệu của bạn và nhận tới 85% doanh thu, đối soát tự động minh bạch.'
+  },
+  {
+    icon: 'solar:shield-check-bold-duotone',
+    title: 'Kiểm duyệt kỹ lưỡng',
+    desc: 'Mỗi tài liệu đều qua vòng thẩm định nội dung trước khi lên kệ công khai.'
+  },
+  {
+    icon: 'solar:headphones-round-sound-bold-duotone',
+    title: 'Hỗ trợ tận tâm',
+    desc: 'Đội ngũ MapDocs phản hồi nhanh qua chat, email và hotline mỗi ngày làm việc.'
+  }
 ]
 </script>
 
 <template>
-  <section class="bg-slate-50 py-16 lg:py-20">
+  <section id="features" class="relative bg-background py-16 lg:py-20">
     <div class="container-x">
-      <div class="max-w-[620px]">
-        <p class="text-[12px] font-bold text-primary-600 uppercase tracking-wider">Vì sao chọn MapDocs</p>
-        <h2 class="mt-2.5 text-[28px] sm:text-[36px] font-extrabold text-slate-900 font-ui tracking-tight leading-tight">
-          Nền tảng tài liệu học tập minh bạch
-        </h2>
-        <p class="mt-3 text-[15px] text-slate-500 leading-relaxed">
-          Mọi tài liệu đều được kiểm duyệt trước khi hiển thị. Người bán và người mua đều được bảo vệ.
+      <div class="mx-auto max-w-[620px] text-center">
+        <p class="section-eyebrow">Vì sao chọn MapDocs</p>
+        <h2 class="section-title">Nền tảng tài liệu học tập toàn diện</h2>
+        <p class="section-sub">
+          Tất cả những gì bạn cần để học tập hiệu quả và biến tri thức thành thu nhập, gói gọn trong một hệ thống.
         </p>
       </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        <div
-          v-for="(f, i) in FEATURES"
+      <div class="mt-11 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <article
+          v-for="(f, i) in ITEMS"
           :key="f.title"
-          class="card p-6 hover:shadow-lift transition-shadow"
           v-motion
-          :initial="{ opacity: 0, y: 18 }"
-          :visible-once="{ opacity: 1, y: 0, transition: { delay: i * 110, duration: 460 } }"
+          :initial="{ opacity: 0, y: 28 }"
+          :visible-once="{ opacity: 1, y: 0, transition: { duration: 520, delay: 60 + i * 70 } }"
+          class="feature-v3"
         >
-          <span class="w-12 h-12 rounded-xl grid place-items-center text-white bg-gradient-to-br" :class="f.tone">
-            <AppIcon :name="f.icon" size="24" />
+          <span class="hero-card-ic">
+            <AppIcon :name="f.icon" size="23" />
           </span>
-          <h3 class="mt-4 text-[16.5px] font-bold text-slate-900 font-ui">{{ f.title }}</h3>
-          <p class="mt-2 text-[13.5px] text-slate-500 leading-relaxed">{{ f.desc }}</p>
-        </div>
+          <h3 class="mt-4 font-ui text-[16px] font-bold text-foreground">{{ f.title }}</h3>
+          <p class="mt-2 text-[13.5px] leading-relaxed text-foreground/58">{{ f.desc }}</p>
+        </article>
       </div>
     </div>
   </section>
