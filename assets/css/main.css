@@ -1246,6 +1246,7 @@ html.dark .feature-v3:hover {
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  margin-right: 14px;
   height: 46px;
   padding: 0 18px;
   border-radius: 12px;
