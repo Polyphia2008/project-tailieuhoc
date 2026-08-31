@@ -32,8 +32,8 @@ const FLOAT_ROWS = [
       <LandingBlockchainCanvas :density="66" :speed="0.13" />
     </ClientOnly>
 
-    <SvgBlob size="500" from="#38bdf8" to="#22d3ee" :opacity="0.18" class="-left-32 -top-28" />
-    <SvgBlob size="420" from="#0ea5e9" to="#0369a1" :opacity="0.15" :delay="1.4" class="-right-24 top-20" />
+    <SvgBlob :size="500" from="#38bdf8" to="#22d3ee" :opacity="0.18" class="-left-32 -top-28" />
+    <SvgBlob :size="420" from="#0ea5e9" to="#0369a1" :opacity="0.15" :delay="1.4" class="-right-24 top-20" />
 
     <div class="container-x relative z-[2] pb-20 pt-14 sm:pt-20 lg:pb-28 lg:pt-24">
       <div class="mx-auto max-w-[860px] text-center">

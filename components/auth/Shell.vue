@@ -121,9 +121,9 @@ const BADGES = ['Thanh toán tự động', 'Bảo mật đa lớp', 'Hỗ trợ
 
         <p class="mt-8 text-center text-xs text-muted-foreground/80">
           Tiếp tục đồng nghĩa với việc bạn chấp nhận
-          <NuxtLink to="/dieu-khoan" class="text-cmstdev hover:underline">Điều khoản</NuxtLink>
+          <NuxtLink to="/ho-tro" class="text-cmstdev hover:underline">Điều khoản</NuxtLink>
           và
-          <NuxtLink to="/bao-mat" class="text-cmstdev hover:underline">Chính sách bảo mật</NuxtLink>.
+          <NuxtLink to="/ho-tro" class="text-cmstdev hover:underline">Chính sách bảo mật</NuxtLink>.
         </p>
       </div>
     </main>
