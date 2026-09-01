@@ -69,7 +69,7 @@ const FLOAT_ROWS = [
           :enter="{ opacity: 1, y: 0, transition: { duration: 600, delay: 260 } }"
           class="mt-9 flex flex-wrap items-center justify-center gap-3"
         >
-          <UiGradientBorder radius="13px" :inset="false">
+          <UiGradientBorder radius="13px" :inset="false" glow :duration="6">
             <NuxtLink to="/tai-lieu" class="btn-brand">
               Khám phá ngay
               <AppIcon name="solar:arrow-right-bold" size="16" />
@@ -120,7 +120,7 @@ const FLOAT_ROWS = [
           class="mx-auto w-full max-w-[352px] animate-float"
           aria-label="Minh hoạ bảng điều khiển MapDocs"
         >
-          <UiGradientBorder radius="18px">
+          <UiGradientBorder radius="18px" :duration="9" :intensity=".85">
             <div class="float-card p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">

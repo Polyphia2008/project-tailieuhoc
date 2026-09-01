@@ -94,7 +94,16 @@ useHead({ title: 'MapDocs - Kho tài liệu học tập chất lượng toàn di
         </div>
 
         <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <DocumentDocCard v-for="(d, i) in freeList" :key="d.id" :doc="d" :index="i" />
+          <UiGradientBorder
+            v-for="(d, i) in freeList"
+            :key="d.id"
+            radius="16px"
+            :inset="false"
+            :duration="10"
+            :intensity=".75"
+          >
+            <DocumentDocCard :doc="d" :index="i" />
+          </UiGradientBorder>
         </div>
       </div>
     </section>
@@ -154,7 +163,7 @@ useHead({ title: 'MapDocs - Kho tài liệu học tập chất lượng toàn di
 
     <section id="seller-cta" class="bg-background pb-16 pt-4 lg:pb-20">
       <div class="container-x">
-        <UiGradientBorder radius="24px" :inset="false">
+        <UiGradientBorder radius="24px" :inset="false" variant="accent" :duration="8">
           <div class="cta-band px-6 py-12 text-center sm:px-12 lg:py-14">
             <div class="relative z-[1] mx-auto max-w-[680px]">
               <h2 class="font-ui text-[26px] font-extrabold leading-tight tracking-tight text-white sm:text-[34px]">

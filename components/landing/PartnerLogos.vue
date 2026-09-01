@@ -1,14 +1,32 @@
 <script setup lang="ts">
+import { Carousel, Slide, Navigation } from 'vue3-carousel'
+import 'vue3-carousel/dist/carousel.css'
+
 const ITEMS = [
   { icon: 'solar:map-point-school-bold-duotone', name: 'THPT Chu Văn An' },
   { icon: 'solar:buildings-2-bold-duotone', name: 'THPT Lê Hồng Phong' },
   { icon: 'solar:city-bold-duotone', name: 'THPT Nguyễn Huệ' },
-  { icon: 'solar:library-bold-duotone', name: 'Trung tâm MapDocs' },
+  { icon: 'solar:library-bold-duotone', name: 'MapDocs Teacher' },
   { icon: 'solar:diploma-bold-duotone', name: 'Cộng đồng giáo viên' },
   { icon: 'solar:users-group-rounded-bold-duotone', name: 'Học sinh Việt Nam' }
 ]
 
-const LOOP = [...ITEMS, ...ITEMS]
+const paused = ref(false)
+
+const settings = {
+  itemsToShow: 2,
+  snapAlign: 'start' as const,
+  wrapAround: true,
+  transition: 600,
+  autoplay: 3000,
+  pauseAutoplayOnHover: true
+}
+
+const breakpoints = {
+  640: { itemsToShow: 3, snapAlign: 'start' as const },
+  1024: { itemsToShow: 5, snapAlign: 'start' as const },
+  1280: { itemsToShow: 6, snapAlign: 'start' as const }
+}
 </script>
 
 <template>
@@ -19,19 +37,38 @@ const LOOP = [...ITEMS, ...ITEMS]
       </p>
     </div>
 
-    <div class="marquee-mask mt-6" role="list">
-      <div class="marquee">
-        <span
-          v-for="(p, i) in LOOP"
-          :key="p.name + '-' + i"
-          class="partner-chip"
-          role="listitem"
-          :aria-hidden="i >= ITEMS.length ? 'true' : undefined"
+    <div class="partner-wrap mt-6">
+      <ClientOnly>
+        <Carousel
+          v-bind="settings"
+          :breakpoints="breakpoints"
+          class="partner-carousel"
+          @mouseenter="paused = true"
+          @mouseleave="paused = false"
         >
-          <AppIcon :name="p.icon" size="19" class="shrink-0 text-cmstdev-500" />
-          {{ p.name }}
-        </span>
-      </div>
+          <Slide v-for="p in ITEMS" :key="p.name">
+            <div class="partner-slide">
+              <span class="partner-chip">
+                <AppIcon :name="p.icon" size="19" class="shrink-0 text-cmstdev-500" />
+                {{ p.name }}
+              </span>
+            </div>
+          </Slide>
+
+          <template #addons>
+            <Navigation />
+          </template>
+        </Carousel>
+
+        <template #fallback>
+          <div class="partner-fallback">
+            <span v-for="p in ITEMS" :key="p.name" class="partner-chip">
+              <AppIcon :name="p.icon" size="19" class="shrink-0 text-cmstdev-500" />
+              {{ p.name }}
+            </span>
+          </div>
+        </template>
+      </ClientOnly>
     </div>
   </section>
 </template>
@@ -49,5 +86,88 @@ const LOOP = [...ITEMS, ...ITEMS]
 
 :global(html.dark) .partner-section {
   background: rgb(var(--card) / .4);
+}
+
+.partner-wrap {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.partner-wrap::before,
+.partner-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 88px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.partner-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, rgb(var(--background)) 8%, rgb(var(--background) / 0) 100%);
+}
+
+.partner-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, rgb(var(--background)) 8%, rgb(var(--background) / 0) 100%);
+}
+
+.partner-slide {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 0 7px;
+}
+
+.partner-fallback {
+  display: flex;
+  gap: 14px;
+  overflow: hidden;
+  padding: 0 1rem;
+}
+
+.partner-carousel :deep(.carousel__viewport) {
+  overflow: hidden;
+}
+
+.partner-carousel :deep(.carousel__track) {
+  align-items: stretch;
+}
+
+.partner-carousel :deep(.carousel__prev),
+.partner-carousel :deep(.carousel__next) {
+  display: none;
+  height: 34px;
+  width: 34px;
+  border-radius: 9999px;
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--card) / .9);
+  color: rgb(var(--foreground) / .7);
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .3);
+  transition: color .18s ease, border-color .18s ease;
+  z-index: 4;
+}
+
+.partner-carousel :deep(.carousel__prev:hover),
+.partner-carousel :deep(.carousel__next:hover) {
+  color: #0ea5e9;
+  border-color: rgba(14, 165, 233, .55);
+}
+
+.partner-carousel :deep(.carousel__icon) {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+@media (min-width: 1024px) {
+  .partner-carousel :deep(.carousel__prev),
+  .partner-carousel :deep(.carousel__next) {
+    display: grid;
+    place-items: center;
+  }
 }
 </style>
