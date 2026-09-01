@@ -61,7 +61,7 @@ export function useSubjects() {
       sale: { label: 'Bán tài liệu', icon: 'solar:hand-money-bold-duotone', positive: true },
       purchase: { label: 'Mua tài liệu', icon: 'solar:cart-large-4-bold-duotone', positive: false },
       withdraw: { label: 'Rút tiền', icon: 'solar:card-send-bold-duotone', positive: false },
-      commission: { label: 'Hoa hồng', icon: 'solar:percent-square-bold-duotone', positive: false }
+      commission: { label: 'Hoa hồng', icon: 'solar:sale-square-bold-duotone', positive: false }
     }
     return map[String(type)] || { label: String(type || '—'), icon: 'solar:wallet-bold-duotone', positive: true }
   }

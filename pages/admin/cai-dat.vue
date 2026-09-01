@@ -96,7 +96,7 @@ useHead({ title: 'Cài đặt - MapDocs Admin' })
     <section class="mt-5 card p-5">
       <div class="flex items-center gap-2.5">
         <span class="w-9 h-9 rounded-lg grid place-items-center bg-accent-500/15 text-accent-400">
-          <AppIcon name="solar:percent-square-bold-duotone" size="19" />
+          <AppIcon name="solar:sale-square-bold-duotone" size="19" />
         </span>
         <div>
           <h2 class="text-[15px] font-bold text-mdk-text font-ui">Phí & giới hạn</h2>

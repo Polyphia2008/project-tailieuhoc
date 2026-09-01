@@ -60,7 +60,7 @@ useHead({ title: 'Giao dịch - MapDocs Admin' })
 
     <div class="mt-5 grid gap-4 sm:grid-cols-3">
       <DashboardStatCard label="Tổng GMV" :value="money(counts.gmv || 0)" icon="solar:dollar-minimalistic-bold-duotone" tone="blue" :index="0" :hint="`${num(counts.paid || 0)} đơn hoàn tất`" />
-      <DashboardStatCard label="Hoa hồng thu được" :value="money(counts.commission || 0)" icon="solar:percent-square-bold-duotone" tone="orange" :index="1" hint="15% mỗi giao dịch" />
+      <DashboardStatCard label="Hoa hồng thu được" :value="money(counts.commission || 0)" icon="solar:sale-square-bold-duotone" tone="orange" :index="1" hint="15% mỗi giao dịch" />
       <DashboardStatCard label="Đơn completed" :value="num(counts.paid || 0)" icon="solar:cart-check-bold-duotone" tone="green" :index="2" :hint="`${num(counts.pending || 0)} chờ · ${num(counts.failed || 0)} lỗi`" />
     </div>
 

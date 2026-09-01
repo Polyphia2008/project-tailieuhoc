@@ -11,7 +11,7 @@ const { num, ago, price } = useFormat()
 const id = computed(() => String(route.params.id || ''))
 
 const { data, error } = await useFetch<any>(() => `/api/community/users/${id.value}`, {
-  default: () => ({ data: null })
+  default: () => ({ data: null as any })
 })
 
 if (error.value || !data.value?.data) {
