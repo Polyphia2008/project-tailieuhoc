@@ -13,6 +13,8 @@ const scrolled = ref(false)
 const NAV = [
   { label: 'Khám phá', to: '/' },
   { label: 'Thư viện', to: '/tai-lieu' },
+  { label: 'Cộng đồng', to: '/community' },
+  { label: 'Bảng xếp hạng', to: '/community/leaderboard' },
   { label: 'Blog', to: '/blog' }
 ]
 
@@ -110,6 +112,16 @@ watch(() => route.fullPath, () => { mobileOpen.value = false })
                 <DropdownMenuItem as-child>
                   <NuxtLink to="/dashboard/da-mua" class="menu-v3-item">
                     <AppIcon name="solar:folder-with-files-bold-duotone" size="17" /> Kho của tôi
+                  </NuxtLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem as-child>
+                  <NuxtLink to="/community" class="menu-v3-item">
+                    <AppIcon name="solar:users-group-rounded-bold-duotone" size="17" /> Cộng đồng
+                  </NuxtLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem as-child>
+                  <NuxtLink to="/community/leaderboard" class="menu-v3-item">
+                    <AppIcon name="solar:ranking-bold-duotone" size="17" /> Xếp hạng
                   </NuxtLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem as-child>

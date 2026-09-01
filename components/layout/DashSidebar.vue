@@ -34,6 +34,8 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: 'Ví của tôi', to: '/dashboard/doanh-thu', icon: 'solar:wallet-money-bold-duotone' },
       { label: 'Yêu thích', to: '/dashboard/yeu-thich', icon: 'solar:heart-bold-duotone' },
+      { label: 'Cộng đồng', to: '/community', icon: 'solar:users-group-rounded-bold-duotone' },
+      { label: 'Xếp hạng', to: '/community/leaderboard', icon: 'solar:ranking-bold-duotone' },
       { label: 'Hồ sơ cá nhân', to: '/dashboard/ho-so', icon: 'solar:user-circle-bold-duotone' }
     ]
   },
