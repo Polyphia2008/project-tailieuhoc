@@ -43,16 +43,18 @@ export default defineEventHandler(async (event) => {
     thumbnail: d.thumbnail,
     price: d.price,
     status: d.status,
-    views: d.views,
-    downloads: d.downloads,
-    rating: d.rating,
+    views: d.view_count,
+    downloads: d.download_count,
+    sold: d.sold_count,
+    rating: d.rating_avg,
+    rating_count: d.rating_count,
     created_at: d.created_at
   }))
 
-  const sold = docs.rows.reduce((sum, d) => sum + (Number(d.sold) || 0), 0)
-  const rated = docs.rows.filter((d) => Number(d.rating) > 0)
+  const sold = docs.rows.reduce((sum, d) => sum + (Number(d.sold_count) || 0), 0)
+  const rated = docs.rows.filter((d) => Number(d.rating_avg) > 0)
   const rating = rated.length
-    ? Math.round((rated.reduce((s, d) => s + Number(d.rating), 0) / rated.length) * 10) / 10
+    ? Math.round((rated.reduce((s, d) => s + Number(d.rating_avg), 0) / rated.length) * 10) / 10
     : 0
 
   return {

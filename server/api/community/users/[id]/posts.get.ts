@@ -24,9 +24,11 @@ export default defineEventHandler(async (event) => {
     thumbnail: d.thumbnail,
     price: d.price,
     status: d.status,
-    views: d.views,
-    downloads: d.downloads,
-    rating: d.rating,
+    views: d.view_count,
+    downloads: d.download_count,
+    sold: d.sold_count,
+    rating: d.rating_avg,
+    rating_count: d.rating_count,
     created_at: d.created_at
   }))
 
