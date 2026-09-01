@@ -149,3 +149,35 @@ webapp/
 - **Status**: ✅ Active trên port 3000
 - **Preset**: `node-server` (Nitro). Muốn deploy Cloudflare: đặt `NITRO_PRESET=cloudflare-pages`
 - **Last Updated**: 2026-08-27
+
+## Cộng đồng MapDocs (V3)
+
+### Trang
+- `/community` — chat 2 cột: sidebar 320px (tìm thành viên, Tin nhắn chung / Tin nhắn riêng, tạo nhóm, switch nhận tin nhắn riêng, drawer mobile), main panel (header, message list, composer Enter/Shift+Enter), polling 5s
+- `/community/leaderboard` — podium top 3 vàng/bạc/đồng, danh sách hạng 4+, filter Tất cả/Tuần/Tháng/Mọi thời gian, sort Theo dõi/Nổi tiếng/Người mới
+- `/profile/[id]` — cover gradient cyan, avatar DiceBear, verified, followers/following/popularity, Follow + Nhắn tin + dropdown, 4 tab Giới thiệu/Người theo dõi/Đang theo dõi/Bài viết
+
+### API (12 endpoints)
+| Method | Path |
+|---|---|
+| GET | `/api/community/leaderboard?period=&sort=&page=&limit=&q=` |
+| GET | `/api/community/users/search?q=&limit=` (max 20) |
+| GET | `/api/community/users/[id]` |
+| GET | `/api/community/users/[id]/posts` |
+| POST | `/api/community/users/[id]/follow` |
+| DELETE | `/api/community/users/[id]/follow` |
+| GET | `/api/community/conversations` |
+| POST | `/api/community/conversations` |
+| GET | `/api/community/conversations/[id]` |
+| GET | `/api/community/conversations/[id]/messages` |
+| POST | `/api/community/conversations/[id]/messages` (max 2000 ký tự) |
+| POST | `/api/community/conversations/[id]/read` |
+
+### Bảo mật
+- Không trả về email, password, password_hash, salt, token, bank, balance
+- GET leaderboard / search / profile công khai; follow, gửi tin nhắn yêu cầu đăng nhập
+- Không tự theo dõi chính mình, không trùng follow, followers_count không âm
+- Conversation riêng chỉ thành viên xem được (403 với người ngoài)
+
+### Data layer
+`server/utils/community.ts` — COMMUNITY_PROFILES (8 user), follow matrix, 5 conversations (2 public + 3 private), 30 seed messages, lưu tại `globalThis.__mapdocs_community`
