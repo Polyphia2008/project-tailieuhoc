@@ -7,9 +7,9 @@ export default defineEventHandler(async (event) => {
   const q = getQuery(event) as Record<string, any>
   const viewer = await currentUser(event)
   const conv = communityStore().conversations.find((c) => c.id === id)
-  if (!conv) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy cuộc trò chuyện' })
+  if (!conv) throw createError({ statusCode: 404, message: 'Không tìm thấy cuộc trò chuyện' })
   if (!canRead(conv, viewer?.id))
-    throw createError({ statusCode: 403, statusMessage: 'Bạn không có quyền xem cuộc trò chuyện này' })
+    throw createError({ statusCode: 403, message: 'Bạn không có quyền xem cuộc trò chuyện này' })
 
   const limit = Math.min(100, Math.max(1, Number(q.limit) || 50))
   const after = String(q.after || '')

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id') as string
   const viewer = await currentUser(event)
   const user = await findUser(id)
-  if (!user) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy thành viên' })
+  if (!user) throw createError({ statusCode: 404, message: 'Không tìm thấy thành viên' })
 
   const db = useDriver()
   const followerIds = followersOf(user.id).map((f) => f.follower_id)

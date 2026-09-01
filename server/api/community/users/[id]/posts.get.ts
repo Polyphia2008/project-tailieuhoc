@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const { page, limit, offset } = paginate(q, 12)
 
   const user = await findUser(id)
-  if (!user) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy thành viên' })
+  if (!user) throw createError({ statusCode: 404, message: 'Không tìm thấy thành viên' })
 
   const { rows, total } = await useDriver().find<any>('documents', {
     where: { seller_id: user.id },

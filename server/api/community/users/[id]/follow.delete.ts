@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   const me = await requireUser(event)
   const id = getRouterParam(event, 'id') as string
   const target = await findUser(id)
-  if (!target) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy thành viên' })
+  if (!target) throw createError({ statusCode: 404, message: 'Không tìm thấy thành viên' })
 
   removeFollow(me.id, target.id)
 

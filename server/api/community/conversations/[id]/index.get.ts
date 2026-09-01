@@ -6,9 +6,9 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id') as string
   const viewer = await currentUser(event)
   const conv = communityStore().conversations.find((c) => c.id === id)
-  if (!conv) throw createError({ statusCode: 404, statusMessage: 'Không tìm thấy cuộc trò chuyện' })
+  if (!conv) throw createError({ statusCode: 404, message: 'Không tìm thấy cuộc trò chuyện' })
   if (!canRead(conv, viewer?.id))
-    throw createError({ statusCode: 403, statusMessage: 'Bạn không có quyền xem cuộc trò chuyện này' })
+    throw createError({ statusCode: 403, message: 'Bạn không có quyền xem cuộc trò chuyện này' })
 
   const users = (await useDriver().find<any>('users', {})).rows
   const byId = new Map(users.map((u) => [u.id, u]))

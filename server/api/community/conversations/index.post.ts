@@ -10,19 +10,19 @@ export default defineEventHandler(async (event) => {
   const members = [...new Set([me.id, ...raw])]
 
   if (members.length < 2)
-    throw createError({ statusCode: 400, statusMessage: 'Cần ít nhất một thành viên khác' })
+    throw createError({ statusCode: 400, message: 'Cần ít nhất một thành viên khác' })
 
   const db = useDriver()
   const users = (await db.find<any>('users', {})).rows
   const byId = new Map(users.map((u) => [u.id, u]))
   for (const m of members) {
     if (!byId.has(m))
-      throw createError({ statusCode: 400, statusMessage: 'Thành viên không hợp lệ' })
+      throw createError({ statusCode: 400, message: 'Thành viên không hợp lệ' })
   }
 
   let title = String(body.title || '').trim()
   if (kind === 'group' && !title)
-    throw createError({ statusCode: 400, statusMessage: 'Vui lòng nhập tên nhóm' })
+    throw createError({ statusCode: 400, message: 'Vui lòng nhập tên nhóm' })
 
   if (kind === 'private') {
     const existing = communityStore().conversations.find(
