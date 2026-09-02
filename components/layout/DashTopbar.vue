@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DropdownMenuRoot, DropdownMenuTrigger, DropdownMenuPortal, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from 'radix-vue'
+import { DropdownMenuRoot, DropdownMenuTrigger, DropdownMenuPortal, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, PopoverRoot, PopoverTrigger, PopoverPortal, PopoverContent, PopoverClose } from 'radix-vue'
 
 const props = withDefaults(defineProps<{ admin?: boolean }>(), { admin: false })
 
@@ -69,6 +69,60 @@ const roleLabel = computed(() =>
 const dropdownAvatar = computed(
   () => auth.user?.avatar || avatarUrl(seedOf(auth.user?.name || auth.user?.email || 'mapdocs'))
 )
+
+const LOCALE_KEY = 'mapdocs:locale'
+const CURRENCY_KEY = 'mapdocs:currency'
+
+const LOCALES = [
+  { code: 'vi', label: 'Tiếng Việt', hint: 'Vietnamese' },
+  { code: 'en', label: 'English', hint: 'United States' }
+]
+
+const CURRENCIES = [
+  { code: 'VND', label: 'VND', hint: 'Việt Nam Đồng' },
+  { code: 'USD', label: 'USD', hint: 'US Dollar' },
+  { code: 'EUR', label: 'EUR', hint: 'Euro' }
+]
+
+const localeOpen = ref(false)
+const localeTab = ref<'locale' | 'currency'>('locale')
+const localeQuery = ref('')
+const locale = ref('vi')
+const currency = ref('VND')
+
+const filteredLocales = computed(() => {
+  const q = localeQuery.value.trim().toLowerCase()
+  if (!q) return LOCALES
+  return LOCALES.filter((l) => l.label.toLowerCase().includes(q) || l.hint.toLowerCase().includes(q))
+})
+
+const localeSummary = computed(() => {
+  const l = LOCALES.find((x) => x.code === locale.value)
+  return `${l?.label || 'Tiếng Việt'} · ${currency.value}`
+})
+
+function pickLocale(code: string) {
+  locale.value = code
+  try {
+    localStorage.setItem(LOCALE_KEY, code)
+  } catch {}
+}
+
+function pickCurrency(code: string) {
+  currency.value = code
+  try {
+    localStorage.setItem(CURRENCY_KEY, code)
+  } catch {}
+}
+
+onMounted(() => {
+  try {
+    const l = localStorage.getItem(LOCALE_KEY)
+    const c = localStorage.getItem(CURRENCY_KEY)
+    if (l && LOCALES.some((x) => x.code === l)) locale.value = l
+    if (c && CURRENCIES.some((x) => x.code === c)) currency.value = c
+  } catch {}
+})
 </script>
 
 <template>
@@ -101,6 +155,77 @@ const dropdownAvatar = computed(
         <b class="tabular-nums">{{ money(auth.balance) }}</b>
       </span>
     </div>
+
+    <PopoverRoot v-model:open="localeOpen">
+      <PopoverTrigger as-child>
+        <button
+          type="button"
+          aria-label="Ngôn ngữ và tiền tệ"
+          title="Ngôn ngữ và tiền tệ"
+          class="w-9 h-9 grid place-items-center rounded-lg text-mdk-sub transition hover:bg-cmstdev/10 hover:text-cmstdev"
+        >
+          <AppIcon name="solar:global-linear" size="18" />
+        </button>
+      </PopoverTrigger>
+      <PopoverPortal>
+        <PopoverContent side="bottom" align="end" :side-offset="8" :collision-padding="12" class="lc-pop">
+          <div class="lc-tabs">
+            <button type="button" class="lc-tab" :class="localeTab === 'locale' ? 'lc-tab-active' : ''" @click="localeTab = 'locale'">
+              Ngôn ngữ
+            </button>
+            <button type="button" class="lc-tab" :class="localeTab === 'currency' ? 'lc-tab-active' : ''" @click="localeTab = 'currency'">
+              Tiền tệ
+            </button>
+          </div>
+
+          <div v-if="localeTab === 'locale'" class="lc-body">
+            <div class="lc-search">
+              <AppIcon name="solar:magnifer-line-duotone" size="15" class="lc-search-icon" />
+              <input v-model="localeQuery" type="search" placeholder="Tìm kiếm ngôn ngữ..." />
+            </div>
+            <p v-if="!filteredLocales.length" class="lc-empty">Không tìm thấy ngôn ngữ.</p>
+            <button
+              v-for="l in filteredLocales"
+              :key="l.code"
+              type="button"
+              class="lc-row"
+              :class="locale === l.code ? 'lc-row-active' : ''"
+              @click="pickLocale(l.code)"
+            >
+              <AppIcon name="solar:global-linear" size="17" class="lc-row-icon" />
+              <span class="lc-row-text">
+                <span class="lc-row-label">{{ l.label }}</span>
+                <span class="lc-row-hint">{{ l.hint }}</span>
+              </span>
+              <AppIcon v-if="locale === l.code" name="solar:check-circle-bold" size="14" class="lc-row-check" />
+            </button>
+          </div>
+
+          <div v-else class="lc-body">
+            <button
+              v-for="cu in CURRENCIES"
+              :key="cu.code"
+              type="button"
+              class="lc-row"
+              :class="currency === cu.code ? 'lc-row-active' : ''"
+              @click="pickCurrency(cu.code)"
+            >
+              <AppIcon name="solar:wallet-money-bold-duotone" size="17" class="lc-row-icon" />
+              <span class="lc-row-text">
+                <span class="lc-row-label">{{ cu.label }}</span>
+                <span class="lc-row-hint">{{ cu.hint }}</span>
+              </span>
+              <AppIcon v-if="currency === cu.code" name="solar:check-circle-bold" size="14" class="lc-row-check" />
+            </button>
+          </div>
+
+          <div class="lc-foot">
+            <span class="lc-foot-text">{{ localeSummary }}</span>
+            <PopoverClose class="lc-done">Xong</PopoverClose>
+          </div>
+        </PopoverContent>
+      </PopoverPortal>
+    </PopoverRoot>
 
     <UiThemeToggle />
 
@@ -266,3 +391,201 @@ const dropdownAvatar = computed(
     </DropdownMenuRoot>
   </header>
 </template>
+
+<style>
+.lc-pop {
+  z-index: 100;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgb(var(--border) / 0.8);
+  background: rgb(var(--background) / 0.95);
+  backdrop-filter: blur(48px);
+  -webkit-backdrop-filter: blur(48px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgb(var(--foreground) / 0.04);
+  color: rgb(var(--foreground));
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+
+.lc-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 10px 12px 0;
+}
+
+.lc-tab {
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(var(--muted-foreground));
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.lc-tab:hover {
+  background: rgb(var(--muted));
+  color: rgb(var(--foreground));
+}
+
+.lc-tab-active,
+.lc-tab-active:hover {
+  background: rgb(var(--cmstdev) / 0.1);
+  color: rgb(var(--cmstdev));
+}
+
+.lc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+
+.lc-search {
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.lc-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgb(var(--muted-foreground));
+}
+
+.lc-search input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgb(var(--border) / 0.8);
+  background: rgb(var(--muted) / 0.6);
+  padding: 8px 10px 8px 32px;
+  font-size: 13px;
+  color: rgb(var(--foreground));
+  outline: none;
+}
+
+.lc-search input::placeholder {
+  color: rgb(var(--muted-foreground));
+}
+
+.lc-search input:focus {
+  border-color: rgb(var(--cmstdev) / 0.5);
+  background: rgb(var(--background));
+}
+
+.lc-empty {
+  padding: 14px 4px;
+  text-align: center;
+  font-size: 12.5px;
+  color: rgb(var(--muted-foreground));
+}
+
+.lc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.lc-row:hover {
+  background: rgb(var(--muted));
+}
+
+.lc-row-active,
+.lc-row-active:hover {
+  background: rgb(var(--cmstdev) / 0.1);
+  color: rgb(var(--cmstdev));
+}
+
+.lc-row-icon {
+  flex-shrink: 0;
+  color: rgb(var(--muted-foreground));
+}
+
+.lc-row-active .lc-row-icon,
+.lc-row-active .lc-row-label {
+  color: rgb(var(--cmstdev));
+}
+
+.lc-row-text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.lc-row-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(var(--foreground));
+}
+
+.lc-row-hint {
+  font-size: 11.5px;
+  color: rgb(var(--muted-foreground));
+}
+
+.lc-row-check {
+  flex-shrink: 0;
+  color: rgb(var(--cmstdev));
+}
+
+.lc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid rgb(var(--border) / 0.7);
+  background: rgb(var(--muted) / 0.4);
+  padding: 10px 12px;
+}
+
+.lc-foot-text {
+  font-size: 12px;
+  color: rgb(var(--muted-foreground));
+}
+
+.lc-done {
+  border-radius: 9px;
+  background: rgb(var(--cmstdev));
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  transition: opacity 0.15s ease;
+}
+
+.lc-done:hover {
+  opacity: 0.9;
+}
+
+.lc-pop[data-state='open'] {
+  animation: lc-in 0.14s ease-out;
+}
+
+@keyframes lc-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-pop[data-state='open'] {
+    animation: none;
+  }
+}
+</style>
