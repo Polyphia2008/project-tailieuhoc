@@ -241,21 +241,23 @@ function pickFilter(key: string) {
       </div>
     </section>
 
-    <nav class="pf-tabs" role="tablist">
-      <button
-        v-for="t in TABS"
-        :key="t.key"
-        type="button"
-        role="tab"
-        :aria-selected="tab === t.key"
-        class="pf-tab"
-        :class="tab === t.key ? 'pf-tab-active' : ''"
-        @click="tab = t.key"
-      >
-        <AppIcon :name="t.icon" size="16" />
-        {{ t.label }}
-      </button>
-    </nav>
+    <div class="pf-tabs-scroll">
+      <nav class="pf-tabs" role="tablist">
+        <button
+          v-for="t in TABS"
+          :key="t.key"
+          type="button"
+          role="tab"
+          :aria-selected="tab === t.key"
+          class="pf-tab"
+          :class="tab === t.key ? 'pf-tab-active' : ''"
+          @click="tab = t.key"
+        >
+          <AppIcon :name="t.icon" size="16" />
+          {{ t.label }}
+        </button>
+      </nav>
+    </div>
 
     <div v-if="tab === 'intro'" class="mt-5 grid gap-5 md:grid-cols-5">
       <div class="space-y-5 md:col-span-2">
@@ -268,22 +270,63 @@ function pickFilter(key: string) {
 
         <article class="profile-card">
           <h2 class="pf-card-title">Thông tin cá nhân</h2>
-          <ul class="space-y-3 text-sm">
-            <li v-if="user.work" class="pf-info-row">
-              <AppIcon name="solar:buildings-2-bold-duotone" size="17" class="pf-info-icon" />
-              <span>{{ user.work }}</span>
+          <ul class="space-y-1">
+            <li v-if="user.work" class="flex items-start gap-2.5 py-1.5 text-sm">
+              <AppIcon
+                name="solar:case-bold-duotone"
+                size="18"
+                class="mt-0.5 shrink-0 text-muted-foreground"
+              />
+              <span class="min-w-0 break-words text-foreground">{{ user.work }}</span>
             </li>
-            <li v-if="user.school" class="pf-info-row">
-              <AppIcon name="solar:diploma-bold-duotone" size="17" class="pf-info-icon" />
-              <span>{{ user.school }}</span>
+            <li v-if="user.school" class="flex items-start gap-2.5 py-1.5 text-sm">
+              <AppIcon
+                name="solar:square-academic-cap-bold-duotone"
+                size="18"
+                class="mt-0.5 shrink-0 text-muted-foreground"
+              />
+              <span class="min-w-0 break-words text-foreground">{{ user.school }}</span>
             </li>
-            <li class="pf-info-row">
-              <AppIcon name="solar:user-circle-bold-duotone" size="17" class="pf-info-icon" />
-              <span class="capitalize">Vai trò: {{ user.role }}</span>
+            <li v-if="user.location" class="flex items-start gap-2.5 py-1.5 text-sm">
+              <AppIcon
+                name="solar:map-point-bold-duotone"
+                size="18"
+                class="mt-0.5 shrink-0 text-muted-foreground"
+              />
+              <span class="min-w-0 break-words text-foreground">{{ user.location }}</span>
             </li>
-            <li class="pf-info-row">
-              <AppIcon name="solar:clock-circle-bold-duotone" size="17" class="pf-info-icon" />
-              <span>Tham gia {{ ago(user.created_at) }}</span>
+            <li class="flex items-start gap-2.5 py-1.5 text-sm">
+              <AppIcon
+                name="solar:documents-bold-duotone"
+                size="18"
+                class="mt-0.5 shrink-0 text-muted-foreground"
+              />
+              <span class="min-w-0 break-words capitalize text-foreground">
+                Vai trò: <b class="font-bold">{{ user.role }}</b>
+              </span>
+            </li>
+            <li class="flex items-start gap-2.5 py-1.5 text-sm">
+              <AppIcon
+                name="solar:calendar-bold-duotone"
+                size="18"
+                class="mt-0.5 shrink-0 text-muted-foreground"
+              />
+              <span class="min-w-0 break-words text-foreground">
+                Tham gia {{ ago(user.created_at) }}
+              </span>
+            </li>
+            <li v-if="user.public_email" class="flex items-start gap-2.5 py-1.5 text-sm">
+              <AppIcon
+                name="solar:letter-bold-duotone"
+                size="18"
+                class="mt-0.5 shrink-0 text-muted-foreground"
+              />
+              <a
+                :href="`mailto:${user.public_email}`"
+                class="min-w-0 break-words font-semibold text-cmstdev-500 hover:underline"
+              >
+                {{ user.public_email }}
+              </a>
             </li>
           </ul>
 
@@ -667,20 +710,56 @@ function pickFilter(key: string) {
   color: #ef4444;
 }
 
-.pf-tabs {
+.pf-tabs-scroll {
   margin-top: 20px;
-  display: flex;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  overflow-x: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(14, 165, 233, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pf-tabs-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pf-tabs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pf-tabs-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.3);
+}
+
+.pf-tabs {
+  display: inline-flex;
+  min-width: max-content;
   gap: 4px;
-  padding: 4px;
+  padding: 3px;
   border-radius: 8px;
   background: rgb(var(--muted));
   border: 1px solid rgb(var(--border) / 0.6);
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
-.pf-tabs::-webkit-scrollbar {
-  display: none;
+.pf-tabs button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .pf-tabs-scroll {
+    margin-left: 0;
+    margin-right: 0;
+    overflow-x: visible;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
 }
 
 .pf-tab {
@@ -732,17 +811,6 @@ html.dark .profile-card {
   color: rgb(var(--muted-foreground));
 }
 
-.pf-info-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.pf-info-icon {
-  margin-top: 2px;
-  flex-shrink: 0;
-  color: #0ea5e9;
-}
 
 .pf-metrics {
   margin-top: 16px;
