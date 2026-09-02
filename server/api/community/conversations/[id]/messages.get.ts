@@ -1,6 +1,12 @@
 import { currentUser } from '~/server/utils/auth'
 import { useDriver } from '~/server/utils/driver'
-import { canRead, communityStore, messagesOf, sanitizeSender } from '~/server/utils/community'
+import {
+  canRead,
+  communityStore,
+  messagesOf,
+  replyPreviewOf,
+  sanitizeSender
+} from '~/server/utils/community'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id') as string
@@ -27,6 +33,8 @@ export default defineEventHandler(async (event) => {
     body: m.body,
     type: m.type,
     created_at: m.created_at,
+    reply_to_id: m.reply_to_id || null,
+    reply_to: replyPreviewOf(m.reply_to_id, users),
     is_self: viewer ? m.sender_id === viewer.id : false,
     sender: sanitizeSender(byId.get(m.sender_id))
   }))

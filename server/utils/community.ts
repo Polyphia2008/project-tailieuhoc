@@ -13,6 +13,7 @@ export interface CommunityMessage {
   sender_id: string
   body: string
   type: 'text' | 'system'
+  reply_to_id?: string | null
   created_at: string
   read_at?: string
 }
@@ -431,7 +432,8 @@ export function addMessage(
   conversationId: string,
   senderId: string,
   body: string,
-  type: 'text' | 'system' = 'text'
+  type: 'text' | 'system' = 'text',
+  replyToId?: string | null
 ): CommunityMessage {
   const s = communityStore()
   const rec: CommunityMessage = {
@@ -440,12 +442,45 @@ export function addMessage(
     sender_id: senderId,
     body,
     type,
+    reply_to_id: resolveReplyTarget(conversationId, replyToId),
     created_at: new Date().toISOString()
   }
   s.messages.push(rec)
   const conv = s.conversations.find((c) => c.id === conversationId)
   if (conv) conv.updated_at = rec.created_at
   return rec
+}
+
+export function resolveReplyTarget(
+  conversationId: string,
+  replyToId?: string | null
+): string | null {
+  if (!replyToId) return null
+  const found = communityStore().messages.find(
+    (m) => m.id === replyToId && m.conversation_id === conversationId
+  )
+  return found ? found.id : null
+}
+
+export function messageById(id?: string | null): CommunityMessage | null {
+  if (!id) return null
+  return communityStore().messages.find((m) => m.id === id) || null
+}
+
+export function replyPreviewOf(replyToId: string | null | undefined, users: any[]) {
+  const src = messageById(replyToId)
+  if (!src) return null
+  const author = users.find((u) => u.id === src.sender_id)
+  const p = author ? profileOf(author) : null
+  return {
+    id: src.id,
+    body: src.body.length > 180 ? `${src.body.slice(0, 180)}…` : src.body,
+    sender: {
+      id: src.sender_id,
+      name: author?.name || 'Thành viên',
+      username: p?.username || ''
+    }
+  }
 }
 
 export function markRead(conversationId: string, userId: string): number {

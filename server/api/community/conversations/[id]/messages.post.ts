@@ -1,5 +1,13 @@
 import { requireUser } from '~/server/utils/auth'
-import { addMessage, canRead, communityStore, sanitizeSender } from '~/server/utils/community'
+import { useDriver } from '~/server/utils/driver'
+import {
+  addMessage,
+  canRead,
+  communityStore,
+  replyPreviewOf,
+  resolveReplyTarget,
+  sanitizeSender
+} from '~/server/utils/community'
 
 export default defineEventHandler(async (event) => {
   const me = await requireUser(event)
@@ -12,12 +20,15 @@ export default defineEventHandler(async (event) => {
   const payload = (await readBody(event)) || {}
   const body = String(payload.body || '').trim()
   const type = payload.type === 'system' ? 'system' : 'text'
+  const rawReply = payload.reply_to_id ? String(payload.reply_to_id) : null
+  const replyToId = resolveReplyTarget(conv.id, rawReply)
 
   if (!body) throw createError({ statusCode: 400, message: 'Nội dung tin nhắn không được để trống' })
   if (body.length > 2000)
     throw createError({ statusCode: 400, message: 'Tin nhắn tối đa 2000 ký tự' })
 
-  const rec = addMessage(conv.id, me.id, body, type)
+  const rec = addMessage(conv.id, me.id, body, type, replyToId)
+  const users = (await useDriver().find<any>('users', {})).rows
 
   return {
     data: {
@@ -26,6 +37,8 @@ export default defineEventHandler(async (event) => {
       body: rec.body,
       type: rec.type,
       created_at: rec.created_at,
+      reply_to_id: rec.reply_to_id || null,
+      reply_to: replyPreviewOf(rec.reply_to_id, users),
       is_self: true,
       sender: sanitizeSender(me)
     }
