@@ -8,7 +8,7 @@ const props = defineProps<{
 const MAP: Record<string, string> = {
   home: 'solar:home-2-bold-duotone',
   dashboard: 'solar:widget-5-bold-duotone',
-  search: 'solar:magnifer-linear',
+  search: 'solar:magnifer-line-duotone',
   bell: 'solar:bell-bold-duotone',
   user: 'solar:user-circle-bold-duotone',
   users: 'solar:users-group-rounded-bold-duotone',

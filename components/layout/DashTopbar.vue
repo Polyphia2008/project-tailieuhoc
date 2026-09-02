@@ -78,7 +78,7 @@ const dropdownAvatar = computed(
     </button>
 
     <form class="relative hidden sm:block w-[220px] lg:w-[300px]" @submit.prevent="search">
-      <AppIcon name="solar:magnifer-linear" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute pointer-events-none" />
+      <AppIcon name="solar:magnifer-line-duotone" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute pointer-events-none" />
       <input v-model="term" type="search" placeholder="Tìm kiếm tài liệu..." class="mdk-search w-full pl-9 pr-14" />
       <span class="mdk-kbd absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">⌘K</span>
     </form>

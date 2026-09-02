@@ -73,7 +73,7 @@ useHead({ title: 'Giao dịch - MapDocs Admin' })
     <div class="mt-4 card overflow-hidden">
       <div class="px-4 py-3 border-b border-mdk-line flex flex-wrap items-center gap-2">
         <div class="relative flex-1 min-w-[180px] max-w-[280px]">
-          <AppIcon name="solar:magnifer-linear" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
+          <AppIcon name="solar:magnifer-line-duotone" size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-mdk-mute" />
           <input v-model="q" type="search" placeholder="Tìm theo mã đơn..." class="input h-9 pl-9 text-[13px]" @keyup.enter="page = 1; refresh()" />
         </div>
         <select v-model="method" class="input h-9 w-auto text-[13px]">

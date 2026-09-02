@@ -42,7 +42,7 @@ useHead({ title: 'Thư viện tài liệu - MapDocs' })
         <h1 class="text-[28px] sm:text-[34px] font-extrabold text-white font-ui tracking-tight">Thư viện tài liệu</h1>
         <p class="mt-2 text-[14.5px] text-zinc-400">Tìm kiếm trong {{ data?.total || 0 }} tài liệu đã kiểm duyệt</p>
         <form class="mt-6 relative max-w-[560px]" @submit.prevent="submitSearch">
-          <AppIcon name="solar:magnifer-linear" size="17" class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <AppIcon name="solar:magnifer-line-duotone" size="17" class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input v-model="q" type="search" placeholder="Tìm đề thi, chuyên đề, bài giảng..."
             class="w-full h-12 pl-11 pr-28 rounded-xl bg-white/[.07] border border-white/[.1] text-[14px] text-white placeholder:text-zinc-500 focus:border-white/25 focus:outline-none focus:ring-0" />
           <button type="submit" class="absolute right-1.5 top-1.5 h-9 px-4 rounded-lg bg-primary-600 text-white text-[13px] font-semibold hover:bg-primary-500 transition">Tìm</button>

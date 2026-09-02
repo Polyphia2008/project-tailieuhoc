@@ -27,7 +27,7 @@ useHead({ title: 'Bảng điều khiển - MapDocs Admin' })
 
     <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <DashboardStatCard label="Tổng GMV" :value="money(c.gmv)" icon="solar:dollar-minimalistic-bold-duotone" tone="blue" :spark="ch.gmv" :index="0" />
-      <DashboardStatCard label="Hoa hồng thu được" :value="money(c.commission)" icon="solar:percent-square-bold-duotone" tone="orange" :spark="ch.commission" :index="1" hint="15% mỗi giao dịch" />
+      <DashboardStatCard label="Hoa hồng thu được" :value="money(c.commission)" icon="solar:sale-square-bold-duotone" tone="orange" :spark="ch.commission" :index="1" hint="15% mỗi giao dịch" />
       <DashboardStatCard label="Người dùng" :value="num(c.users)" icon="solar:users-group-rounded-bold-duotone" tone="purple" :spark="ch.users" :index="2" :hint="`${c.sellers || 0} người bán`" to="/admin/nguoi-dung" />
       <DashboardStatCard label="Tài liệu" :value="num(c.documents_approved)" icon="solar:documents-bold-duotone" tone="green" :spark="ch.documents" :index="3" :hint="`${c.documents_pending || 0} chờ duyệt`" to="/admin/tai-lieu" />
     </div>
