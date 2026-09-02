@@ -84,7 +84,7 @@ const breakpoints = {
   padding-bottom: 2.25rem;
 }
 
-:global(html.dark) .partner-section {
+html.dark .partner-section {
   background: rgb(var(--card) / .4);
 }
 

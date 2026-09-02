@@ -383,7 +383,7 @@ watch([period, sort], load)
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-:global(html.dark) .lb-head {
+html.dark .lb-head {
   background: #18181b;
   border-color: rgba(255, 255, 255, 0.06);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
@@ -612,13 +612,13 @@ watch([period, sort], load)
   border-color: rgba(14, 165, 233, 0.4);
 }
 
-:global(html.dark) .lb-card {
+html.dark .lb-card {
   background: #18181b;
   border-color: rgba(255, 255, 255, 0.06);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
 }
 
-:global(html.dark) .lb-card-1 {
+html.dark .lb-card-1 {
   background: linear-gradient(180deg, rgba(251, 191, 36, 0.13), #18181b 42%);
   box-shadow: none;
 }
@@ -830,7 +830,7 @@ watch([period, sort], load)
   box-shadow: 0 8px 20px rgba(14, 165, 233, 0.09);
 }
 
-:global(html.dark) .lb-row {
+html.dark .lb-row {
   background: #18181b;
   border-color: rgba(255, 255, 255, 0.06);
 }
