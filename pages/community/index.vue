@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
+import {
+  DialogRoot,
+  DialogPortal,
+  DialogOverlay,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from 'radix-vue'
 
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Cộng đồng MapDocs' })
@@ -23,9 +32,17 @@ const drawerOpen = ref(false)
 const creatingGroup = ref(false)
 const listEl = ref<HTMLElement | null>(null)
 const inputEl = ref<HTMLTextAreaElement | null>(null)
+const replyingTo = ref<any>(null)
+const groupOpen = ref(false)
+const groupTitle = ref('')
+const groupSearch = ref('')
+const groupCandidates = ref<any[]>([])
+const groupLoading = ref(false)
+const groupPicked = ref<string[]>([])
 
 let poller: any = null
 let searchTimer: any = null
+let groupTimer: any = null
 
 const publicConversations = computed(() => conversations.value.filter((c) => c.kind === 'public'))
 const privateConversations = computed(() =>
@@ -167,10 +184,13 @@ async function send() {
   sending.value = true
   try {
     const res = await api.post<any>(`/api/community/conversations/${activeId.value}/messages`, {
-      body
+      body,
+      type: 'text',
+      reply_to_id: replyingTo.value?.id || null
     })
     if (res?.data) messages.value = [...messages.value, res.data]
     draft.value = ''
+    replyingTo.value = null
     nextTick(autoGrow)
     scrollToBottom(true)
     const found = conversations.value.find((c) => c.id === activeId.value)
@@ -230,26 +250,84 @@ async function openWith(user: any) {
   }
 }
 
-async function createGroup() {
+function startReply(message: any) {
+  if (!message || message.type === 'system') return
+  replyingTo.value = message
+  nextTick(() => inputEl.value?.focus())
+}
+
+function cancelReply() {
+  replyingTo.value = null
+}
+
+function replyName(message: any): string {
+  if (!message) return 'thành viên'
+  if (message.is_self || isMine(message)) return 'chính bạn'
+  return message.sender?.name || 'thành viên'
+}
+
+const groupCount = computed(() => groupPicked.value.length)
+const canCreateGroup = computed(
+  () => groupCount.value >= 2 && groupTitle.value.trim().length > 0 && !creatingGroup.value
+)
+
+function openGroupDialog() {
   if (!loggedIn.value) {
     toast.error('Bạn cần đăng nhập để tạo nhóm')
     return
   }
-  const picked = searchResults.value.slice(0, 3)
-  if (!picked.length) {
-    toast.info('Hãy tìm thành viên trước khi tạo nhóm')
-    return
+  groupTitle.value = ''
+  groupSearch.value = ''
+  groupPicked.value = []
+  drawerOpen.value = false
+  groupOpen.value = true
+  loadGroupCandidates()
+}
+
+async function loadGroupCandidates() {
+  groupLoading.value = true
+  try {
+    const res = await api.get<any>('/api/community/users/search', {
+      q: groupSearch.value.trim(),
+      limit: 20
+    })
+    const mine = auth.user?.id
+    groupCandidates.value = (res?.data?.items || []).filter((u: any) => u.id !== mine)
+  } catch {
+    groupCandidates.value = []
+  } finally {
+    groupLoading.value = false
   }
+}
+
+watch(groupSearch, () => {
+  clearTimeout(groupTimer)
+  groupTimer = setTimeout(loadGroupCandidates, 320)
+})
+
+function isPicked(id: string): boolean {
+  return groupPicked.value.includes(id)
+}
+
+function toggleGroupMember(id: string) {
+  if (!id || id === auth.user?.id) return
+  const at = groupPicked.value.indexOf(id)
+  if (at >= 0) groupPicked.value.splice(at, 1)
+  else groupPicked.value.push(id)
+}
+
+async function submitGroup() {
+  if (!canCreateGroup.value) return
   creatingGroup.value = true
   try {
-    await api.post('/api/community/conversations', {
+    const res = await api.post<any>('/api/community/conversations', {
       kind: 'group',
-      title: `Nhóm ${picked.map((p) => p.name.split(' ').slice(-1)[0]).join(', ')}`,
-      member_ids: picked.map((p) => p.id)
+      title: groupTitle.value.trim(),
+      member_ids: [...groupPicked.value]
     })
-    search.value = ''
-    searchResults.value = []
+    groupOpen.value = false
     await loadConversations()
+    if (res?.data?.id) await selectConversation(res.data.id)
     toast.success('Đã tạo nhóm trò chuyện')
   } catch (e: any) {
     toast.error(api.errMessage(e))
@@ -287,6 +365,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   stopPolling()
   clearTimeout(searchTimer)
+  clearTimeout(groupTimer)
 })
 </script>
 
@@ -376,7 +455,7 @@ onBeforeUnmount(() => {
 
           <div class="cm-side-label-row">
             <p class="cm-side-label cm-side-label-flush">Tin nhắn riêng</p>
-            <button type="button" class="cm-side-action" :disabled="creatingGroup" @click="createGroup">
+            <button type="button" class="cm-side-action" @click="openGroupDialog">
               <AppIcon name="solar:users-group-two-rounded-bold-duotone" size="14" />
               Tạo nhóm
             </button>
@@ -504,7 +583,7 @@ onBeforeUnmount(() => {
               <div v-if="showDay(i)" class="cm-day">
                 <span class="cm-day-pill">{{ dayLabelOf(m.created_at) }}</span>
               </div>
-              <div class="cm-msg" :class="isMine(m) ? 'cm-msg-mine' : ''">
+              <div :id="`cm-m-${m.id}`" class="cm-msg cm-message" :class="isMine(m) ? 'cm-msg-mine' : ''">
                 <img
                   v-if="!isMine(m)"
                   :src="avatarOf(m.sender)"
@@ -537,8 +616,22 @@ onBeforeUnmount(() => {
                             : 'cm-bubble-other'
                       "
                     >
+                      <div v-if="m.reply_to" class="cm-reply-preview">
+                        <span>{{ m.reply_to.sender?.name }}</span>
+                        <p>{{ m.reply_to.body }}</p>
+                      </div>
                       {{ m.body }}
                     </div>
+                    <button
+                      v-if="m.type !== 'system'"
+                      type="button"
+                      title="Phản hồi"
+                      aria-label="Phản hồi tin nhắn"
+                      class="cm-reply-button"
+                      @click="startReply(m)"
+                    >
+                      <AppIcon name="solar:reply-2-linear" size="16" />
+                    </button>
                     <span class="cm-time">{{ timeOf(m.created_at) }}</span>
                   </div>
                 </div>
@@ -548,6 +641,21 @@ onBeforeUnmount(() => {
         </div>
 
         <footer class="cm-composer-wrap">
+          <div v-if="replyingTo" class="cm-reply-bar">
+            <AppIcon name="solar:reply-2-linear" size="16" />
+            <div class="min-w-0 flex-1">
+              <p>Đang trả lời {{ replyName(replyingTo) }}</p>
+              <p>{{ replyingTo.body }}</p>
+            </div>
+            <button
+              type="button"
+              class="cm-reply-cancel"
+              aria-label="Hủy trả lời"
+              @click="cancelReply"
+            >
+              <AppIcon name="solar:close-circle-linear" size="16" />
+            </button>
+          </div>
           <div class="cm-composer">
             <button type="button" class="cm-icon-btn shrink-0" aria-label="Đính kèm">
               <AppIcon name="solar:gallery-add-bold-duotone" size="20" />
@@ -584,6 +692,91 @@ onBeforeUnmount(() => {
         </footer>
       </section>
     </div>
+
+    <DialogRoot v-model:open="groupOpen">
+      <DialogPortal>
+        <DialogOverlay class="cg-overlay" />
+        <DialogContent class="cg-content">
+          <div class="cg-head">
+            <span class="cg-head-icon">
+              <AppIcon name="solar:users-group-two-rounded-bold-duotone" size="20" />
+            </span>
+            <div class="min-w-0 flex-1">
+              <DialogTitle class="cg-title">Tạo nhóm chat</DialogTitle>
+              <DialogDescription class="cg-desc">
+                Chỉ có thể thêm bạn bè vào nhóm. Cần tối thiểu 2 thành viên.
+              </DialogDescription>
+            </div>
+            <DialogClose class="cg-close" aria-label="Đóng">
+              <AppIcon name="solar:close-circle-linear" size="20" />
+            </DialogClose>
+          </div>
+
+          <div class="cg-body">
+            <label class="cg-field">
+              <span class="cg-label">Tên nhóm</span>
+              <input
+                v-model="groupTitle"
+                type="text"
+                maxlength="60"
+                placeholder="Tên nhóm..."
+                class="cg-input"
+              />
+            </label>
+
+            <label class="cg-search">
+              <AppIcon name="solar:magnifer-line-duotone" size="17" class="cg-search-icon" />
+              <input v-model="groupSearch" type="text" placeholder="Tìm bạn bè..." />
+            </label>
+
+            <div class="cg-list">
+              <p v-if="groupLoading" class="cg-empty">Đang tải danh sách...</p>
+              <p v-else-if="!groupCandidates.length" class="cg-empty">
+                Không tìm thấy bạn bè phù hợp.
+              </p>
+              <button
+                v-for="u in groupCandidates"
+                :key="u.id"
+                type="button"
+                class="cg-row"
+                :class="isPicked(u.id) ? 'cg-row-active' : ''"
+                :aria-pressed="isPicked(u.id)"
+                @click="toggleGroupMember(u.id)"
+              >
+                <img :src="avatarOf(u)" :alt="u.name" class="cg-avatar" />
+                <span class="min-w-0 flex-1 text-left">
+                  <span class="cg-name">
+                    {{ u.name }}
+                    <AppIcon
+                      v-if="u.verified"
+                      name="solar:verified-check-bold"
+                      size="13"
+                      class="text-cmstdev-500"
+                    />
+                  </span>
+                  <span class="cg-username">@{{ u.username }}</span>
+                </span>
+                <span class="cg-check" :class="isPicked(u.id) ? 'cg-check-on' : ''">
+                  <AppIcon v-if="isPicked(u.id)" name="solar:check-circle-bold" size="16" />
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="cg-foot">
+            <DialogClose class="cg-btn cg-btn-ghost">Hủy</DialogClose>
+            <button
+              type="button"
+              class="cg-btn cg-btn-primary"
+              :disabled="!canCreateGroup"
+              @click="submitGroup"
+            >
+              Tạo nhóm ({{ groupCount }})
+            </button>
+          </div>
+        </DialogContent>
+      </DialogPortal>
+    </DialogRoot>
   </div>
 </template>
 
@@ -1272,6 +1465,114 @@ html.dark .cm-online {
   color: rgb(var(--muted-foreground));
 }
 
+.cm-reply-button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  color: rgb(var(--muted-foreground));
+  opacity: 0;
+  transition:
+    opacity 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.cm-message:hover .cm-reply-button,
+.cm-reply-button:focus-visible {
+  opacity: 1;
+}
+
+.cm-reply-button:hover {
+  background: rgb(var(--muted));
+  color: #0ea5e9;
+}
+
+.cm-reply-preview {
+  margin-bottom: 5px;
+  border-left: 2px solid #0ea5e9;
+  border-radius: 5px;
+  background: rgb(var(--background) / 0.35);
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+.cm-bubble-mine .cm-reply-preview {
+  border-left-color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.cm-reply-preview span {
+  display: block;
+  color: #0ea5e9;
+  font-weight: 700;
+}
+
+.cm-bubble-mine .cm-reply-preview span {
+  color: #ffffff;
+}
+
+.cm-reply-preview p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(var(--muted-foreground));
+}
+
+.cm-bubble-mine .cm-reply-preview p {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cm-reply-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 8px;
+  border-top: 1px solid rgb(var(--border));
+  border-radius: 12px;
+  background: rgb(var(--muted) / 0.4);
+  padding: 0.5rem 1rem;
+}
+
+.cm-reply-bar > svg {
+  flex-shrink: 0;
+  color: #0ea5e9;
+}
+
+.cm-reply-bar p:first-child {
+  color: #0ea5e9;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cm-reply-bar p:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(var(--muted-foreground));
+  font-size: 12px;
+}
+
+.cm-reply-cancel {
+  display: grid;
+  height: 26px;
+  width: 26px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  color: rgb(var(--muted-foreground));
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.cm-reply-cancel:hover {
+  background: rgb(var(--muted));
+  color: rgb(var(--foreground));
+}
+
 .cm-composer-wrap {
   flex-shrink: 0;
   padding: 10px 14px 14px;
@@ -1442,6 +1743,308 @@ html.dark .cm-online {
 
   .cm-composer-wrap {
     padding: 12px 22px 18px;
+  }
+}
+</style>
+
+<style>
+.cg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  animation: cg-fade 0.18s ease;
+}
+
+.cg-content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 100;
+  display: flex;
+  max-height: min(88dvh, 640px);
+  width: min(calc(100vw - 24px), 480px);
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--card));
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+  animation: cg-pop 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cg-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 16px;
+  border-bottom: 1px solid rgb(var(--border));
+}
+
+.cg-head-icon {
+  display: inline-flex;
+  height: 38px;
+  width: 38px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(14, 165, 233, 0.12);
+  color: #0ea5e9;
+}
+
+.cg-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgb(var(--foreground));
+}
+
+.cg-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgb(var(--muted-foreground));
+}
+
+.cg-close {
+  display: grid;
+  height: 30px;
+  width: 30px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 8px;
+  color: rgb(var(--muted-foreground));
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.cg-close:hover {
+  background: rgb(var(--muted));
+  color: rgb(var(--foreground));
+}
+
+.cg-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.cg-field {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.cg-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgb(var(--muted-foreground));
+}
+
+.cg-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--background));
+  font-size: 13.5px;
+  color: rgb(var(--foreground));
+  outline: none;
+  transition: border-color 0.16s ease;
+}
+
+.cg-input:focus {
+  border-color: #0ea5e9;
+}
+
+.cg-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cg-search-icon {
+  position: absolute;
+  left: 12px;
+  pointer-events: none;
+  color: rgb(var(--muted-foreground));
+}
+
+.cg-search input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 36px;
+  border-radius: 9999px;
+  border: 1px solid rgb(var(--border));
+  background: rgb(var(--muted) / 0.5);
+  font-size: 13px;
+  color: rgb(var(--foreground));
+  outline: none;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.cg-search input:focus {
+  border-color: #0ea5e9;
+  background: rgb(var(--background));
+}
+
+.cg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cg-empty {
+  padding: 14px 6px;
+  font-size: 12.5px;
+  color: rgb(var(--muted-foreground));
+}
+
+.cg-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  transition: background-color 0.16s ease;
+}
+
+.cg-row:hover {
+  background: rgb(var(--muted) / 0.7);
+}
+
+.cg-row-active {
+  background: rgba(14, 165, 233, 0.1);
+}
+
+.cg-avatar {
+  height: 38px;
+  width: 38px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: rgb(var(--muted));
+}
+
+.cg-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgb(var(--foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cg-username {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: rgb(var(--muted-foreground));
+}
+
+.cg-check {
+  display: grid;
+  height: 22px;
+  width: 22px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1.5px solid rgb(var(--border));
+  color: #ffffff;
+}
+
+.cg-check-on {
+  border-color: #0ea5e9;
+  background: #0ea5e9;
+}
+
+.cg-foot {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgb(var(--border));
+  background: rgb(var(--muted) / 0.3);
+}
+
+.cg-btn {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    opacity 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.cg-btn-ghost {
+  background: rgb(var(--muted));
+  color: rgb(var(--foreground));
+}
+
+.cg-btn-ghost:hover {
+  opacity: 0.85;
+}
+
+.cg-btn-primary {
+  background: #0ea5e9;
+  color: #ffffff;
+}
+
+.cg-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.cg-btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@keyframes cg-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cg-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-overlay,
+  .cg-content {
+    animation: none;
   }
 }
 </style>
